@@ -1,0 +1,14 @@
+[
+  {
+    "orderCode": 600300878,
+    "status": "PENDING",
+    "productId": "prompt-008-chatbot-tao-anh-san-pham-chuyen-nghiep-tu-dong",
+    "productTitle": "Chatbot tạo ảnh sản phẩm chuyên nghiệp tự động",
+    "promptUrl": "https://gemini.google.com/gem/1Du6OsUf2FES9wSB3U-8e3DOZuKKosyp_?usp=sharing",
+    "amount": 69000,
+    "buyerEmail": "codex-test@example.com",
+    "buyerName": "Codex Test",
+    "buyerPhone": "0900000000",
+    "createdAt": "2026-06-04T19:11:40.878Z"
+  }
+]
