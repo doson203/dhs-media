@@ -54,7 +54,7 @@ function renderVideoProducts(site) {
   const products = site.videoProducts || [];
   byId("videoProductGrid").innerHTML = products.map((item, index) => `
     <article class="video-product-card">
-      <button class="video-thumb-button" data-video-index="${index}" type="button" aria-label="Xem ${escapeAttr(item.title)}">
+      <button class="video-thumb-button" data-video-index="${index}" data-preview-index="${index}" type="button" aria-label="Xem ${escapeAttr(item.title)}">
         <img src="${escapeAttr(item.thumbnail || "/assets/app-preview.svg")}" alt="${escapeAttr(item.title)}">
         <span class="play-mark">▶</span>
         <span class="sale-badge">${escapeHtml(item.category || "Prompt AI")}</span>
@@ -80,6 +80,19 @@ function renderVideoProducts(site) {
 
   document.querySelectorAll("[data-video-index]").forEach((button) => {
     button.addEventListener("click", () => openVideoModal(products[Number(button.dataset.videoIndex)]));
+  });
+  document.querySelectorAll("[data-preview-index]").forEach((button) => {
+    let timer = null;
+    const item = products[Number(button.dataset.previewIndex)];
+    button.addEventListener("mouseenter", () => {
+      timer = window.setTimeout(() => showHoverPreview(button, item), 160);
+    });
+    button.addEventListener("mouseleave", () => {
+      window.clearTimeout(timer);
+      hideHoverPreview(button);
+    });
+    button.addEventListener("focus", () => showHoverPreview(button, item));
+    button.addEventListener("blur", () => hideHoverPreview(button));
   });
 }
 
@@ -189,6 +202,7 @@ function openVideoModal(item) {
   if (!item) return;
   byId("videoTitle").textContent = item.title || "Video sản phẩm";
   byId("videoDesc").textContent = item.description || "";
+  byId("videoPlayer").className = `video-player ${isPortraitVideo(item.videoUrl) ? "portrait" : "landscape"}`;
   byId("videoPlayer").innerHTML = videoEmbed(item.videoUrl, item.thumbnail);
   byId("videoBuyBtn").onclick = () => {
     byId("videoModal").hidden = true;
@@ -204,12 +218,43 @@ function videoEmbed(url, thumbnail) {
   }
   const youtubeId = getYouTubeId(cleanUrl);
   if (youtubeId) {
-    return `<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="Video sản phẩm" allowfullscreen></iframe>`;
+    return `<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}?rel=0&playsinline=1" title="Video sản phẩm" allowfullscreen></iframe>`;
   }
   if (/\.(mp4|webm|ogg)(\?|$)/i.test(cleanUrl)) {
-    return `<video src="${escapeAttr(cleanUrl)}" controls poster="${escapeAttr(thumbnail || "")}"></video>`;
+    return `<video src="${escapeAttr(cleanUrl)}" controls playsinline preload="metadata" poster="${escapeAttr(thumbnail || "")}"></video>`;
   }
   return `<iframe src="${escapeAttr(cleanUrl)}" title="Video sản phẩm" allowfullscreen></iframe>`;
+}
+
+function hoverPreviewEmbed(item) {
+  const cleanUrl = String(item?.videoUrl || "").trim();
+  if (!cleanUrl) return "";
+  const youtubeId = getYouTubeId(cleanUrl);
+  if (youtubeId) {
+    return `<iframe class="hover-preview" src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${escapeAttr(youtubeId)}&playsinline=1&rel=0" title="Preview" allow="autoplay; encrypted-media; picture-in-picture" tabindex="-1"></iframe>`;
+  }
+  if (/\.(mp4|webm|ogg)(\?|$)/i.test(cleanUrl)) {
+    return `<video class="hover-preview" src="${escapeAttr(cleanUrl)}" muted autoplay loop playsinline preload="metadata"></video>`;
+  }
+  return "";
+}
+
+function showHoverPreview(button, item) {
+  if (!button || button.querySelector(".hover-preview")) return;
+  const markup = hoverPreviewEmbed(item);
+  if (!markup) return;
+  button.insertAdjacentHTML("beforeend", markup);
+  button.classList.add("is-previewing");
+}
+
+function hideHoverPreview(button) {
+  if (!button) return;
+  button.classList.remove("is-previewing");
+  button.querySelectorAll(".hover-preview").forEach((node) => node.remove());
+}
+
+function isPortraitVideo(url) {
+  return /youtube\.com\/shorts\//i.test(String(url || ""));
 }
 
 function getYouTubeId(url) {
@@ -263,14 +308,53 @@ function saveCustomer(customer) {
 }
 
 async function sendLead(customer) {
-  saveCustomer(customer);
+  const lead = stripPrivateCustomer(customer);
+  saveCustomer(lead);
   try {
     await fetch("/api/leads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(customer)
+      body: JSON.stringify(lead)
     });
   } catch {}
+}
+
+async function registerAccount(customer) {
+  saveCustomer(customer);
+  try {
+    const res = await fetch("/api/accounts/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(customer)
+    });
+    if (res.ok) return await res.json();
+  } catch {}
+  await sendLead(customer);
+  return { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) };
+}
+
+async function loginAccount(email, password) {
+  try {
+    const res = await fetch("/api/accounts/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    if (res.ok) return await res.json();
+  } catch {}
+  const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
+  const customer = customers.find((item) => item.email === email && item.password === password);
+  return customer ? { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) } : { ok: false };
+}
+
+function stripPrivateCustomer(customer) {
+  return {
+    name: String(customer?.name || ""),
+    email: String(customer?.email || "").toLowerCase(),
+    phone: String(customer?.phone || ""),
+    interest: String(customer?.interest || ""),
+    source: String(customer?.source || "customer")
+  };
 }
 
 function byId(id) {
@@ -335,25 +419,32 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
     password: String(form.get("password") || ""),
     source: "account"
   };
-  await sendLead(customer);
+  const result = await registerAccount(customer);
+  if (!result?.ok) {
+    byId("authMessage").textContent = "Chưa đăng ký được tài khoản. Vui lòng thử lại.";
+    return;
+  }
   localStorage.setItem("dhsCurrentCustomer", customer.email);
-  byId("authMessage").textContent = "Đăng ký thành công. Thông tin đã được ghi nhận trên thiết bị này.";
   event.currentTarget.reset();
+  setAuthTab("login");
+  byId("loginForm").querySelector('[name="email"]').value = customer.email;
+  byId("authMessage").textContent = "Đăng ký thành công. Bạn có thể đăng nhập bằng tài khoản vừa tạo.";
 });
 
-byId("loginForm")?.addEventListener("submit", (event) => {
+byId("loginForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
   const email = String(form.get("email") || "").toLowerCase();
   const password = String(form.get("password") || "");
-  const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
-  const customer = customers.find((item) => item.email === email && item.password === password);
-  if (!customer) {
-    byId("authMessage").textContent = "Chưa có tài khoản trên thiết bị này. Hãy đăng ký trước.";
+  const result = await loginAccount(email, password);
+  if (!result?.ok) {
+    byId("authMessage").textContent = "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước.";
     return;
   }
+  const customer = result.customer || { email };
+  saveCustomer({ ...customer, password });
   localStorage.setItem("dhsCurrentCustomer", email);
-  byId("authMessage").textContent = `Xin chào ${customer.name || email}.`;
+  byId("authMessage").textContent = "Xin chào " + (customer.name || email) + ".";
 });
 
 function normalizeText(value) {

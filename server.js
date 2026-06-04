@@ -11,6 +11,7 @@ const dataDir = path.join(rootDir, "data");
 const uploadDir = path.join(rootDir, "uploads");
 const sitePath = path.join(dataDir, "site.json");
 const leadsPath = path.join(dataDir, "leads.json");
+const accountsPath = path.join(dataDir, "accounts.json");
 
 const PORT = Number(process.env.PORT || 8080);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -49,6 +50,32 @@ app.post("/api/leads", async (req, res) => {
   if (!lead.email) return res.status(400).json({ ok: false, message: "Thieu email" });
   await appendLead(lead);
   res.json({ ok: true });
+});
+
+app.post("/api/accounts/register", async (req, res) => {
+  const account = normalizeAccount(req.body || {});
+  if (!account.email || !account.password) {
+    return res.status(400).json({ ok: false, message: "Thieu email hoac mat khau" });
+  }
+  const saved = await saveAccount(account);
+  await appendLead({
+    name: saved.name,
+    email: saved.email,
+    phone: saved.phone,
+    interest: "Tai khoan khach hang",
+    source: "account"
+  });
+  res.json({ ok: true, customer: publicAccount(saved) });
+});
+
+app.post("/api/accounts/login", async (req, res) => {
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  const password = String(req.body?.password || "");
+  const account = await findAccount(email);
+  if (!account || !verifyPassword(password, account.passwordHash)) {
+    return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
+  }
+  res.json({ ok: true, customer: publicAccount(account) });
 });
 
 app.post("/api/login", async (req, res) => {
@@ -238,6 +265,81 @@ function normalizeLead(value) {
     interest: String(value.interest || "").slice(0, 160),
     source: String(value.source || "website").slice(0, 80)
   };
+}
+
+async function readAccounts() {
+  try {
+    return array(JSON.parse(await fs.readFile(accountsPath, "utf8"))).map((account) => ({
+      name: String(account.name || ""),
+      email: String(account.email || "").trim().toLowerCase(),
+      phone: String(account.phone || ""),
+      passwordHash: String(account.passwordHash || ""),
+      createdAt: String(account.createdAt || ""),
+      updatedAt: String(account.updatedAt || "")
+    })).filter((account) => account.email && account.passwordHash);
+  } catch {
+    return [];
+  }
+}
+
+async function writeAccounts(accounts) {
+  await fs.mkdir(dataDir, { recursive: true });
+  await fs.writeFile(accountsPath, JSON.stringify(accounts, null, 2), "utf8");
+}
+
+async function findAccount(email) {
+  const accounts = await readAccounts();
+  return accounts.find((account) => account.email === String(email || "").trim().toLowerCase());
+}
+
+async function saveAccount(account) {
+  const accounts = await readAccounts();
+  const now = new Date().toISOString();
+  const existing = accounts.find((item) => item.email === account.email);
+  const saved = {
+    name: account.name,
+    email: account.email,
+    phone: account.phone,
+    passwordHash: hashPassword(account.password),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now
+  };
+  const next = existing
+    ? accounts.map((item) => item.email === account.email ? saved : item)
+    : [...accounts, saved];
+  await writeAccounts(next);
+  return saved;
+}
+
+function normalizeAccount(value) {
+  return {
+    name: String(value.name || "").trim().slice(0, 120),
+    email: String(value.email || "").trim().toLowerCase().slice(0, 160),
+    phone: String(value.phone || "").trim().slice(0, 80),
+    password: String(value.password || "").slice(0, 200)
+  };
+}
+
+function publicAccount(account) {
+  return {
+    name: account.name,
+    email: account.email,
+    phone: account.phone
+  };
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(String(password || ""), salt, 64).toString("hex");
+  return `scrypt:${salt}:${hash}`;
+}
+
+function verifyPassword(password, encoded) {
+  const parts = String(encoded || "").split(":");
+  if (parts.length !== 3 || parts[0] !== "scrypt") return false;
+  const [, salt, expected] = parts;
+  const actual = crypto.scryptSync(String(password || ""), salt, 64).toString("hex");
+  return expected.length === actual.length && crypto.timingSafeEqual(Buffer.from(actual, "hex"), Buffer.from(expected, "hex"));
 }
 
 function signToken(value) {

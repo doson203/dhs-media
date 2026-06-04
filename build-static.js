@@ -56,6 +56,46 @@ app.post("/api/leads", async (req, res) => {
   res.json({ ok: true, storage: "github" });
 });
 
+app.post("/api/accounts/register", async (req, res) => {
+  const account = normalizeAccount(req.body || {});
+  if (!account.email || !account.password) {
+    return res.status(400).json({ ok: false, message: "Thieu email hoac mat khau" });
+  }
+  if (!GITHUB_TOKEN) return res.json({ ok: true, storage: "browser-only", customer: publicAccount(account) });
+  const accounts = await readRepoJson("data/accounts.json", []);
+  const now = new Date().toISOString();
+  const existing = array(accounts).find((item) => String(item.email || "").toLowerCase() === account.email);
+  const saved = {
+    name: account.name,
+    email: account.email,
+    phone: account.phone,
+    passwordHash: hashPassword(account.password),
+    createdAt: existing?.createdAt || now,
+    updatedAt: now
+  };
+  const nextAccounts = existing
+    ? array(accounts).map((item) => String(item.email || "").toLowerCase() === account.email ? saved : item)
+    : [...array(accounts), saved];
+  await writeRepoJson("data/accounts.json", nextAccounts, "Update customer accounts");
+  const leads = await readRepoJson("data/leads.json", []);
+  const filtered = array(leads).filter((item) => item.email !== saved.email);
+  filtered.push({ name: saved.name, email: saved.email, phone: saved.phone, interest: "Tai khoan khach hang", source: "account", createdAt: now });
+  await writeRepoJson("data/leads.json", filtered, "Update customer leads");
+  res.json({ ok: true, storage: "github", customer: publicAccount(saved) });
+});
+
+app.post("/api/accounts/login", async (req, res) => {
+  const email = String(req.body?.email || "").trim().toLowerCase();
+  const password = String(req.body?.password || "");
+  if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Tai khoan online chua duoc cau hinh storage" });
+  const accounts = await readRepoJson("data/accounts.json", []);
+  const account = array(accounts).find((item) => String(item.email || "").toLowerCase() === email);
+  if (!account || !verifyPassword(password, account.passwordHash)) {
+    return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
+  }
+  res.json({ ok: true, customer: publicAccount(account) });
+});
+
 app.post("/api/login", (req, res) => {
   if (String(req.body?.password || "") !== ADMIN_PASSWORD) {
     return res.status(401).json({ ok: false, message: "Sai mật khẩu" });
@@ -201,6 +241,37 @@ function normalizeLead(value) {
     interest: String(value.interest || "").slice(0, 160),
     source: String(value.source || "website").slice(0, 80)
   };
+}
+
+function normalizeAccount(value) {
+  return {
+    name: String(value.name || "").trim().slice(0, 120),
+    email: String(value.email || "").trim().toLowerCase().slice(0, 160),
+    phone: String(value.phone || "").trim().slice(0, 80),
+    password: String(value.password || "").slice(0, 200)
+  };
+}
+
+function publicAccount(account) {
+  return {
+    name: String(account.name || ""),
+    email: String(account.email || ""),
+    phone: String(account.phone || "")
+  };
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(String(password || ""), salt, 64).toString("hex");
+  return "scrypt:" + salt + ":" + hash;
+}
+
+function verifyPassword(password, encoded) {
+  const parts = String(encoded || "").split(":");
+  if (parts.length !== 3 || parts[0] !== "scrypt") return false;
+  const expected = parts[2];
+  const actual = crypto.scryptSync(String(password || ""), parts[1], 64).toString("hex");
+  return expected.length === actual.length && crypto.timingSafeEqual(Buffer.from(actual, "hex"), Buffer.from(expected, "hex"));
 }
 
 function signToken(value) {
