@@ -73,6 +73,20 @@ app.get("/api/admin/leads", requireAdmin, async (_req, res) => {
   res.json(await readLeads());
 });
 
+app.get("/api/admin/status", requireAdmin, (_req, res) => {
+  res.json({
+    ok: true,
+    mode: "local-node",
+    siteStorage: "data/site.json",
+    leadsStorage: "data/leads.json",
+    uploadStorage: "uploads/",
+    canSaveSite: true,
+    canSaveLeads: true,
+    canUpload: true,
+    message: "Admin local dang luu truc tiep tren may chu Node."
+  });
+});
+
 app.put("/api/admin/site", requireAdmin, async (req, res) => {
   const clean = normalizeSite(req.body || {});
   await writeSite(clean);

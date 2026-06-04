@@ -1,5 +1,6 @@
 let site = null;
 let leads = [];
+let adminStatus = null;
 let activeTab = "general";
 
 const panels = () => Array.from(document.querySelectorAll("[data-panel]"));
@@ -19,6 +20,7 @@ async function boot() {
   const res = await fetch("/api/admin/site");
   if (res.status === 401) return;
   site = await res.json();
+  await loadAdminStatus();
   await loadLeads();
   showAdmin();
 }
@@ -35,8 +37,14 @@ async function login() {
     return;
   }
   site = await fetch("/api/admin/site").then((r) => r.json());
+  await loadAdminStatus();
   await loadLeads();
   showAdmin();
+}
+
+async function loadAdminStatus() {
+  const res = await fetch("/api/admin/status");
+  adminStatus = res.ok ? await res.json() : null;
 }
 
 async function loadLeads() {
@@ -85,6 +93,7 @@ function renderAll() {
 function renderGeneral() {
   panel("general").innerHTML = `
     <h1>Thông tin chung</h1>
+    ${renderAdminStatus()}
     <div class="form-grid">
       ${input("brand.name", "Tên thương hiệu")}
       ${input("brand.logoText", "Chữ logo ngắn")}
@@ -102,6 +111,23 @@ function renderGeneral() {
     </div>
   `;
   bindInputs(panel("general"));
+}
+
+function renderAdminStatus() {
+  if (!adminStatus) return "";
+  const good = adminStatus.canSaveSite && adminStatus.canSaveLeads;
+  return `
+    <div class="admin-item">
+      <strong>${good ? "Trạng thái lưu dữ liệu: OK" : "Trạng thái lưu dữ liệu: Cần cấu hình thêm"}</strong>
+      <p class="notice">
+        Chế độ: <code>${escapeHtml(adminStatus.mode || "-")}</code><br>
+        Cấu hình web: <code>${escapeHtml(adminStatus.siteStorage || "-")}</code><br>
+        Khách đăng ký: <code>${escapeHtml(adminStatus.leadsStorage || "-")}</code><br>
+        Upload file: <code>${escapeHtml(adminStatus.uploadStorage || "-")}</code><br>
+        ${escapeHtml(adminStatus.message || "")}
+      </p>
+    </div>
+  `;
 }
 
 function renderApps() {

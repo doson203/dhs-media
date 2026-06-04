@@ -55,7 +55,35 @@ Khi import len Vercel:
 - Output Directory: `dist`
 - Install Command: `npm install`
 
-Luu y: admin upload truc tiep khong luu ben vung tren Vercel neu chua tich hop Vercel Blob/Cloudflare R2. Ban public tren Vercel nen cap nhat bang cach sua `data/site.json`, build lai va push Git.
+Luu y: neu muon admin online tren Vercel bam `Luu thay doi` va cap nhat noi dung that, hay cau hinh them `GITHUB_TOKEN` nhu muc ben duoi. Upload file lon online van nen dung link ngoai nhu YouTube, Google Drive, Vercel Blob, Supabase Storage hoac Cloudflare R2.
+
+## Admin online tren Vercel
+
+Sau khi deploy len Vercel, vao `Project Settings` -> `Environment Variables` va them:
+
+```text
+ADMIN_PASSWORD=mat-khau-admin-cua-ban
+SESSION_SECRET=chuoi-bi-mat-dai-ngau-nhien
+GITHUB_TOKEN=token-github-co-quyen-contents-read-write
+GITHUB_OWNER=doson203
+GITHUB_REPO=dhs-media
+GITHUB_BRANCH=main
+```
+
+Cach tao `GITHUB_TOKEN`:
+
+1. Vao GitHub -> Settings -> Developer settings -> Personal access tokens -> Fine-grained tokens.
+2. Chon repo `dhs-media`.
+3. Cap quyen `Contents: Read and write`.
+4. Copy token va dan vao bien `GITHUB_TOKEN` tren Vercel.
+5. Redeploy lai project tren Vercel.
+
+Khi da co `GITHUB_TOKEN`, cac thao tac sau se luu len repo:
+
+- Sua tool reup, video/prompt AI, workflow, FAQ, lien he trong `/admin`.
+- Khach dang ky tren web duoc ghi vao `data/leads.json`.
+
+Neu chua co `GITHUB_TOKEN`, web public van chay binh thuong nhung admin online chi doc du lieu mau, khong luu thay doi ben vung.
 
 ## Day len GitHub
 

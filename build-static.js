@@ -90,6 +90,23 @@ app.get("/api/admin/leads", requireAdmin, async (_req, res) => {
   res.json(await readRepoJson("data/leads.json", []));
 });
 
+app.get("/api/admin/status", requireAdmin, (_req, res) => {
+  res.json({
+    ok: true,
+    mode: "vercel",
+    siteStorage: GITHUB_TOKEN ? "GitHub data/site.json" : "bundled site.json",
+    leadsStorage: GITHUB_TOKEN ? "GitHub data/leads.json" : "browser-only",
+    uploadStorage: "external-link",
+    canSaveSite: Boolean(GITHUB_TOKEN),
+    canSaveLeads: Boolean(GITHUB_TOKEN),
+    canUpload: false,
+    missing: GITHUB_TOKEN ? [] : ["GITHUB_TOKEN"],
+    message: GITHUB_TOKEN
+      ? "Admin online da co GitHub storage de luu cau hinh va khach dang ky."
+      : "Admin online dang thieu GITHUB_TOKEN nen chi xem duoc du lieu mau; chua luu thay doi len web."
+  });
+});
+
 app.post("/api/admin/upload", requireAdmin, (_req, res) => {
   res.status(501).json({
     ok: false,
