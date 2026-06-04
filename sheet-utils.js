@@ -24,16 +24,16 @@ async function readSheetSite(baseSite, options = {}) {
   }
 
   const appRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.apps, fetcher);
-  if (appRows.length) site.apps = appRows.map(mapAppRow).filter(Boolean);
+  if (appRows.length) site.apps = appRows.filter(isActiveRow).map(mapAppRow).filter(Boolean);
 
   const workflowRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.workflows, fetcher);
-  if (workflowRows.length) site.workflows = workflowRows.map(mapWorkflowRow).filter(Boolean);
+  if (workflowRows.length) site.workflows = workflowRows.filter(isActiveRow).map(mapWorkflowRow).filter(Boolean);
 
   const demoRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.demos, fetcher);
-  if (demoRows.length) site.demos = demoRows.map(mapDemoRow).filter(Boolean);
+  if (demoRows.length) site.demos = demoRows.filter(isActiveRow).map(mapDemoRow).filter(Boolean);
 
   const faqRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.faq, fetcher);
-  if (faqRows.length) site.faq = faqRows.map(mapFaqRow).filter(Boolean);
+  if (faqRows.length) site.faq = faqRows.filter(isActiveRow).map(mapFaqRow).filter(Boolean);
 
   return site;
 }
@@ -58,7 +58,7 @@ async function readSheetRows(sheetId, sheetName, fetcher = fetch) {
 
 function splitProductRows(rows) {
   const grouped = { videoProducts: [], apps: [], workflows: [] };
-  rows.forEach((row, index) => {
+  rows.filter(isActiveRow).forEach((row, index) => {
     const type = normalizeKey(cell(row, ["type", "loai", "loại", "nhom", "nhóm"]));
     if (type.includes("tool") || type.includes("app") || type.includes("phanmem") || type.includes("software")) {
       const app = mapAppRow(row, index);
@@ -222,6 +222,13 @@ function cell(row, aliases) {
     if (value) return String(value).trim();
   }
   return "";
+}
+
+function isActiveRow(row) {
+  const value = cell(row, ["active", "show", "visible", "hien", "hienthi", "status"]);
+  const normalized = normalizeKey(value);
+  if (!normalized) return true;
+  return !["false", "0", "no", "off", "hide", "hidden", "an", "taman", "tat", "inactive", "disabled"].includes(normalized);
 }
 
 function normalizeKey(value) {
