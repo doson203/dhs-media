@@ -260,7 +260,12 @@ function isPortraitVideo(url) {
 function getVideoPlayerMode(item) {
   const url = String(item?.videoUrl || "").trim();
   if (!url) return "placeholder";
+  if (isVideoFile(url)) return "video-file";
   return isPortraitVideo(url) ? "portrait" : "landscape";
+}
+
+function isVideoFile(url) {
+  return /\.(mp4|webm|ogg)(\?|$)/i.test(String(url || ""));
 }
 
 function getYouTubeId(url) {

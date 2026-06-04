@@ -499,7 +499,17 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
 }
 .video-player.placeholder {
   aspect-ratio: auto;
-  min-height: 220px;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  background: transparent;
+}
+.video-player.video-file {
+  aspect-ratio: auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  background: transparent;
 }
 .video-player iframe, .video-player video, .video-player .video-placeholder {
   width: 100%;
@@ -508,22 +518,36 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   background: #0f172a;
   object-fit: contain;
 }
+.video-player.video-file video {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(62vh, 520px);
+  margin: 0 auto;
+  border-radius: 16px;
+  background: #0f172a;
+}
 .video-player video { background: #0f172a; }
 .video-placeholder {
   position: relative;
   display: grid;
   place-items: center;
+  width: 100%;
   color: #ffffff;
   font-weight: 950;
   text-align: center;
+  background: transparent;
 }
 .video-placeholder img {
+  display: block;
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: min(48vh, 340px);
+  max-height: min(62vh, 520px);
   object-fit: contain;
-  opacity: 0.54;
+  opacity: 1;
+  border-radius: 16px;
 }
 .video-placeholder span {
   position: absolute;
