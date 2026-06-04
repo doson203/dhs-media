@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DHS MEDIA - Kho tool reup video</title>
-  <meta name="description" content="Kho tool automation, reup video, TTS va workflow cho nguoi ban hang online.">
+  <meta name="description" content="Kho tool automation, reup video, TTS và workflow cho người bán hàng online.">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -14,151 +14,161 @@
       <strong id="brandName">DHS MEDIA</strong>
     </a>
     <nav class="main-nav">
-      <a href="#featured">Noi bat</a>
-      <a href="#apps">Tool</a>
-      <a href="#workflow">Workflow</a>
-      <a href="#demo">Demo</a>
-      <a href="#contact">Lien he</a>
+      <button class="nav-tab active" data-view="home">Trang chủ</button>
+      <button class="nav-tab" data-view="apps">Sản phẩm</button>
+      <button class="nav-tab" data-view="workflow">Quy trình</button>
+      <button class="nav-tab" data-view="demo">Demo</button>
+      <button class="nav-tab" data-view="account">Tài khoản</button>
     </nav>
     <div class="header-actions">
-      <button class="link-btn" data-auth-open="login">Dang nhap</button>
-      <button class="btn small primary" data-auth-open="register">Dang ky</button>
+      <button class="link-btn" data-auth-open="login">Đăng nhập</button>
+      <button class="btn small primary" data-auth-open="register">Đăng ký</button>
     </div>
   </header>
 
   <main>
-    <section class="hero marketplace-hero">
-      <div class="hero-copy">
-        <p class="eyebrow" id="heroEyebrow"></p>
-        <h1 id="heroTitle"></h1>
-        <p id="heroDescription"></p>
-        <form class="search-box" id="searchForm">
-          <input id="productSearch" type="search" placeholder="Tim tool reup, TTS, auto video, key app...">
-          <button class="btn primary" type="submit">Tim kiem</button>
-        </form>
-        <div class="hero-actions compact-actions">
-          <a class="pill active" href="#featured">Tool hot</a>
-          <a class="pill" href="#apps">App ban quyen</a>
-          <a class="pill" href="#workflow">Workflow</a>
-          <a class="pill" href="#demo">Video demo</a>
+    <section class="view-section active" data-view-section="home">
+      <div class="hero marketplace-hero">
+        <div class="hero-copy">
+          <p class="eyebrow" id="heroEyebrow"></p>
+          <h1 id="heroTitle"></h1>
+          <p id="heroDescription"></p>
+          <form class="search-box" id="searchForm">
+            <input id="productSearch" type="search" placeholder="Tìm tool reup, TTS, auto video, key app...">
+            <button class="btn primary" type="submit">Tìm kiếm</button>
+          </form>
+          <div class="hero-actions compact-actions">
+            <button class="pill active" data-view="apps">Tool hot</button>
+            <button class="pill" data-view="apps">App bản quyền</button>
+            <button class="pill" data-view="workflow">Workflow</button>
+            <button class="pill" data-view="demo">Video demo</button>
+          </div>
         </div>
+        <aside class="hero-panel">
+          <div class="panel-top">
+            <span>Sản phẩm mới</span>
+            <strong>Bản quyền DHS</strong>
+          </div>
+          <img id="heroImage" src="/assets/app-preview.svg" alt="DHS MEDIA preview">
+          <div class="deal-card">
+            <span>Gói khuyến nghị</span>
+            <strong>DHS MEDIA REUP TOOL</strong>
+            <p>Phù hợp người bán hàng cần cào video, tạo voice, render và quản lý preset.</p>
+            <button class="btn primary" data-view="apps">Xem gói</button>
+          </div>
+        </aside>
       </div>
-      <aside class="hero-panel">
-        <div class="panel-top">
-          <span>San pham moi</span>
-          <strong>Ban quyen DHS</strong>
-        </div>
-        <img id="heroImage" src="/assets/app-preview.svg" alt="DHS MEDIA preview">
-        <div class="deal-card">
-          <span>Goi khuyen nghi</span>
-          <strong>DHS MEDIA REUP TOOL</strong>
-          <p>Phu hop nguoi ban hang can cao video, tao voice, render va quan ly preset.</p>
-          <a class="btn primary" href="#apps">Xem goi</a>
-        </div>
-      </aside>
-    </section>
 
-    <section class="stats-band" id="stats"></section>
+      <section class="stats-band" id="stats"></section>
 
-    <section class="category-strip" aria-label="Danh muc">
-      <a href="#apps"><strong>Reup TikTok</strong><span>Cao va loc san pham</span></a>
-      <a href="#apps"><strong>Xu ly video</strong><span>Cat ghep, overlay, subtitle</span></a>
-      <a href="#workflow"><strong>Quan ly key</strong><span>Ban quyen va kich hoat</span></a>
-      <a href="#demo"><strong>Video demo</strong><span>Huong dan su dung</span></a>
-    </section>
+      <section class="category-strip" aria-label="Danh mục">
+        <button data-view="apps"><strong>Reup TikTok</strong><span>Cào và lọc sản phẩm</span></button>
+        <button data-view="apps"><strong>Xử lý video</strong><span>Cắt ghép, overlay, subtitle</span></button>
+        <button data-view="workflow"><strong>Quản lý key</strong><span>Bản quyền và kích hoạt</span></button>
+        <button data-view="demo"><strong>Video demo</strong><span>Hướng dẫn sử dụng</span></button>
+      </section>
 
-    <section class="section" id="featured">
+      <section class="section" id="featured">
       <div class="section-heading row-heading">
         <div>
-          <p class="eyebrow">San pham noi bat</p>
-          <h2>Tool hot dang ban</h2>
-          <p>Trinh bay dang card giong san thuong mai: co nhan loai, gia, mo ta ngan va nut mua nhanh.</p>
+          <p class="eyebrow">Sản phẩm nổi bật</p>
+          <h2>Tool hot đang bán</h2>
+          <p>Trình bày dạng thẻ sản phẩm rõ giá, rõ trạng thái, dễ xem demo và mua nhanh.</p>
         </div>
-        <a class="text-link" href="#apps">Xem tat ca</a>
+        <button class="text-link" data-view="apps">Xem tất cả</button>
       </div>
       <div class="product-grid" id="featuredGrid"></div>
+      </section>
     </section>
 
+    <section class="view-section" data-view-section="apps" hidden>
     <section class="section soft-section" id="apps">
       <div class="section-heading row-heading">
         <div>
           <p class="eyebrow">Kho tool</p>
-          <h2>Tat ca san pham DHS MEDIA</h2>
-          <p>Ban co the them app, link tai, video demo va bang gia trong file cau hinh.</p>
+          <h2>Tất cả sản phẩm DHS MEDIA</h2>
+          <p>Bạn có thể thêm app, link tải, video demo và bảng giá trong file cấu hình.</p>
         </div>
         <div class="filter-tabs">
-          <button class="active" data-filter="all">Tat ca</button>
-          <button data-filter="ready">Dang ban</button>
-          <button data-filter="soon">Sap ra mat</button>
+          <button class="active" data-filter="all">Tất cả</button>
+          <button data-filter="ready">Đang bán</button>
+          <button data-filter="soon">Sắp ra mắt</button>
         </div>
       </div>
       <div class="product-grid" id="appGrid"></div>
     </section>
-
-    <section class="section workflow-section" id="workflow">
-      <div class="section-heading">
-        <p class="eyebrow">Quy trinh mua hang</p>
-        <h2>Tu xem demo den nhan key kich hoat</h2>
-      </div>
-      <div class="workflow-grid">
-        <article><span>01</span><strong>Chon tool</strong><p>Xem tinh nang, bang gia va video demo phu hop voi nhu cau.</p></article>
-        <article><span>02</span><strong>Dang ky thong tin</strong><p>Khach de lai email/Zalo de admin gui ban cai dat va thong bao cap nhat.</p></article>
-        <article><span>03</span><strong>Thanh toan</strong><p>Admin xac nhan goi, thoi han va huong dan thanh toan.</p></article>
-        <article><span>04</span><strong>Nhan key</strong><p>Khach nhan file app, key kich hoat va huong dan su dung.</p></article>
-      </div>
     </section>
 
+    <section class="view-section" data-view-section="workflow" hidden>
+    <section class="section workflow-section" id="workflow">
+      <div class="section-heading">
+        <p class="eyebrow">Quy trình mua hàng</p>
+        <h2>Từ xem demo đến nhận key kích hoạt</h2>
+      </div>
+      <div class="workflow-grid">
+        <article><span>01</span><strong>Chọn tool</strong><p>Xem tính năng, bảng giá và video demo phù hợp với nhu cầu.</p></article>
+        <article><span>02</span><strong>Đăng ký thông tin</strong><p>Khách để lại email/Zalo để admin gửi bản cài đặt và thông báo cập nhật.</p></article>
+        <article><span>03</span><strong>Thanh toán</strong><p>Admin xác nhận gói, thời hạn và hướng dẫn thanh toán.</p></article>
+        <article><span>04</span><strong>Nhận key</strong><p>Khách nhận file app, key kích hoạt và hướng dẫn sử dụng.</p></article>
+      </div>
+    </section>
+    </section>
+
+    <section class="view-section" data-view-section="demo" hidden>
     <section class="section demo-section" id="demo">
       <div class="section-heading row-heading">
         <div>
-          <p class="eyebrow">Thu vien demo</p>
-          <h2>Video huong dan va ket qua thuc te</h2>
-          <p>Moi video co the gan link YouTube, TikTok, Drive hoac link file public.</p>
+          <p class="eyebrow">Thư viện demo</p>
+          <h2>Video hướng dẫn và kết quả thực tế</h2>
+          <p>Mỗi video có thể gắn link YouTube, TikTok, Drive hoặc link file public.</p>
         </div>
-        <a class="text-link" href="#contact">Gui yeu cau demo</a>
+        <button class="text-link" data-view="account">Gửi yêu cầu demo</button>
       </div>
       <div class="demo-list" id="demoList"></div>
     </section>
+    </section>
 
+    <section class="view-section" data-view-section="account" hidden>
     <section class="section updates" id="updates">
       <div>
-        <p class="eyebrow">Cap nhat san pham</p>
-        <h2>Thu thap email khach hang de gui thong bao tool moi</h2>
-        <p class="muted">Form da san sang de noi database/email service. Ban hien tai luu tam tren trinh duyet va goi API neu server co cau hinh luu.</p>
+        <p class="eyebrow">Tài khoản khách hàng</p>
+        <h2>Đăng ký để nhận cập nhật sản phẩm mới</h2>
+        <p class="muted">Form đã sẵn sàng để nối database/email service. Bản hiện tại lưu tạm trên trình duyệt và gọi API nếu server có cấu hình lưu.</p>
       </div>
       <form class="signup-card" id="leadForm">
-        <label>Ho ten
-          <input name="name" required placeholder="Ten khach hang">
+        <label>Họ tên
+          <input name="name" required placeholder="Tên khách hàng">
         </label>
         <label>Email
           <input name="email" type="email" required placeholder="email@example.com">
         </label>
-        <label>Nhu cau
+        <label>Nhu cầu
           <select name="interest">
             <option>DHS MEDIA REUP TOOL</option>
             <option>Tool automation moi</option>
-            <option>Bang gia dai ly</option>
+            <option>Bảng giá đại lý</option>
           </select>
         </label>
-        <button class="btn primary" type="submit">Dang ky nhan tin</button>
+        <button class="btn primary" type="submit">Đăng ký nhận tin</button>
         <p class="form-note" id="leadMessage"></p>
       </form>
     </section>
 
     <section class="section faq-section">
       <div class="section-heading">
-        <p class="eyebrow">Giai dap</p>
-        <h2>Cau hoi thuong gap</h2>
+        <p class="eyebrow">Giải đáp</p>
+        <h2>Câu hỏi thường gặp</h2>
       </div>
       <div class="faq-list" id="faqList"></div>
+    </section>
     </section>
   </main>
 
   <footer class="footer" id="contact">
     <div>
       <p class="eyebrow">DHS MEDIA</p>
-      <h2>Can mua app hoac xem demo rieng?</h2>
-      <p>Cap nhat Zalo, email, Telegram va link thanh toan trong cau hinh web.</p>
+      <h2>Cần mua app hoặc xem demo riêng?</h2>
+      <p>Cập nhật Zalo, email, Telegram và link thanh toán trong cấu hình web.</p>
     </div>
     <div class="contact-card" id="contactCard"></div>
   </footer>
@@ -166,18 +176,18 @@
   <div class="modal" id="buyModal" hidden>
     <div class="modal-card">
       <button class="modal-close" id="modalClose" aria-label="Dong">x</button>
-      <h2 id="modalTitle">Chon goi mua</h2>
+      <h2 id="modalTitle">Chọn gói mua</h2>
       <p class="muted" id="modalDesc"></p>
-      <label class="field">Chon goi
+      <label class="field">Chọn gói
         <select id="planSelect"></select>
       </label>
       <div class="pay-box">
         <strong id="payAmount">0 VND</strong>
-        <span>Hay dang ky thong tin hoac lien he admin de nhan key kich hoat.</span>
+        <span>Hãy đăng ký thông tin hoặc liên hệ admin để nhận key kích hoạt.</span>
       </div>
       <div class="hero-actions">
-        <button class="btn primary" data-auth-open="register">Dang ky mua</button>
-        <a class="btn secondary" id="zaloBuy" href="#contact">Lien he admin</a>
+        <button class="btn primary" data-auth-open="register">Đăng ký mua</button>
+        <button class="btn secondary" id="zaloBuy" type="button" data-view="account">Liên hệ admin</button>
       </div>
     </div>
   </div>
@@ -186,34 +196,34 @@
     <div class="modal-card auth-card">
       <button class="modal-close" id="authClose" aria-label="Dong">x</button>
       <div class="auth-tabs">
-        <button class="active" data-auth-tab="login">Dang nhap</button>
-        <button data-auth-tab="register">Dang ky</button>
+        <button class="active" data-auth-tab="login">Đăng nhập</button>
+        <button data-auth-tab="register">Đăng ký</button>
       </div>
       <form id="loginForm" class="auth-form">
-        <h2>Dang nhap khach hang</h2>
+        <h2>Đăng nhập khách hàng</h2>
         <label>Email
           <input name="email" type="email" required placeholder="email@example.com">
         </label>
-        <label>Mat khau
-          <input name="password" type="password" required placeholder="Mat khau">
+        <label>Mật khẩu
+          <input name="password" type="password" required placeholder="Mật khẩu">
         </label>
-        <button class="btn primary" type="submit">Dang nhap</button>
+        <button class="btn primary" type="submit">Đăng nhập</button>
       </form>
       <form id="registerForm" class="auth-form" hidden>
-        <h2>Tao tai khoan nhan cap nhat</h2>
-        <label>Ho ten
-          <input name="name" required placeholder="Ten khach hang">
+        <h2>Tạo tài khoản nhận cập nhật</h2>
+        <label>Họ tên
+          <input name="name" required placeholder="Tên khách hàng">
         </label>
         <label>Email
           <input name="email" type="email" required placeholder="email@example.com">
         </label>
-        <label>So dien thoai/Zalo
-          <input name="phone" placeholder="So dien thoai hoac Zalo">
+        <label>Số điện thoại/Zalo
+          <input name="phone" placeholder="Số điện thoại hoặc Zalo">
         </label>
-        <label>Mat khau
-          <input name="password" type="password" required placeholder="Mat khau">
+        <label>Mật khẩu
+          <input name="password" type="password" required placeholder="Mật khẩu">
         </label>
-        <button class="btn primary" type="submit">Dang ky</button>
+        <button class="btn primary" type="submit">Đăng ký</button>
       </form>
       <p class="form-note" id="authMessage"></p>
     </div>

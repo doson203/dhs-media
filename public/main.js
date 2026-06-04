@@ -1,4 +1,4 @@
-const money = (value) => value || "Lien he";
+const money = (value) => value || "Liên hệ";
 
 let currentSite = null;
 let activeFilter = "all";
@@ -23,14 +23,15 @@ async function loadSite() {
   renderDemos(site);
   renderFaq(site);
   renderContact(site);
+  applyInitialView();
 }
 
 function renderProducts() {
   const apps = currentSite?.apps || [];
   const filtered = apps.filter((app) => {
-    const haystack = `${app.name} ${app.tagline} ${app.description} ${(app.features || []).join(" ")}`.toLowerCase();
+    const haystack = normalizeText(`${app.name} ${app.tagline} ${app.description} ${(app.features || []).join(" ")}`);
+    const status = normalizeText(app.status || "");
     const matchesSearch = !searchTerm || haystack.includes(searchTerm);
-    const status = String(app.status || "").toLowerCase();
     const matchesFilter = activeFilter === "all"
       || (activeFilter === "ready" && status.includes("dang"))
       || (activeFilter === "soon" && (status.includes("sap") || status.includes("phat trien")));
@@ -39,7 +40,7 @@ function renderProducts() {
 
   byId("featuredGrid").innerHTML = apps.slice(0, 3).map(productCard).join("");
   byId("appGrid").innerHTML = filtered.map(productCard).join("") || `
-    <div class="empty-state">Khong tim thay san pham phu hop.</div>
+    <div class="empty-state">Không tìm thấy sản phẩm phù hợp.</div>
   `;
 
   document.querySelectorAll(".buy-btn").forEach((button) => {
@@ -51,11 +52,11 @@ function productCard(app) {
   const apps = currentSite?.apps || [];
   const index = apps.indexOf(app);
   const firstPlan = (app.prices || [])[0];
-  const price = firstPlan?.price || app.priceFrom || "Lien he";
-  const plan = firstPlan?.name || "Gia tu";
-  const status = app.status || "Dang ban";
-  const tag = status.toLowerCase().includes("sap") ? "Sap ra mat" : "Dang ban";
-  const discount = app.prices && app.prices.length > 1 ? "Nhieu goi" : "Ban quyen";
+  const price = firstPlan?.price || app.priceFrom || "Liên hệ";
+  const plan = firstPlan?.name || "Giá từ";
+  const status = app.status || "Đang bán";
+  const tag = normalizeText(status).includes("sap") ? "Sắp ra mắt" : "Đang bán";
+  const discount = app.prices && app.prices.length > 1 ? "Nhiều gói" : "Bản quyền";
 
   return `
     <article class="product-card">
@@ -77,7 +78,7 @@ function productCard(app) {
         <ul>${(app.features || []).slice(0, 3).map((f) => `<li>${escapeHtml(f)}</li>`).join("")}</ul>
         <div class="card-actions">
           <button class="btn primary buy-btn" data-index="${index}">Mua ngay</button>
-          ${app.demoUrl ? `<a class="btn ghost" href="${escapeAttr(app.demoUrl)}" target="_blank" rel="noreferrer">Demo</a>` : `<a class="btn ghost" href="#demo">Demo</a>`}
+          ${app.demoUrl ? `<a class="btn ghost" href="${escapeAttr(app.demoUrl)}" target="_blank" rel="noreferrer">Demo</a>` : `<button class="btn ghost" type="button" data-view="demo">Demo</button>`}
         </div>
       </div>
     </article>
@@ -88,9 +89,9 @@ function renderDemos(site) {
   byId("demoList").innerHTML = (site.demos || []).map((demo) => `
     <article class="demo-card">
       <div class="demo-thumb">${demo.poster ? `<img src="${escapeAttr(demo.poster)}" alt="${escapeAttr(demo.title)}">` : "<span>DEMO</span>"}</div>
-      <h3>${escapeHtml(demo.title || "Demo san pham")}</h3>
-      <p class="muted">${escapeHtml(demo.description || "Cap nhat link demo trong cau hinh web.")}</p>
-      ${demo.url ? `<a href="${escapeAttr(demo.url)}" target="_blank" rel="noreferrer">Mo demo</a>` : "<span class=\"muted\">Chua co link demo</span>"}
+      <h3>${escapeHtml(demo.title || "Demo sản phẩm")}</h3>
+      <p class="muted">${escapeHtml(demo.description || "Cập nhật link demo trong cấu hình web.")}</p>
+      ${demo.url ? `<a href="${escapeAttr(demo.url)}" target="_blank" rel="noreferrer">Mở demo</a>` : "<span class=\"muted\">Chưa có link demo</span>"}
     </article>
   `).join("");
 }
@@ -116,8 +117,8 @@ async function loadSiteData() {
 }
 
 function openBuyModal(app) {
-  const prices = app.prices && app.prices.length ? app.prices : [{ name: "Lien he", price: app.priceFrom || "Lien he" }];
-  byId("modalTitle").textContent = `Chon goi mua ${app.name}`;
+  const prices = app.prices && app.prices.length ? app.prices : [{ name: "Liên hệ", price: app.priceFrom || "Liên hệ" }];
+  byId("modalTitle").textContent = `Chọn gói mua ${app.name}`;
   byId("modalDesc").textContent = app.description || app.tagline || "";
   byId("planSelect").innerHTML = prices.map((plan, index) => `<option value="${index}">${escapeHtml(plan.price)} - ${escapeHtml(plan.name)}</option>`).join("");
   const updateAmount = () => {
@@ -126,8 +127,6 @@ function openBuyModal(app) {
   };
   byId("planSelect").onchange = updateAmount;
   updateAmount();
-  const zalo = currentSite?.contact?.zalo || currentSite?.contact?.phone || "";
-  byId("zaloBuy").href = zalo.startsWith("http") ? zalo : "#contact";
   byId("buyModal").hidden = false;
 }
 
@@ -144,6 +143,27 @@ function setAuthTab(mode) {
     button.classList.toggle("active", button.dataset.authTab === mode);
   });
   byId("authMessage").textContent = "";
+}
+
+function switchView(view) {
+  const nextView = view || "home";
+  document.querySelectorAll("[data-view-section]").forEach((section) => {
+    const active = section.dataset.viewSection === nextView;
+    section.hidden = !active;
+    section.classList.toggle("active", active);
+  });
+  document.querySelectorAll(".nav-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.view === nextView);
+  });
+  byId("buyModal").hidden = true;
+  byId("authModal").hidden = true;
+  window.history.replaceState(null, "", `#${nextView}`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function applyInitialView() {
+  const initialView = String(location.hash || "#home").replace("#", "");
+  switchView(["home", "apps", "workflow", "demo", "account"].includes(initialView) ? initialView : "home");
 }
 
 function saveCustomer(customer) {
@@ -178,6 +198,12 @@ document.querySelectorAll("[data-auth-tab]").forEach((button) => {
   button.addEventListener("click", () => setAuthTab(button.dataset.authTab));
 });
 
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-view]");
+  if (!target) return;
+  switchView(target.dataset.view);
+});
+
 document.querySelectorAll("[data-filter]").forEach((button) => {
   button.addEventListener("click", () => {
     activeFilter = button.dataset.filter;
@@ -188,9 +214,9 @@ document.querySelectorAll("[data-filter]").forEach((button) => {
 
 byId("searchForm")?.addEventListener("submit", (event) => {
   event.preventDefault();
-  searchTerm = String(byId("productSearch").value || "").trim().toLowerCase();
+  searchTerm = normalizeText(byId("productSearch").value || "");
   renderProducts();
-  byId("apps").scrollIntoView({ behavior: "smooth" });
+  switchView("apps");
 });
 
 byId("modalClose")?.addEventListener("click", () => byId("buyModal").hidden = true);
@@ -206,7 +232,7 @@ byId("leadForm")?.addEventListener("submit", async (event) => {
     source: "newsletter"
   };
   await sendLead(customer);
-  byId("leadMessage").textContent = "Da ghi nhan thong tin. Admin se gui cap nhat khi co san pham moi.";
+  byId("leadMessage").textContent = "Đã ghi nhận thông tin. Admin sẽ gửi cập nhật khi có sản phẩm mới.";
   event.currentTarget.reset();
 });
 
@@ -222,7 +248,7 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
   };
   await sendLead(customer);
   localStorage.setItem("dhsCurrentCustomer", customer.email);
-  byId("authMessage").textContent = "Dang ky thanh cong. Thong tin da duoc ghi nhan tren thiet bi nay.";
+  byId("authMessage").textContent = "Đăng ký thành công. Thông tin đã được ghi nhận trên thiết bị này.";
   event.currentTarget.reset();
 });
 
@@ -234,12 +260,16 @@ byId("loginForm")?.addEventListener("submit", (event) => {
   const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
   const customer = customers.find((item) => item.email === email && item.password === password);
   if (!customer) {
-    byId("authMessage").textContent = "Chua co tai khoan tren thiet bi nay. Hay dang ky truoc.";
+    byId("authMessage").textContent = "Chưa có tài khoản trên thiết bị này. Hãy đăng ký trước.";
     return;
   }
   localStorage.setItem("dhsCurrentCustomer", email);
-  byId("authMessage").textContent = `Xin chao ${customer.name || email}.`;
+  byId("authMessage").textContent = `Xin chào ${customer.name || email}.`;
 });
+
+function normalizeText(value) {
+  return String(value || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
 
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
@@ -250,5 +280,5 @@ function escapeAttr(value) {
 }
 
 loadSite().catch((error) => {
-  document.body.innerHTML = `<main class="section"><h1>Khong tai duoc du lieu web</h1><p>${escapeHtml(error.message)}</p></main>`;
+  document.body.innerHTML = `<main class="section"><h1>Không tải được dữ liệu web</h1><p>${escapeHtml(error.message)}</p></main>`;
 });

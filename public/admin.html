@@ -9,32 +9,32 @@
 <body>
   <main class="admin-shell">
     <section class="admin-panel login-box" id="loginBox">
-      <h1>Dang nhap admin</h1>
-      <p class="notice">Mat khau lay tu bien moi truong <code>ADMIN_PASSWORD</code>.</p>
-      <label class="field">Mat khau
+      <h1>Đăng nhập admin</h1>
+      <p class="notice">Mật khẩu lấy từ biến môi trường <code>ADMIN_PASSWORD</code>.</p>
+      <label class="field">Mật khẩu
         <input id="password" type="password" autocomplete="current-password">
       </label>
       <div class="admin-actions">
-        <button class="save" id="loginBtn">Dang nhap</button>
+        <button class="save" id="loginBtn">Đăng nhập</button>
       </div>
       <p class="notice" id="loginMsg"></p>
     </section>
 
     <section class="admin-layout" id="adminApp" hidden>
       <aside class="admin-panel">
-        <h2 id="adminTitle">Quan tri web</h2>
+        <h2 id="adminTitle">Quản trị web</h2>
         <div class="admin-nav">
-          <button data-tab="general" class="active">Thong tin chung</button>
-          <button data-tab="apps">San pham app</button>
-          <button data-tab="pricing">Bang gia</button>
+          <button data-tab="general" class="active">Thông tin chung</button>
+          <button data-tab="apps">Sản phẩm app</button>
+          <button data-tab="pricing">Bảng giá</button>
           <button data-tab="demos">Video demo</button>
           <button data-tab="faq">FAQ</button>
           <button data-tab="upload">Upload file</button>
-          <button data-tab="json">JSON nang cao</button>
+          <button data-tab="json">JSON nâng cao</button>
         </div>
         <div class="admin-actions">
-          <button class="save" id="saveBtn">Luu thay doi</button>
-          <button id="logoutBtn">Dang xuat</button>
+          <button class="save" id="saveBtn">Lưu thay đổi</button>
+          <button id="logoutBtn">Đăng xuất</button>
         </div>
         <p class="notice" id="statusMsg"></p>
       </aside>

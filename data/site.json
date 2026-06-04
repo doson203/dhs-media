@@ -2,121 +2,121 @@
   "brand": {
     "name": "DHS MEDIA",
     "logoText": "DM",
-    "tagline": "Kho tool ho tro automation va reup video"
+    "tagline": "Kho tool hỗ trợ automation và reup video"
   },
   "hero": {
     "eyebrow": "DHS MEDIA - kho tool automation",
-    "title": "Kho tool reup video va automation cho nguoi ban hang",
-    "description": "Chon tool phu hop, xem demo, dang ky thong tin va nhan key kich hoat. DHS MEDIA tap trung vao cao video, xu ly video, voice/TTS, preset va quan ly ban quyen.",
-    "primaryCta": "Xem tool dang ban",
+    "title": "Kho tool reup video và automation cho người bán hàng",
+    "description": "Chọn tool phù hợp, xem demo, đăng ký thông tin và nhận key kích hoạt. DHS MEDIA tập trung vào cào video, xử lý video, voice/TTS, preset và quản lý bản quyền.",
+    "primaryCta": "Xem tool đang bán",
     "secondaryCta": "Xem video demo",
     "image": "/assets/app-preview.svg"
   },
   "stats": [
-    { "label": "Tool dang ban", "value": "3+" },
-    { "label": "Nen tang", "value": "Windows" },
-    { "label": "Ho tro", "value": "Zalo" }
+    { "label": "Tool đang bán", "value": "3+" },
+    { "label": "Nền tảng", "value": "Windows" },
+    { "label": "Hỗ trợ", "value": "Zalo" }
   ],
   "apps": [
     {
       "id": "reup-tool",
       "name": "DHS MEDIA REUP TOOL",
-      "tagline": "Cao TikTok Viet, xu ly video, voice/TTS, preset va hang doi",
-      "description": "Phan mem desktop ho tro nguoi ban hang tao video reup nhanh hon voi bo cong cu loc video, cat ghep, voice, subtitle, overlay va render CPU/GPU.",
+      "tagline": "Cào TikTok Việt, xử lý video, voice/TTS, preset và hàng đợi",
+      "description": "Phần mềm desktop hỗ trợ người bán hàng tạo video reup nhanh hơn với bộ công cụ lọc video, cắt ghép, voice, subtitle, overlay và render CPU/GPU.",
       "version": "3.2.0",
-      "status": "Dang ban",
-      "priceFrom": "250,000 VND / 1 Thang",
+      "status": "Đang bán",
+      "priceFrom": "250,000 VND / 1 Tháng",
       "cover": "/assets/app-preview.svg",
       "demoUrl": "",
       "guideUrl": "",
       "downloadUrl": "",
       "prices": [
-        { "name": "1 Thang", "price": "250,000 VND" },
-        { "name": "3 Thang", "price": "600,000 VND" },
-        { "name": "6 Thang", "price": "1,100,000 VND" },
-        { "name": "1 Nam", "price": "1,500,000 VND" },
-        { "name": "Vinh vien", "price": "5,000,000 VND" }
+        { "name": "1 Tháng", "price": "250,000 VND" },
+        { "name": "3 Tháng", "price": "600,000 VND" },
+        { "name": "6 Tháng", "price": "1,100,000 VND" },
+        { "name": "1 Năm", "price": "1,500,000 VND" },
+        { "name": "Vĩnh viễn", "price": "5,000,000 VND" }
       ],
       "features": [
-        "Cao TikTok Viet theo san pham",
-        "Loc dung san pham va khong trung kenh",
-        "Tao voice/TTS va tu dong khop video",
-        "Cat ghep, overlay, subtitle, che mat",
-        "Preset cau hinh va hang doi"
+        "Cào TikTok Việt theo sản phẩm",
+        "Lọc đúng sản phẩm và không trùng kênh",
+        "Tạo voice/TTS và tự động khớp video",
+        "Cắt ghép, overlay, subtitle, che mặt",
+        "Preset cấu hình và hàng đợi"
       ]
     },
     {
       "id": "reup-key",
       "name": "REUP KEY",
-      "tagline": "Quan ly key va kich hoat app cho khach hang",
-      "description": "Bo cong cu ho tro quan ly ban quyen, cap key, theo doi may kich hoat va ho tro ban giao app cho nguoi dung.",
+      "tagline": "Quản lý key và kích hoạt app cho khách hàng",
+      "description": "Bộ công cụ hỗ trợ quản lý bản quyền, cấp key, theo dõi máy kích hoạt và hỗ trợ bàn giao app cho người dùng.",
       "version": "1.0.0",
-      "status": "Sap ra mat",
-      "priceFrom": "Lien he",
+      "status": "Sắp ra mắt",
+      "priceFrom": "Liên hệ",
       "cover": "/assets/app-preview.svg",
       "demoUrl": "",
       "guideUrl": "",
       "downloadUrl": "",
       "prices": [
-        { "name": "1 Thang", "price": "200,000 VND" },
-        { "name": "3 Thang", "price": "570,000 VND" },
-        { "name": "Vinh vien", "price": "3,000,000 VND" }
+        { "name": "1 Tháng", "price": "200,000 VND" },
+        { "name": "3 Tháng", "price": "570,000 VND" },
+        { "name": "Vĩnh viễn", "price": "3,000,000 VND" }
       ],
       "features": [
-        "Tao va quan ly license key",
-        "Theo doi thiet bi kich hoat",
-        "Khoa/mo key khi can",
-        "Phu hop ban app cho nhieu khach"
+        "Tạo và quản lý license key",
+        "Theo dõi thiết bị kích hoạt",
+        "Khóa/mở key khi cần",
+        "Phù hợp bán app cho nhiều khách"
       ]
     },
     {
       "id": "reup-auto",
       "name": "REUP AUTO",
-      "tagline": "Theo doi nguon video va tu dong xu ly hang loat",
-      "description": "Goi automation nang cao cho nguoi can theo doi nguon, xu ly video va nhan thong bao khi co noi dung moi.",
+      "tagline": "Theo dõi nguồn video và tự động xử lý hàng loạt",
+      "description": "Gói automation nâng cao cho người cần theo dõi nguồn, xử lý video và nhận thông báo khi có nội dung mới.",
       "version": "1.0.0",
-      "status": "Dang phat trien",
-      "priceFrom": "350,000 VND / 1 Thang",
+      "status": "Đang phát triển",
+      "priceFrom": "350,000 VND / 1 Tháng",
       "cover": "/assets/app-preview.svg",
       "demoUrl": "",
       "guideUrl": "",
       "downloadUrl": "",
       "prices": [
-        { "name": "1 Thang", "price": "350,000 VND" },
-        { "name": "3 Thang", "price": "875,000 VND" },
-        { "name": "1 Nam", "price": "2,100,000 VND" }
+        { "name": "1 Tháng", "price": "350,000 VND" },
+        { "name": "3 Tháng", "price": "875,000 VND" },
+        { "name": "1 Năm", "price": "2,100,000 VND" }
       ],
       "features": [
-        "Theo doi nhieu nguon video",
-        "Tu dong tai va xu ly",
-        "Thong bao tien do",
-        "Phu hop team noi dung"
+        "Theo dõi nhiều nguồn video",
+        "Tự động tải và xử lý",
+        "Thông báo tiến độ",
+        "Phù hợp team nội dung"
       ]
     }
   ],
   "pricing": [],
   "demos": [
     {
-      "title": "Huong dan su dung DHS MEDIA REUP TOOL",
-      "description": "Gan link YouTube/TikTok hoac upload video demo trong admin.",
+      "title": "Hướng dẫn sử dụng DHS MEDIA REUP TOOL",
+      "description": "Gắn link YouTube/TikTok hoặc upload video demo trong admin.",
       "url": "",
       "poster": "/assets/app-preview.svg"
     }
   ],
   "contact": {
-    "zalo": "Cap nhat trong admin",
-    "phone": "Cap nhat trong admin",
+    "zalo": "Cập nhật trong admin",
+    "phone": "Cập nhật trong admin",
     "email": "sales@example.com",
     "telegram": ""
   },
   "faq": [
     {
-      "question": "Mua xong nhan app nhu the nao?",
-      "answer": "Sau khi lien he admin va thanh toan, ban se nhan file cai dat va key kich hoat."
+      "question": "Mua xong nhận app như thế nào?",
+      "answer": "Sau khi liên hệ admin và thanh toán, bạn sẽ nhận file cài đặt và key kích hoạt."
     },
     {
-      "question": "Co the them nhieu tool tren web khong?",
-      "answer": "Co. Chi can them san pham trong data/site.json hoac trang admin local."
+      "question": "Có thể thêm nhiều tool trên web không?",
+      "answer": "Có. Chỉ cần thêm sản phẩm trong data/site.json hoặc trang admin local."
     }
   ]
 }
