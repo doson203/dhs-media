@@ -30,5 +30,17 @@
     "checkoutUrl": "https://pay.payos.vn/web/acab0adec38f46c891ab81fdd3f2599e",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMHI39960208QRIBFTTA53037045405690005802VN62160812DHS60051959163048B89",
     "updatedAt": "2026-06-04T19:15:22.142Z"
+  },
+  {
+    "orderCode": 600892585,
+    "status": "PENDING",
+    "productId": "prompt-008-chatbot-tao-anh-san-pham-chuyen-nghiep-tu-dong",
+    "productTitle": "Chatbot tạo ảnh sản phẩm chuyên nghiệp tự động",
+    "promptUrl": "https://gemini.google.com/gem/1Du6OsUf2FES9wSB3U-8e3DOZuKKosyp_?usp=sharing",
+    "amount": 69000,
+    "buyerEmail": "codex-payment-test2@example.com",
+    "buyerName": "Codex Payment Test 2",
+    "buyerPhone": "0900000000",
+    "createdAt": "2026-06-04T19:21:32.586Z"
   }
 ]
