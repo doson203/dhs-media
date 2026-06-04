@@ -9,7 +9,9 @@ function paymentConfig() {
     payosChecksumKey: process.env.PAYOS_CHECKSUM_KEY || "",
     publicUrl: normalizePublicUrl(process.env.PUBLIC_SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "http://localhost:8080"),
     resendApiKey: process.env.RESEND_API_KEY || "",
-    mailFrom: process.env.MAIL_FROM || "DHS MEDIA <onboarding@resend.dev>"
+    mailFrom: process.env.MAIL_FROM || "DHS MEDIA <onboarding@resend.dev>",
+    googleSheetsWebappUrl: process.env.GOOGLE_SHEETS_WEBAPP_URL || "https://script.google.com/macros/s/AKfycbxQqU0LtlKofxuDpxFpNfZtJ_eeuCLADE5aSvDyTUHNkjbHQBQgA1xkUHA6vQlqPUSf/exec",
+    googleSheetsSecret: process.env.GOOGLE_SHEETS_SECRET || ""
   };
 }
 
@@ -105,7 +107,7 @@ async function handlePayosWebhook(body, deps) {
   if (!order) return { ok: false, status: 404, message: "Order not found" };
   if (order.status === "PAID" && order.emailSentAt) return { ok: true, duplicate: true };
   await deps.updateOrder(orderCode, { status: "PAID", paidAt: new Date().toISOString(), payosData: body.data });
-  const email = await sendDeliveryEmail({ ...order, status: "PAID" });
+  const email = await sendDeliveryEmailV2({ ...order, status: "PAID" });
   await deps.updateOrder(orderCode, { emailSentAt: new Date().toISOString(), emailStatus: email.ok ? "SENT" : "FAILED", emailError: email.message || "" });
   return { ok: true };
 }
@@ -132,6 +134,55 @@ async function sendDeliveryEmail(order) {
   });
   const data = await response.json().catch(() => ({}));
   return response.ok ? { ok: true, data } : { ok: false, message: data.message || "Gui email that bai", data };
+}
+
+async function sendDeliveryEmailV2(order) {
+  const config = paymentConfig();
+  if (!config.resendApiKey) return sendDeliveryViaSheet(order, config);
+  const html = `
+    <h2>Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA</h2>
+    <p>Sản phẩm: <strong>${escapeHtml(order.productTitle)}</strong></p>
+    <p>Mã đơn: <strong>${escapeHtml(order.orderCode)}</strong></p>
+    <p>Link nhận sản phẩm/prompt:</p>
+    <p><a href="${escapeHtml(order.promptUrl)}">${escapeHtml(order.promptUrl)}</a></p>
+  `;
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${config.resendApiKey}` },
+    body: JSON.stringify({
+      from: config.mailFrom,
+      to: [order.buyerEmail],
+      subject: `DHS MEDIA - Link sản phẩm ${order.productTitle}`,
+      html
+    })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (response.ok) return { ok: true, data };
+  const fallback = await sendDeliveryViaSheet(order, config);
+  return fallback.ok ? fallback : { ok: false, message: data.message || fallback.message || "Gui email that bai", data };
+}
+
+async function sendDeliveryViaSheet(order, config = paymentConfig()) {
+  if (!config.googleSheetsWebappUrl) return { ok: false, message: "Chua cau hinh GOOGLE_SHEETS_WEBAPP_URL." };
+  const response = await fetch(config.googleSheetsWebappUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "sendDeliveryEmail",
+      secret: config.googleSheetsSecret,
+      order: {
+        orderCode: order.orderCode,
+        productTitle: order.productTitle,
+        promptUrl: order.promptUrl,
+        buyerEmail: order.buyerEmail,
+        buyerName: order.buyerName
+      }
+    })
+  });
+  const data = await response.json().catch(() => ({}));
+  return response.ok && data.ok !== false
+    ? { ok: true, data, provider: "google-apps-script" }
+    : { ok: false, message: data.message || "Google Apps Script gui email that bai", data };
 }
 
 function findProduct(site, productId) {

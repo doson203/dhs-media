@@ -18,6 +18,7 @@ function doPost(e) {
     if (body.action === "login") return json(loginAccount(body.email || "", body.password || ""));
     if (body.action === "upsertProduct") return json(upsertProduct(body.product || {}));
     if (body.action === "deleteProduct") return json(deleteProduct(body.id || ""));
+    if (body.action === "sendDeliveryEmail") return json(sendDeliveryEmail(body.order || {}));
     if (body.action === "initProducts") return json(initProductsSheet());
     return json({ ok: false, message: "Unknown action" }, 400);
   } catch (error) {
@@ -63,6 +64,43 @@ function deleteProduct(idValue) {
   if (!found) return { ok: true, deleted: false };
   sheet.deleteRow(found.index);
   return { ok: true, deleted: true };
+}
+
+function sendDeliveryEmail(order) {
+  const email = String(order.buyerEmail || "").trim().toLowerCase();
+  const promptUrl = String(order.promptUrl || "").trim();
+  if (!email) return { ok: false, message: "Missing buyer email" };
+  if (!promptUrl) return { ok: false, message: "Missing product link" };
+
+  const productTitle = String(order.productTitle || "San pham DHS MEDIA");
+  const orderCode = String(order.orderCode || "");
+  const subject = "DHS MEDIA - Link san pham " + productTitle;
+  const plainBody = [
+    "Cam on ban da mua san pham tai DHS MEDIA.",
+    "",
+    "San pham: " + productTitle,
+    "Ma don: " + orderCode,
+    "Link nhan san pham/prompt:",
+    promptUrl,
+    "",
+    "Neu can ho tro, vui long phan hoi email nay."
+  ].join("\n");
+  const htmlBody = [
+    "<h2>Cam on ban da mua san pham tai DHS MEDIA</h2>",
+    "<p>San pham: <strong>" + escapeHtml(productTitle) + "</strong></p>",
+    "<p>Ma don: <strong>" + escapeHtml(orderCode) + "</strong></p>",
+    "<p>Link nhan san pham/prompt:</p>",
+    "<p><a href=\"" + escapeHtml(promptUrl) + "\">" + escapeHtml(promptUrl) + "</a></p>",
+    "<p>Neu can ho tro, vui long phan hoi email nay.</p>"
+  ].join("");
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    body: plainBody,
+    htmlBody: htmlBody
+  });
+  return { ok: true, provider: "gmail" };
 }
 
 function productHeaders() {
@@ -197,6 +235,15 @@ function publicAccount(account) {
     email: String(account.email || ""),
     phone: String(account.phone || "")
   };
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function json(value, status) {
