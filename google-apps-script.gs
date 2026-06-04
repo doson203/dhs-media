@@ -5,6 +5,7 @@
 const PRODUCTS_SHEET = "Products";
 const LEADS_SHEET = "Leads";
 const ACCOUNTS_SHEET = "Accounts";
+const SPREADSHEET_ID = "1HpQjV0XgVUTmNgpWQFSQPnlQrwRiV6WMnY69FOergGQ";
 
 function doPost(e) {
   try {
@@ -70,7 +71,7 @@ function loginAccount(emailValue, passwordValue) {
 }
 
 function ensureSheet(name, headers) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(name);
   if (!sheet) sheet = ss.insertSheet(name);
   const firstRow = sheet.getRange(1, 1, 1, Math.max(headers.length, sheet.getLastColumn() || 1)).getValues()[0];
