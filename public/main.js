@@ -202,7 +202,7 @@ function openVideoModal(item) {
   if (!item) return;
   byId("videoTitle").textContent = item.title || "Video sản phẩm";
   byId("videoDesc").textContent = item.description || "";
-  byId("videoPlayer").className = `video-player ${isPortraitVideo(item.videoUrl) ? "portrait" : "landscape"}`;
+  byId("videoPlayer").className = `video-player ${getVideoPlayerMode(item)}`;
   byId("videoPlayer").innerHTML = videoEmbed(item.videoUrl, item.thumbnail);
   byId("videoBuyBtn").onclick = () => {
     byId("videoModal").hidden = true;
@@ -255,6 +255,12 @@ function hideHoverPreview(button) {
 
 function isPortraitVideo(url) {
   return /youtube\.com\/shorts\//i.test(String(url || ""));
+}
+
+function getVideoPlayerMode(item) {
+  const url = String(item?.videoUrl || "").trim();
+  if (!url) return "placeholder";
+  return isPortraitVideo(url) ? "portrait" : "landscape";
 }
 
 function getYouTubeId(url) {
