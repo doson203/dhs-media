@@ -1,4 +1,5 @@
 const DEFAULT_SHEET_ID = "1HpQjV0XgVUTmNgpWQFSQPnlQrwRiV6WMnY69FOergGQ";
+const DEFAULT_SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxQqU0LtlKofxuDpxFpNfZtJ_eeuCLADE5aSvDyTUHNkjbHQBQgA1xkUHA6vQlqPUSf/exec";
 
 const SHEET_NAMES = {
   products: ["Products", "products", "SanPham", "san_pham", "Sản phẩm", "Sản phẩm"],
@@ -147,7 +148,7 @@ function mapFaqRow(row) {
 }
 
 async function postSheetAction(action, payload, options = {}) {
-  const url = options.url || process.env.GOOGLE_SHEETS_WEBAPP_URL || "";
+  const url = options.url || process.env.GOOGLE_SHEETS_WEBAPP_URL || DEFAULT_SHEETS_WEBAPP_URL;
   if (!url) return null;
   const secret = options.secret || process.env.GOOGLE_SHEETS_SECRET || "";
   const response = await fetch(url, {
@@ -259,6 +260,7 @@ function clone(value) {
 
 module.exports = {
   DEFAULT_SHEET_ID,
+  DEFAULT_SHEETS_WEBAPP_URL,
   readSheetSite,
   readSheetRows,
   postSheetAction,
