@@ -15,8 +15,18 @@ function paymentConfig() {
 
 async function createCheckout(body, deps) {
   const config = paymentConfig();
-  if (!config.payosClientId || !config.payosApiKey || !config.payosChecksumKey) {
-    return { ok: false, status: 501, message: "Chua cau hinh PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY." };
+  const missingPayosEnv = [
+    ["PAYOS_CLIENT_ID", config.payosClientId],
+    ["PAYOS_API_KEY", config.payosApiKey],
+    ["PAYOS_CHECKSUM_KEY", config.payosChecksumKey]
+  ].filter(([, value]) => !value).map(([name]) => name);
+  if (missingPayosEnv.length) {
+    return {
+      ok: false,
+      status: 501,
+      message: "Chua cau hinh PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY.",
+      missing: missingPayosEnv
+    };
   }
   const site = await deps.readSite();
   const product = findProduct(site, body.productId);
