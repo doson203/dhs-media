@@ -1,0 +1,4 @@
+type,id,title,description,category,format,status,price,license,thumbnail,videoUrl,promptUrl
+prompt,mau-video-1,Mẫu video AI 1,Sản phẩm prompt/video AI dùng để tạo nội dung bán hàng.,Prompt AI,Video + Prompt,Đang bán,0đ,1 bộ prompt/tài liệu,https://example.com/thumb.jpg,https://youtu.be/example,https://drive.google.com/example
+tool,reup-tool,DHS MEDIA REUP TOOL,Cào TikTok Việt và xử lý video.,Tool,Desktop App,Đang bán,250000 VND / tháng,Bản quyền app,/assets/app-preview.svg,,
+workflow,workflow-1,Workflow dựng video bán hàng,Quy trình tạo video AI hoàn chỉnh.,Workflow,Tài liệu,Đang bán,Liên hệ,Workflow,/assets/app-preview.svg,,

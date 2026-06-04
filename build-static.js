@@ -22,12 +22,14 @@ function copyDir(source, target) {
 fs.rmSync(distDir, { recursive: true, force: true });
 copyDir(publicDir, distDir);
 fs.copyFileSync(dataFile, path.join(distDir, "site.json"));
+fs.copyFileSync(path.join(root, "sheet-utils.js"), path.join(distDir, "sheet-utils.js"));
 fs.writeFileSync(
   path.join(distDir, "index.js"),
   `const express = require("express");
 const crypto = require("node:crypto");
 const fs = require("node:fs/promises");
 const path = require("path");
+const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
 
 const app = express();
 const root = __dirname;
@@ -37,17 +39,20 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
 const GITHUB_OWNER = process.env.GITHUB_OWNER || "doson203";
 const GITHUB_REPO = process.env.GITHUB_REPO || "dhs-media";
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
+const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/api/site", (req, res) => {
-  res.sendFile(path.join(root, "site.json"));
+app.get("/api/site", async (req, res) => {
+  res.json(await readPublicSite());
 });
 
 app.post("/api/leads", async (req, res) => {
   const lead = normalizeLead(req.body || {});
   if (!lead.email) return res.status(400).json({ ok: false, message: "Thiếu email" });
+  const sheetResult = await postSheetAction("lead", { lead }).catch(() => null);
+  if (sheetResult?.ok) return res.json({ ok: true, storage: "google-sheet" });
   if (!GITHUB_TOKEN) return res.json({ ok: true, storage: "browser-only" });
   const leads = await readRepoJson("data/leads.json", []);
   const filtered = array(leads).filter((item) => item.email !== lead.email);
@@ -60,6 +65,10 @@ app.post("/api/accounts/register", async (req, res) => {
   const account = normalizeAccount(req.body || {});
   if (!account.email || !account.password) {
     return res.status(400).json({ ok: false, message: "Thieu email hoac mat khau" });
+  }
+  const sheetResult = await postSheetAction("register", { account }).catch(() => null);
+  if (sheetResult?.ok) {
+    return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetResult.customer || account) });
   }
   if (!GITHUB_TOKEN) return res.json({ ok: true, storage: "browser-only", customer: publicAccount(account) });
   const accounts = await readRepoJson("data/accounts.json", []);
@@ -87,6 +96,10 @@ app.post("/api/accounts/register", async (req, res) => {
 app.post("/api/accounts/login", async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
+  const sheetLogin = await postSheetAction("login", { email, password }).catch(() => null);
+  if (sheetLogin?.ok && sheetLogin.customer) {
+    return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
+  }
   if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Tai khoan online chua duoc cau hinh storage" });
   const accounts = await readRepoJson("data/accounts.json", []);
   const account = array(accounts).find((item) => String(item.email || "").toLowerCase() === email);
@@ -110,8 +123,9 @@ app.post("/api/logout", (_req, res) => {
 });
 
 app.get("/api/admin/site", requireAdmin, async (_req, res) => {
-  if (!GITHUB_TOKEN) return res.sendFile(path.join(root, "site.json"));
-  res.json(await readRepoJson("data/site.json", await readBundledSite()));
+  if (!GITHUB_TOKEN) return res.json(await readPublicSite());
+  const repoSite = await readRepoJson("data/site.json", await readBundledSite());
+  res.json(await readSheetSite(repoSite, { sheetId: GOOGLE_SHEET_ID }));
 });
 
 app.put("/api/admin/site", requireAdmin, async (req, res) => {
@@ -134,8 +148,8 @@ app.get("/api/admin/status", requireAdmin, (_req, res) => {
   res.json({
     ok: true,
     mode: "vercel",
-    siteStorage: GITHUB_TOKEN ? "GitHub data/site.json" : "bundled site.json",
-    leadsStorage: GITHUB_TOKEN ? "GitHub data/leads.json" : "browser-only",
+    siteStorage: GOOGLE_SHEET_ID ? "Google Sheet " + GOOGLE_SHEET_ID : (GITHUB_TOKEN ? "GitHub data/site.json" : "bundled site.json"),
+    leadsStorage: process.env.GOOGLE_SHEETS_WEBAPP_URL ? "Google Sheet Web App" : (GITHUB_TOKEN ? "GitHub data/leads.json" : "browser-only"),
     uploadStorage: "external-link",
     canSaveSite: Boolean(GITHUB_TOKEN),
     canSaveLeads: Boolean(GITHUB_TOKEN),
@@ -168,6 +182,11 @@ module.exports = app;
 
 async function readBundledSite() {
   return JSON.parse(await fs.readFile(path.join(root, "site.json"), "utf8"));
+}
+
+async function readPublicSite() {
+  const baseSite = await readBundledSite();
+  return readSheetSite(baseSite, { sheetId: GOOGLE_SHEET_ID });
 }
 
 async function readRepoJson(filePath, fallback) {

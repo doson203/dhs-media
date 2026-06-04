@@ -4,6 +4,7 @@ const path = require("node:path");
 
 const express = require("express");
 const multer = require("multer");
+const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
 
 const app = express();
 const rootDir = __dirname;
@@ -18,6 +19,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 const SESSION_SECRET = process.env.SESSION_SECRET || "change-this-secret";
 const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").replace(/\/$/, "");
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 2048);
+const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -71,6 +73,10 @@ app.post("/api/accounts/register", async (req, res) => {
 app.post("/api/accounts/login", async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
+  const sheetLogin = await postSheetAction("login", { email, password }).catch(() => null);
+  if (sheetLogin?.ok && sheetLogin.customer) {
+    return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
+  }
   const account = await findAccount(email);
   if (!account || !verifyPassword(password, account.passwordHash)) {
     return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
@@ -104,8 +110,8 @@ app.get("/api/admin/status", requireAdmin, (_req, res) => {
   res.json({
     ok: true,
     mode: "local-node",
-    siteStorage: "data/site.json",
-    leadsStorage: "data/leads.json",
+    siteStorage: GOOGLE_SHEET_ID ? `Google Sheet ${GOOGLE_SHEET_ID}` : "data/site.json",
+    leadsStorage: process.env.GOOGLE_SHEETS_WEBAPP_URL ? "Google Sheet Web App" : "data/leads.json",
     uploadStorage: "uploads/",
     canSaveSite: true,
     canSaveLeads: true,
@@ -152,7 +158,8 @@ app.listen(PORT, async () => {
 
 async function readSite() {
   const raw = await fs.readFile(sitePath, "utf8");
-  return normalizeSite(JSON.parse(raw));
+  const localSite = normalizeSite(JSON.parse(raw));
+  return normalizeSite(await readSheetSite(localSite, { sheetId: GOOGLE_SHEET_ID }));
 }
 
 async function writeSite(site) {
@@ -235,6 +242,8 @@ function requireAdmin(req, res, next) {
 }
 
 async function appendLead(lead) {
+  const sheetResult = await postSheetAction("lead", { lead }).catch(() => null);
+  if (sheetResult?.ok) return;
   await fs.mkdir(dataDir, { recursive: true });
   const leads = await readLeads();
   const filtered = array(leads).filter((item) => item.email !== lead.email);
@@ -288,11 +297,33 @@ async function writeAccounts(accounts) {
 }
 
 async function findAccount(email) {
+  const sheetResult = await postSheetAction("loginLookup", { email }).catch(() => null);
+  if (sheetResult?.ok && sheetResult.account) {
+    return {
+      name: String(sheetResult.account.name || ""),
+      email: String(sheetResult.account.email || "").trim().toLowerCase(),
+      phone: String(sheetResult.account.phone || ""),
+      passwordHash: String(sheetResult.account.passwordHash || ""),
+      createdAt: String(sheetResult.account.createdAt || ""),
+      updatedAt: String(sheetResult.account.updatedAt || "")
+    };
+  }
   const accounts = await readAccounts();
   return accounts.find((account) => account.email === String(email || "").trim().toLowerCase());
 }
 
 async function saveAccount(account) {
+  const sheetResult = await postSheetAction("register", { account }).catch(() => null);
+  if (sheetResult?.ok && sheetResult.customer) {
+    return {
+      name: String(sheetResult.customer.name || account.name),
+      email: String(sheetResult.customer.email || account.email),
+      phone: String(sheetResult.customer.phone || account.phone),
+      passwordHash: String(sheetResult.customer.passwordHash || ""),
+      createdAt: String(sheetResult.customer.createdAt || ""),
+      updatedAt: String(sheetResult.customer.updatedAt || "")
+    };
+  }
   const accounts = await readAccounts();
   const now = new Date().toISOString();
   const existing = accounts.find((item) => item.email === account.email);
