@@ -1,61 +1,107 @@
 const money = (value) => value || "Lien he";
 
 let currentSite = null;
+let activeFilter = "all";
+let searchTerm = "";
 
 async function loadSite() {
   const site = await loadSiteData();
   currentSite = site;
-  document.title = `${site.brand.name || "DHS MEDIA"} - Kho app automation`;
+  document.title = `${site.brand.name || "DHS MEDIA"} - Kho tool reup video`;
   byId("brandName").textContent = site.brand.name || "DHS MEDIA";
   byId("brandLogo").textContent = site.brand.logoText || "DM";
   byId("heroEyebrow").textContent = site.hero.eyebrow || "";
   byId("heroTitle").textContent = site.hero.title || "";
   byId("heroDescription").textContent = site.hero.description || "";
-  byId("primaryCta").textContent = site.hero.primaryCta || "Xem san pham";
-  byId("secondaryCta").textContent = site.hero.secondaryCta || "Xem demo";
   byId("heroImage").src = site.hero.image || "/assets/app-preview.svg";
 
   byId("stats").innerHTML = (site.stats || []).map((item) => `
-    <div class="stat"><strong>${escapeHtml(item.value)}</strong><span>${escapeHtml(item.label)}</span></div>
+    <article class="stat"><strong>${escapeHtml(item.value)}</strong><span>${escapeHtml(item.label)}</span></article>
   `).join("");
 
-  byId("appGrid").innerHTML = (site.apps || []).map((app, index) => `
-    <article class="app-card shop-card">
-      <img src="${escapeAttr(app.cover || "/assets/app-preview.svg")}" alt="${escapeAttr(app.name)}">
-      <div class="app-body">
-        <div class="app-meta"><span>${escapeHtml(app.status)}</span><span>${escapeHtml(app.version)}</span></div>
-        <h3>${escapeHtml(app.name)}</h3>
-        <p class="muted">${escapeHtml(app.tagline)}</p>
-        <div class="price-list">
-          ${(app.prices || []).map((plan) => `
-            <div class="price-line"><strong>${escapeHtml(plan.price)}</strong><span>${escapeHtml(plan.name)}</span></div>
-          `).join("") || `<div class="price-line"><strong>${escapeHtml(app.priceFrom || "Lien he")}</strong><span>Gia tu</span></div>`}
+  renderProducts();
+  renderDemos(site);
+  renderFaq(site);
+  renderContact(site);
+}
+
+function renderProducts() {
+  const apps = currentSite?.apps || [];
+  const filtered = apps.filter((app) => {
+    const haystack = `${app.name} ${app.tagline} ${app.description} ${(app.features || []).join(" ")}`.toLowerCase();
+    const matchesSearch = !searchTerm || haystack.includes(searchTerm);
+    const status = String(app.status || "").toLowerCase();
+    const matchesFilter = activeFilter === "all"
+      || (activeFilter === "ready" && status.includes("dang"))
+      || (activeFilter === "soon" && (status.includes("sap") || status.includes("phat trien")));
+    return matchesSearch && matchesFilter;
+  });
+
+  byId("featuredGrid").innerHTML = apps.slice(0, 3).map(productCard).join("");
+  byId("appGrid").innerHTML = filtered.map(productCard).join("") || `
+    <div class="empty-state">Khong tim thay san pham phu hop.</div>
+  `;
+
+  document.querySelectorAll(".buy-btn").forEach((button) => {
+    button.addEventListener("click", () => openBuyModal(apps[Number(button.dataset.index)]));
+  });
+}
+
+function productCard(app) {
+  const apps = currentSite?.apps || [];
+  const index = apps.indexOf(app);
+  const firstPlan = (app.prices || [])[0];
+  const price = firstPlan?.price || app.priceFrom || "Lien he";
+  const plan = firstPlan?.name || "Gia tu";
+  const status = app.status || "Dang ban";
+  const tag = status.toLowerCase().includes("sap") ? "Sap ra mat" : "Dang ban";
+  const discount = app.prices && app.prices.length > 1 ? "Nhieu goi" : "Ban quyen";
+
+  return `
+    <article class="product-card">
+      <div class="thumb-wrap">
+        <img src="${escapeAttr(app.cover || "/assets/app-preview.svg")}" alt="${escapeAttr(app.name)}">
+        <span class="sale-badge">${escapeHtml(discount)}</span>
+      </div>
+      <div class="product-body">
+        <div class="product-tags">
+          <span>${escapeHtml(tag)}</span>
+          <span>${escapeHtml(app.version || "DHS")}</span>
         </div>
-        <ul class="features">${(app.features || []).slice(0, 5).map((f) => `<li>${escapeHtml(f)}</li>`).join("")}</ul>
-        <div class="hero-actions">
+        <h3>${escapeHtml(app.name)}</h3>
+        <p>${escapeHtml(app.tagline)}</p>
+        <div class="product-price">
+          <strong>${escapeHtml(money(price))}</strong>
+          <span>${escapeHtml(plan)}</span>
+        </div>
+        <ul>${(app.features || []).slice(0, 3).map((f) => `<li>${escapeHtml(f)}</li>`).join("")}</ul>
+        <div class="card-actions">
           <button class="btn primary buy-btn" data-index="${index}">Mua ngay</button>
-          ${app.demoUrl ? `<a class="btn secondary" href="${escapeAttr(app.demoUrl)}" target="_blank" rel="noreferrer">Xem demo</a>` : `<a class="btn secondary" href="#demo">Xem demo</a>`}
+          ${app.demoUrl ? `<a class="btn ghost" href="${escapeAttr(app.demoUrl)}" target="_blank" rel="noreferrer">Demo</a>` : `<a class="btn ghost" href="#demo">Demo</a>`}
         </div>
       </div>
     </article>
-  `).join("");
+  `;
+}
 
-  document.querySelectorAll(".buy-btn").forEach((button) => {
-    button.addEventListener("click", () => openBuyModal(site.apps[Number(button.dataset.index)]));
-  });
-
+function renderDemos(site) {
   byId("demoList").innerHTML = (site.demos || []).map((demo) => `
     <article class="demo-card">
+      <div class="demo-thumb">${demo.poster ? `<img src="${escapeAttr(demo.poster)}" alt="${escapeAttr(demo.title)}">` : "<span>DEMO</span>"}</div>
       <h3>${escapeHtml(demo.title || "Demo san pham")}</h3>
       <p class="muted">${escapeHtml(demo.description || "Cap nhat link demo trong cau hinh web.")}</p>
       ${demo.url ? `<a href="${escapeAttr(demo.url)}" target="_blank" rel="noreferrer">Mo demo</a>` : "<span class=\"muted\">Chua co link demo</span>"}
     </article>
   `).join("");
+}
 
+function renderFaq(site) {
   byId("faqList").innerHTML = (site.faq || []).map((item) => `
     <article class="faq-item"><h3>${escapeHtml(item.question)}</h3><p class="muted">${escapeHtml(item.answer)}</p></article>
   `).join("");
+}
 
+function renderContact(site) {
   byId("contactCard").innerHTML = Object.entries(site.contact || {}).map(([key, value]) => `
     <div class="contact-line"><span>${escapeHtml(key.toUpperCase())}</span><strong>${escapeHtml(value)}</strong></div>
   `).join("");
@@ -130,6 +176,21 @@ document.querySelectorAll("[data-auth-open]").forEach((button) => {
 
 document.querySelectorAll("[data-auth-tab]").forEach((button) => {
   button.addEventListener("click", () => setAuthTab(button.dataset.authTab));
+});
+
+document.querySelectorAll("[data-filter]").forEach((button) => {
+  button.addEventListener("click", () => {
+    activeFilter = button.dataset.filter;
+    document.querySelectorAll("[data-filter]").forEach((item) => item.classList.toggle("active", item === button));
+    renderProducts();
+  });
+});
+
+byId("searchForm")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  searchTerm = String(byId("productSearch").value || "").trim().toLowerCase();
+  renderProducts();
+  byId("apps").scrollIntoView({ behavior: "smooth" });
 });
 
 byId("modalClose")?.addEventListener("click", () => byId("buyModal").hidden = true);

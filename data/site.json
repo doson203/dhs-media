@@ -6,8 +6,8 @@
   },
   "hero": {
     "eyebrow": "DHS MEDIA - kho tool automation",
-    "title": "Kho app automation cho nguoi lam noi dung va ban hang",
-    "description": "Tong hop cac phan mem ho tro cao video, xu ly video, voice, render va quan ly noi dung. Khach co the xem demo, chon goi phu hop va dang ky nhan cap nhat san pham moi.",
+    "title": "Kho tool reup video va automation cho nguoi ban hang",
+    "description": "Chon tool phu hop, xem demo, dang ky thong tin va nhan key kich hoat. DHS MEDIA tap trung vao cao video, xu ly video, voice/TTS, preset va quan ly ban quyen.",
     "primaryCta": "Xem tool dang ban",
     "secondaryCta": "Xem video demo",
     "image": "/assets/app-preview.svg"
