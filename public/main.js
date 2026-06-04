@@ -20,7 +20,7 @@ async function loadSite() {
   `).join("");
 
   renderProducts();
-  renderVideoProducts(site);
+  renderVideoProductsSafe(site);
   renderWorkflowProducts(site);
   renderDemos(site);
   renderFaq(site);
@@ -77,6 +77,54 @@ function renderVideoProducts(site) {
       </div>
     </article>
   `).join("") || `<div class="empty-state">Chưa có sản phẩm video AI/prompt.</div>`;
+
+  document.querySelectorAll("[data-video-index]").forEach((button) => {
+    button.addEventListener("click", () => openVideoModal(products[Number(button.dataset.videoIndex)]));
+  });
+  document.querySelectorAll("[data-preview-index]").forEach((button) => {
+    let timer = null;
+    const item = products[Number(button.dataset.previewIndex)];
+    button.addEventListener("mouseenter", () => {
+      timer = window.setTimeout(() => showHoverPreview(button, item), 160);
+    });
+    button.addEventListener("mouseleave", () => {
+      window.clearTimeout(timer);
+      hideHoverPreview(button);
+    });
+    button.addEventListener("focus", () => showHoverPreview(button, item));
+    button.addEventListener("blur", () => hideHoverPreview(button));
+  });
+}
+
+function renderVideoProductsSafe(site) {
+  const products = site.videoProducts || [];
+  byId("videoProductGrid").innerHTML = products.map((item, index) => {
+    const canPlay = hasVideoUrl(item.videoUrl);
+    return `
+    <article class="video-product-card">
+      <button class="video-thumb-button" data-video-index="${index}" data-preview-index="${index}" type="button" aria-label="Xem ${escapeAttr(item.title)}">
+        <img src="${escapeAttr(item.thumbnail || "/assets/app-preview.svg")}" alt="${escapeAttr(item.title)}">
+        ${canPlay ? `<span class="play-mark">▶</span>` : `<span class="sale-badge media-badge">Ảnh</span>`}
+        <span class="sale-badge">${escapeHtml(item.category || "Prompt AI")}</span>
+      </button>
+      <div class="product-body">
+        <div class="product-tags">
+          <span>${escapeHtml(item.status || "Đang bán")}</span>
+          <span>${escapeHtml(item.format || "Video + Prompt")}</span>
+        </div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="product-price">
+          <strong>${escapeHtml(item.price || "Liên hệ")}</strong>
+          <span>${escapeHtml(item.license || "Bản quyền sử dụng")}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn primary buy-video-btn" data-video-index="${index}" type="button">Mua prompt</button>
+          <button class="btn ghost" data-video-index="${index}" type="button">${canPlay ? "Xem video" : "Xem chi tiết"}</button>
+        </div>
+      </div>
+    </article>`;
+  }).join("") || `<div class="empty-state">Chưa có sản phẩm video AI/prompt.</div>`;
 
   document.querySelectorAll("[data-video-index]").forEach((button) => {
     button.addEventListener("click", () => openVideoModal(products[Number(button.dataset.videoIndex)]));
@@ -200,10 +248,16 @@ function openBuyModal(app) {
 
 function openVideoModal(item) {
   if (!item) return;
+  const sourceUrl = normalizeVideoUrl(item.videoUrl);
   byId("videoTitle").textContent = item.title || "Video sản phẩm";
   byId("videoDesc").textContent = item.description || "";
-  byId("videoPlayer").className = `video-player ${getVideoPlayerMode(item)}`;
-  byId("videoPlayer").innerHTML = videoEmbed(item.videoUrl, item.thumbnail);
+  byId("videoPlayer").className = `video-player ${getVideoPlayerModeSafe(item)}`;
+  byId("videoPlayer").innerHTML = videoEmbedSafe(item.videoUrl, item.thumbnail);
+  const sourceBtn = byId("videoSourceBtn");
+  if (sourceBtn) {
+    sourceBtn.hidden = !sourceUrl;
+    sourceBtn.href = sourceUrl || "#";
+  }
   byId("videoBuyBtn").onclick = () => {
     byId("videoModal").hidden = true;
     openAuth("register");
@@ -241,7 +295,7 @@ function hoverPreviewEmbed(item) {
 
 function showHoverPreview(button, item) {
   if (!button || button.querySelector(".hover-preview")) return;
-  const markup = hoverPreviewEmbed(item);
+  const markup = hoverPreviewEmbedSafe(item);
   if (!markup) return;
   button.insertAdjacentHTML("beforeend", markup);
   button.classList.add("is-previewing");
@@ -271,6 +325,66 @@ function isVideoFile(url) {
 function getYouTubeId(url) {
   const match = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   return match ? match[1] : "";
+}
+
+function videoEmbedSafe(url, thumbnail) {
+  const cleanUrl = normalizeVideoUrl(url);
+  if (!cleanUrl) {
+    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Chưa có link video, đang hiển thị ảnh sản phẩm</span></div>`;
+  }
+  const youtubeId = getYouTubeIdSafe(cleanUrl);
+  if (youtubeId) {
+    return `<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}?rel=0&playsinline=1&autoplay=1&mute=1" title="Video sản phẩm" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+  }
+  if (isVideoFile(cleanUrl)) {
+    return `<video src="${escapeAttr(cleanUrl)}" controls autoplay muted loop playsinline preload="auto" poster="${escapeAttr(thumbnail || "")}"></video>`;
+  }
+  return `<iframe src="${escapeAttr(cleanUrl)}" title="Video sản phẩm" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+function hoverPreviewEmbedSafe(item) {
+  const cleanUrl = normalizeVideoUrl(item?.videoUrl);
+  if (!cleanUrl) return "";
+  const youtubeId = getYouTubeIdSafe(cleanUrl);
+  if (youtubeId) {
+    return `<iframe class="hover-preview" src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${escapeAttr(youtubeId)}&playsinline=1&rel=0" title="Preview" allow="autoplay; encrypted-media; picture-in-picture" tabindex="-1"></iframe>`;
+  }
+  if (isVideoFile(cleanUrl)) {
+    return `<video class="hover-preview" src="${escapeAttr(cleanUrl)}" muted autoplay loop playsinline preload="metadata"></video>`;
+  }
+  return "";
+}
+
+function getVideoPlayerModeSafe(item) {
+  const url = normalizeVideoUrl(item?.videoUrl);
+  if (!url) return "placeholder";
+  if (isVideoFile(url)) return "video-file";
+  return /youtube\.com\/shorts\//i.test(url) ? "portrait" : "landscape";
+}
+
+function getYouTubeIdSafe(url) {
+  const match = normalizeVideoUrl(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  return match ? match[1] : "";
+}
+
+function hasVideoUrl(url) {
+  return Boolean(normalizeVideoUrl(url));
+}
+
+function normalizeVideoUrl(url) {
+  let cleanUrl = String(url || "").trim();
+  if (!cleanUrl) return "";
+  cleanUrl = cleanUrl.replace(/^https:\/https:\/\//i, "https://");
+  cleanUrl = cleanUrl.replace(/^http:\/http:\/\//i, "http://");
+  cleanUrl = cleanUrl.replace(/^https:\/\/https\/\//i, "https://");
+  cleanUrl = cleanUrl.replace(/^http:\/\/http\/\//i, "http://");
+  cleanUrl = cleanUrl.replace(/^https:\/(?!\/)/i, "https://");
+  cleanUrl = cleanUrl.replace(/^http:\/(?!\/)/i, "http://");
+  if (/^(www\.)?(youtube\.com|youtu\.be)\//i.test(cleanUrl)) {
+    cleanUrl = `https://${cleanUrl.replace(/^www\./i, "")}`;
+  }
+  if (!/^https?:\/\//i.test(cleanUrl)) return "";
+  return cleanUrl;
 }
 
 function openAuth(mode = "login") {
@@ -345,6 +459,11 @@ async function registerAccount(customer) {
 }
 
 async function loginAccount(email, password) {
+  const fallbackLogin = () => {
+    const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
+    const customer = customers.find((item) => item.email === email && item.password === password);
+    return customer ? { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) } : { ok: false };
+  };
   try {
     const res = await fetch("/api/accounts/login", {
       method: "POST",
@@ -352,10 +471,10 @@ async function loginAccount(email, password) {
       body: JSON.stringify({ email, password })
     });
     if (res.ok) return await res.json();
+    const fallback = fallbackLogin();
+    if (fallback.ok || res.status === 501 || res.status >= 500) return fallback;
   } catch {}
-  const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
-  const customer = customers.find((item) => item.email === email && item.password === password);
-  return customer ? { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) } : { ok: false };
+  return fallbackLogin();
 }
 
 function stripPrivateCustomer(customer) {
@@ -439,6 +558,7 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
   event.currentTarget.reset();
   setAuthTab("login");
   byId("loginForm").querySelector('[name="email"]').value = customer.email;
+  byId("loginForm").querySelector('[name="password"]').value = customer.password;
   byId("authMessage").textContent = "Đăng ký thành công. Bạn có thể đăng nhập bằng tài khoản vừa tạo.";
 });
 

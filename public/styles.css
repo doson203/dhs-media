@@ -281,6 +281,11 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   font-size: 12px;
   font-weight: 950;
 }
+.video-thumb-button .media-badge {
+  left: auto;
+  right: 12px;
+  background: #0f766e;
+}
 .product-body { padding: 16px; }
 .product-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .product-tags span {
