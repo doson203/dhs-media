@@ -57,6 +57,10 @@
     "buyerEmail": "doson380@gmail.com",
     "buyerName": "HỒNG SƠN ĐỖ",
     "buyerPhone": "0389755587",
-    "createdAt": "2026-06-04T19:23:42.484Z"
+    "createdAt": "2026-06-04T19:23:42.484Z",
+    "paymentLinkId": "bdd0623ee1fb468c95f0f858c74c2666",
+    "checkoutUrl": "https://pay.payos.vn/web/bdd0623ee1fb468c95f0f858c74c2666",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMHI46360208QRIBFTTA53037045405690005802VN62160812DHS60102248363043DBD",
+    "updatedAt": "2026-06-04T19:23:44.661Z"
   }
 ]
