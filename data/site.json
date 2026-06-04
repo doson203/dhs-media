@@ -1,0 +1,122 @@
+{
+  "brand": {
+    "name": "Reup Tools",
+    "logoText": "RT",
+    "tagline": "Kho tool ho tro reup va automation"
+  },
+  "hero": {
+    "eyebrow": "Kho tool ho tro reup va automation",
+    "title": "TOOL DANG BAN",
+    "description": "Tong hop cac phan mem ho tro cao video, xu ly video, voice, render va quan ly noi dung. Chon tool phu hop, xem huong dan va lien he admin de kich hoat ban quyen.",
+    "primaryCta": "Xem tool dang ban",
+    "secondaryCta": "Lien he admin",
+    "image": "/assets/app-preview.svg"
+  },
+  "stats": [
+    { "label": "Tool dang ban", "value": "3+" },
+    { "label": "Nen tang", "value": "Windows" },
+    { "label": "Ho tro", "value": "Zalo" }
+  ],
+  "apps": [
+    {
+      "id": "reup-tool",
+      "name": "REUP TOOL",
+      "tagline": "Cao TikTok Viet, xu ly video, voice/TTS, preset va hang doi",
+      "description": "Phan mem desktop ho tro nguoi ban hang tao video reup nhanh hon voi bo cong cu loc video, cat ghep, voice, subtitle, overlay va render CPU/GPU.",
+      "version": "3.2.0",
+      "status": "Dang ban",
+      "priceFrom": "250,000 VND / 1 Thang",
+      "cover": "/assets/app-preview.svg",
+      "demoUrl": "",
+      "guideUrl": "",
+      "downloadUrl": "",
+      "prices": [
+        { "name": "1 Thang", "price": "250,000 VND" },
+        { "name": "3 Thang", "price": "600,000 VND" },
+        { "name": "6 Thang", "price": "1,100,000 VND" },
+        { "name": "1 Nam", "price": "1,500,000 VND" },
+        { "name": "Vinh vien", "price": "5,000,000 VND" }
+      ],
+      "features": [
+        "Cao TikTok Viet theo san pham",
+        "Loc dung san pham va khong trung kenh",
+        "Tao voice/TTS va tu dong khop video",
+        "Cat ghep, overlay, subtitle, che mat",
+        "Preset cau hinh va hang doi"
+      ]
+    },
+    {
+      "id": "reup-key",
+      "name": "REUP KEY",
+      "tagline": "Quan ly key va kich hoat app cho khach hang",
+      "description": "Bo cong cu ho tro quan ly ban quyen, cap key, theo doi may kich hoat va ho tro ban giao app cho nguoi dung.",
+      "version": "1.0.0",
+      "status": "Sap ra mat",
+      "priceFrom": "Lien he",
+      "cover": "/assets/app-preview.svg",
+      "demoUrl": "",
+      "guideUrl": "",
+      "downloadUrl": "",
+      "prices": [
+        { "name": "1 Thang", "price": "200,000 VND" },
+        { "name": "3 Thang", "price": "570,000 VND" },
+        { "name": "Vinh vien", "price": "3,000,000 VND" }
+      ],
+      "features": [
+        "Tao va quan ly license key",
+        "Theo doi thiet bi kich hoat",
+        "Khoa/mo key khi can",
+        "Phu hop ban app cho nhieu khach"
+      ]
+    },
+    {
+      "id": "reup-auto",
+      "name": "REUP AUTO",
+      "tagline": "Theo doi nguon video va tu dong xu ly hang loat",
+      "description": "Goi automation nang cao cho nguoi can theo doi nguon, xu ly video va nhan thong bao khi co noi dung moi.",
+      "version": "1.0.0",
+      "status": "Dang phat trien",
+      "priceFrom": "350,000 VND / 1 Thang",
+      "cover": "/assets/app-preview.svg",
+      "demoUrl": "",
+      "guideUrl": "",
+      "downloadUrl": "",
+      "prices": [
+        { "name": "1 Thang", "price": "350,000 VND" },
+        { "name": "3 Thang", "price": "875,000 VND" },
+        { "name": "1 Nam", "price": "2,100,000 VND" }
+      ],
+      "features": [
+        "Theo doi nhieu nguon video",
+        "Tu dong tai va xu ly",
+        "Thong bao tien do",
+        "Phu hop team noi dung"
+      ]
+    }
+  ],
+  "pricing": [],
+  "demos": [
+    {
+      "title": "Huong dan su dung Reup Tool",
+      "description": "Gan link YouTube/TikTok hoac upload video demo trong admin.",
+      "url": "",
+      "poster": "/assets/app-preview.svg"
+    }
+  ],
+  "contact": {
+    "zalo": "Cap nhat trong admin",
+    "phone": "Cap nhat trong admin",
+    "email": "sales@example.com",
+    "telegram": ""
+  },
+  "faq": [
+    {
+      "question": "Mua xong nhan app nhu the nao?",
+      "answer": "Sau khi lien he admin va thanh toan, ban se nhan file cai dat va key kich hoat."
+    },
+    {
+      "question": "Co the them nhieu tool tren web khong?",
+      "answer": "Co. Chi can them san pham trong data/site.json hoac trang admin local."
+    }
+  ]
+}

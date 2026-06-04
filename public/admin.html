@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - App Sales Web</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <section class="admin-panel login-box" id="loginBox">
+      <h1>Dang nhap admin</h1>
+      <p class="notice">Mat khau lay tu bien moi truong <code>ADMIN_PASSWORD</code>.</p>
+      <label class="field">Mat khau
+        <input id="password" type="password" autocomplete="current-password">
+      </label>
+      <div class="admin-actions">
+        <button class="save" id="loginBtn">Dang nhap</button>
+      </div>
+      <p class="notice" id="loginMsg"></p>
+    </section>
+
+    <section class="admin-layout" id="adminApp" hidden>
+      <aside class="admin-panel">
+        <h2 id="adminTitle">Quan tri web</h2>
+        <div class="admin-nav">
+          <button data-tab="general" class="active">Thong tin chung</button>
+          <button data-tab="apps">San pham app</button>
+          <button data-tab="pricing">Bang gia</button>
+          <button data-tab="demos">Video demo</button>
+          <button data-tab="faq">FAQ</button>
+          <button data-tab="upload">Upload file</button>
+          <button data-tab="json">JSON nang cao</button>
+        </div>
+        <div class="admin-actions">
+          <button class="save" id="saveBtn">Luu thay doi</button>
+          <button id="logoutBtn">Dang xuat</button>
+        </div>
+        <p class="notice" id="statusMsg"></p>
+      </aside>
+
+      <section class="admin-panel">
+        <div data-panel="general"></div>
+        <div data-panel="apps" hidden></div>
+        <div data-panel="pricing" hidden></div>
+        <div data-panel="demos" hidden></div>
+        <div data-panel="faq" hidden></div>
+        <div data-panel="upload" hidden></div>
+        <div data-panel="json" hidden></div>
+      </section>
+    </section>
+  </main>
+  <script src="/admin.js"></script>
+</body>
+</html>

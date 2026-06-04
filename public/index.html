@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reup Tool - App automation</title>
+  <meta name="description" content="Website gioi thieu va ban phan mem automation.">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">
+      <span id="brandLogo">RT</span>
+      <strong id="brandName">Reup Tool</strong>
+    </a>
+    <nav>
+      <a href="#apps">San pham</a>
+      <a href="#pricing">Bang gia</a>
+      <a href="#demo">Demo</a>
+      <a href="#contact">Lien he</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" id="heroEyebrow"></p>
+        <h1 id="heroTitle"></h1>
+        <p id="heroDescription"></p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#contact" id="primaryCta"></a>
+          <a class="btn secondary" href="#demo" id="secondaryCta"></a>
+        </div>
+        <div class="stats" id="stats"></div>
+      </div>
+      <div class="hero-media">
+        <img id="heroImage" src="/assets/app-preview.svg" alt="App preview">
+      </div>
+    </section>
+
+    <section class="section shop-section" id="apps">
+      <div class="section-title">
+        <span>San pham</span>
+        <h2>TOOL DANG BAN</h2>
+      </div>
+      <div class="app-grid" id="appGrid"></div>
+    </section>
+
+    <section class="section split" id="demo">
+      <div>
+        <div class="section-title">
+          <span>Demo</span>
+          <h2>Video va hinh anh ban co the cap nhat</h2>
+        </div>
+        <p class="muted">Upload video demo hoac dan link YouTube/TikTok trong trang admin. Khach se xem duoc cach app hoat dong truoc khi mua.</p>
+      </div>
+      <div class="demo-list" id="demoList"></div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div class="section-title">
+        <span>Bang gia</span>
+        <h2>Goi ban quyen linh hoat</h2>
+      </div>
+      <div class="price-grid" id="priceGrid"></div>
+    </section>
+
+    <section class="section split">
+      <div>
+        <div class="section-title">
+          <span>FAQ</span>
+          <h2>Cau hoi thuong gap</h2>
+        </div>
+      </div>
+      <div class="faq-list" id="faqList"></div>
+    </section>
+  </main>
+
+  <footer class="footer" id="contact">
+    <div>
+      <h2>San sang ban app cua ban</h2>
+      <p>Cap nhat so dien thoai, Zalo, email va Telegram trong trang admin.</p>
+    </div>
+    <div class="contact-card" id="contactCard"></div>
+  </footer>
+
+  <div class="modal" id="buyModal" hidden>
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose">x</button>
+      <h2 id="modalTitle">Chon goi mua</h2>
+      <p class="muted" id="modalDesc"></p>
+      <label class="field">Chon goi
+        <select id="planSelect"></select>
+      </label>
+      <div class="pay-box">
+        <strong id="payAmount">0 VND</strong>
+        <span>Hay lien he admin de thanh toan va nhan key kich hoat.</span>
+      </div>
+      <div class="hero-actions">
+        <a class="btn primary" id="zaloBuy" href="#contact">Lien he mua</a>
+        <button class="btn secondary" id="cancelBuy">Huy</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/main.js"></script>
+</body>
+</html>

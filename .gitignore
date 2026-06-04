@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+data/site.local.json
+uploads/
+sales_web_preview.png
+npm-debug.log*
