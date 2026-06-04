@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 data/site.local.json
+data/leads.json
 uploads/
 sales_web_preview.png
 npm-debug.log*

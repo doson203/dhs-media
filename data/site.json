@@ -6,10 +6,10 @@
   },
   "hero": {
     "eyebrow": "DHS MEDIA - kho tool automation",
-    "title": "TOOL DANG BAN",
-    "description": "Tong hop cac phan mem ho tro cao video, xu ly video, voice, render va quan ly noi dung. Chon tool phu hop, xem huong dan va lien he admin de kich hoat ban quyen.",
+    "title": "Kho app automation cho nguoi lam noi dung va ban hang",
+    "description": "Tong hop cac phan mem ho tro cao video, xu ly video, voice, render va quan ly noi dung. Khach co the xem demo, chon goi phu hop va dang ky nhan cap nhat san pham moi.",
     "primaryCta": "Xem tool dang ban",
-    "secondaryCta": "Lien he admin",
+    "secondaryCta": "Xem video demo",
     "image": "/assets/app-preview.svg"
   },
   "stats": [

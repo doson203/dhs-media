@@ -10,6 +10,7 @@ const rootDir = __dirname;
 const dataDir = path.join(rootDir, "data");
 const uploadDir = path.join(rootDir, "uploads");
 const sitePath = path.join(dataDir, "site.json");
+const leadsPath = path.join(dataDir, "leads.json");
 
 const PORT = Number(process.env.PORT || 8080);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -41,6 +42,13 @@ app.use(express.static(path.join(rootDir, "public")));
 
 app.get("/api/site", async (_req, res) => {
   res.json(await readSite());
+});
+
+app.post("/api/leads", async (req, res) => {
+  const lead = normalizeLead(req.body || {});
+  if (!lead.email) return res.status(400).json({ ok: false, message: "Thieu email" });
+  await appendLead(lead);
+  res.json({ ok: true });
 });
 
 app.post("/api/login", async (req, res) => {
@@ -122,7 +130,12 @@ function normalizeSite(site) {
       priceFrom: String(item.priceFrom || ""),
       cover: String(item.cover || ""),
       demoUrl: String(item.demoUrl || ""),
+      guideUrl: String(item.guideUrl || ""),
       downloadUrl: String(item.downloadUrl || ""),
+      prices: array(item.prices).map((plan) => ({
+        name: String(plan.name || ""),
+        price: String(plan.price || "")
+      })),
       features: array(item.features).map(String)
     })),
     pricing: array(site.pricing).map((item, index) => ({
@@ -151,6 +164,27 @@ function requireAdmin(req, res, next) {
   const cookies = parseCookies(req.headers.cookie || "");
   if (verifyToken(cookies.admin_token)) return next();
   res.status(401).json({ ok: false, message: "Can dang nhap admin" });
+}
+
+async function appendLead(lead) {
+  await fs.mkdir(dataDir, { recursive: true });
+  let leads = [];
+  try {
+    leads = JSON.parse(await fs.readFile(leadsPath, "utf8"));
+  } catch {}
+  const filtered = array(leads).filter((item) => item.email !== lead.email);
+  filtered.push({ ...lead, createdAt: new Date().toISOString() });
+  await fs.writeFile(leadsPath, JSON.stringify(filtered, null, 2), "utf8");
+}
+
+function normalizeLead(value) {
+  return {
+    name: String(value.name || "").slice(0, 120),
+    email: String(value.email || "").trim().toLowerCase().slice(0, 160),
+    phone: String(value.phone || "").slice(0, 80),
+    interest: String(value.interest || "").slice(0, 160),
+    source: String(value.source || "website").slice(0, 80)
+  };
 }
 
 function signToken(value) {

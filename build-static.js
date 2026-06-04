@@ -34,6 +34,10 @@ app.get("/api/site", (req, res) => {
   res.sendFile(path.join(root, "site.json"));
 });
 
+app.post("/api/leads", express.json({ limit: "1mb" }), (req, res) => {
+  res.json({ ok: true, storage: "browser" });
+});
+
 app.use("/api/admin", (req, res) => {
   res.status(404).json({ error: "Admin API chi chay trong server quan tri local." });
 });

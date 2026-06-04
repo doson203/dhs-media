@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DHS MEDIA - App automation</title>
-  <meta name="description" content="Website gioi thieu va ban phan mem automation.">
+  <title>DHS MEDIA - Kho app automation</title>
+  <meta name="description" content="Website gioi thieu va ban app automation DHS MEDIA.">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -13,12 +13,16 @@
       <span id="brandLogo">DM</span>
       <strong id="brandName">DHS MEDIA</strong>
     </a>
-    <nav>
+    <nav class="main-nav">
       <a href="#apps">San pham</a>
-      <a href="#pricing">Bang gia</a>
       <a href="#demo">Demo</a>
+      <a href="#updates">Nhan tin</a>
       <a href="#contact">Lien he</a>
     </nav>
+    <div class="header-actions">
+      <button class="link-btn" data-auth-open="login">Dang nhap</button>
+      <button class="btn small primary" data-auth-open="register">Dang ky</button>
+    </div>
   </header>
 
   <main>
@@ -28,49 +32,79 @@
         <h1 id="heroTitle"></h1>
         <p id="heroDescription"></p>
         <div class="hero-actions">
-          <a class="btn primary" href="#contact" id="primaryCta"></a>
+          <a class="btn primary" href="#apps" id="primaryCta"></a>
           <a class="btn secondary" href="#demo" id="secondaryCta"></a>
         </div>
         <div class="stats" id="stats"></div>
       </div>
-      <div class="hero-media">
-        <img id="heroImage" src="/assets/app-preview.svg" alt="App preview">
-      </div>
+      <aside class="hero-panel">
+        <div class="panel-top">
+          <span>Kho san pham</span>
+          <strong>DHS MEDIA</strong>
+        </div>
+        <img id="heroImage" src="/assets/app-preview.svg" alt="DHS MEDIA app preview">
+        <div class="quick-list">
+          <span>Cap nhat app moi</span>
+          <span>Video demo san pham</span>
+          <span>Ho tro kich hoat key</span>
+        </div>
+      </aside>
     </section>
 
-    <section class="section shop-section" id="apps">
-      <div class="section-title">
-        <span>San pham</span>
-        <h2>TOOL DANG BAN</h2>
+    <section class="category-strip" aria-label="Danh muc">
+      <a href="#apps">App reup video</a>
+      <a href="#apps">Automation ban hang</a>
+      <a href="#demo">Video demo</a>
+      <a href="#updates">Nhan cap nhat</a>
+    </section>
+
+    <section class="section" id="apps">
+      <div class="section-heading">
+        <p class="eyebrow">San pham noi bat</p>
+        <h2>Tool dang ban</h2>
+        <p>Moi san pham co gia, mo ta, demo va nut lien he mua rieng de khach chon nhanh.</p>
       </div>
       <div class="app-grid" id="appGrid"></div>
     </section>
 
-    <section class="section split" id="demo">
-      <div>
-        <div class="section-title">
-          <span>Demo</span>
-          <h2>Video va hinh anh ban co the cap nhat</h2>
-        </div>
-        <p class="muted">Upload video demo hoac dan link YouTube/TikTok trong trang admin. Khach se xem duoc cach app hoat dong truoc khi mua.</p>
+    <section class="section demo-section" id="demo">
+      <div class="section-heading">
+        <p class="eyebrow">Thu vien demo</p>
+        <h2>Video huong dan va ket qua thuc te</h2>
+        <p>Dan link YouTube, TikTok, Drive hoac link video public vao du lieu web de khach xem truoc khi mua.</p>
       </div>
       <div class="demo-list" id="demoList"></div>
     </section>
 
-    <section class="section" id="pricing">
-      <div class="section-title">
-        <span>Bang gia</span>
-        <h2>Goi ban quyen linh hoat</h2>
+    <section class="section updates" id="updates">
+      <div>
+        <p class="eyebrow">Danh sach khach hang</p>
+        <h2>Cho khach dang ky nhan cap nhat san pham</h2>
+        <p class="muted">Form nay da san sang de noi database/email service. Tren ban hien tai thong tin se duoc luu tam tren trinh duyet va gui qua API neu server co cau hinh luu.</p>
       </div>
-      <div class="price-grid" id="priceGrid"></div>
+      <form class="signup-card" id="leadForm">
+        <label>Ho ten
+          <input name="name" required placeholder="Ten khach hang">
+        </label>
+        <label>Email
+          <input name="email" type="email" required placeholder="email@example.com">
+        </label>
+        <label>Nhu cau
+          <select name="interest">
+            <option>DHS MEDIA REUP TOOL</option>
+            <option>Tool automation moi</option>
+            <option>Bang gia dai ly</option>
+          </select>
+        </label>
+        <button class="btn primary" type="submit">Dang ky nhan tin</button>
+        <p class="form-note" id="leadMessage"></p>
+      </form>
     </section>
 
-    <section class="section split">
-      <div>
-        <div class="section-title">
-          <span>FAQ</span>
-          <h2>Cau hoi thuong gap</h2>
-        </div>
+    <section class="section faq-section">
+      <div class="section-heading">
+        <p class="eyebrow">Giai dap</p>
+        <h2>Cau hoi thuong gap</h2>
       </div>
       <div class="faq-list" id="faqList"></div>
     </section>
@@ -78,15 +112,16 @@
 
   <footer class="footer" id="contact">
     <div>
-      <h2>San sang ban app cua ban</h2>
-      <p>Cap nhat so dien thoai, Zalo, email va Telegram trong trang admin.</p>
+      <p class="eyebrow">Lien he</p>
+      <h2>Can mua app hoac xem demo rieng?</h2>
+      <p>Cap nhat Zalo, email, Telegram va link thanh toan trong cau hinh web.</p>
     </div>
     <div class="contact-card" id="contactCard"></div>
   </footer>
 
   <div class="modal" id="buyModal" hidden>
     <div class="modal-card">
-      <button class="modal-close" id="modalClose">x</button>
+      <button class="modal-close" id="modalClose" aria-label="Dong">x</button>
       <h2 id="modalTitle">Chon goi mua</h2>
       <p class="muted" id="modalDesc"></p>
       <label class="field">Chon goi
@@ -94,12 +129,49 @@
       </label>
       <div class="pay-box">
         <strong id="payAmount">0 VND</strong>
-        <span>Hay lien he admin de thanh toan va nhan key kich hoat.</span>
+        <span>Hay dang ky thong tin hoac lien he admin de nhan key kich hoat.</span>
       </div>
       <div class="hero-actions">
-        <a class="btn primary" id="zaloBuy" href="#contact">Lien he mua</a>
-        <button class="btn secondary" id="cancelBuy">Huy</button>
+        <button class="btn primary" data-auth-open="register">Dang ky mua</button>
+        <a class="btn secondary" id="zaloBuy" href="#contact">Lien he admin</a>
       </div>
+    </div>
+  </div>
+
+  <div class="modal" id="authModal" hidden>
+    <div class="modal-card auth-card">
+      <button class="modal-close" id="authClose" aria-label="Dong">x</button>
+      <div class="auth-tabs">
+        <button class="active" data-auth-tab="login">Dang nhap</button>
+        <button data-auth-tab="register">Dang ky</button>
+      </div>
+      <form id="loginForm" class="auth-form">
+        <h2>Dang nhap khach hang</h2>
+        <label>Email
+          <input name="email" type="email" required placeholder="email@example.com">
+        </label>
+        <label>Mat khau
+          <input name="password" type="password" required placeholder="Mat khau">
+        </label>
+        <button class="btn primary" type="submit">Dang nhap</button>
+      </form>
+      <form id="registerForm" class="auth-form" hidden>
+        <h2>Tao tai khoan nhan cap nhat</h2>
+        <label>Ho ten
+          <input name="name" required placeholder="Ten khach hang">
+        </label>
+        <label>Email
+          <input name="email" type="email" required placeholder="email@example.com">
+        </label>
+        <label>So dien thoai/Zalo
+          <input name="phone" placeholder="So dien thoai hoac Zalo">
+        </label>
+        <label>Mat khau
+          <input name="password" type="password" required placeholder="Mat khau">
+        </label>
+        <button class="btn primary" type="submit">Dang ky</button>
+      </form>
+      <p class="form-note" id="authMessage"></p>
     </div>
   </div>
 
