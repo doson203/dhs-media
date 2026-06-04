@@ -4,7 +4,7 @@ const PAYOS_API = "https://api-merchant.payos.vn/v2/payment-requests";
 
 function paymentConfig() {
   return {
-    payosClientId: process.env.PAYOS_CLIENT_ID || "",
+    payosClientId: process.env.PAYOS_CLIENT_ID || process.env.PAYOS_CLIENT_ID_ALT || "",
     payosApiKey: process.env.PAYOS_API_KEY || "",
     payosChecksumKey: process.env.PAYOS_CHECKSUM_KEY || "",
     publicUrl: normalizePublicUrl(process.env.PUBLIC_SITE_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "http://localhost:8080"),
