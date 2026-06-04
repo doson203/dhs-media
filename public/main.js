@@ -221,7 +221,7 @@ function videoEmbed(url, thumbnail) {
     return `<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}?rel=0&playsinline=1" title="Video sản phẩm" allowfullscreen></iframe>`;
   }
   if (/\.(mp4|webm|ogg)(\?|$)/i.test(cleanUrl)) {
-    return `<video src="${escapeAttr(cleanUrl)}" controls playsinline preload="metadata" poster="${escapeAttr(thumbnail || "")}"></video>`;
+    return `<video src="${escapeAttr(cleanUrl)}" controls autoplay muted loop playsinline preload="auto" poster="${escapeAttr(thumbnail || "")}"></video>`;
   }
   return `<iframe src="${escapeAttr(cleanUrl)}" title="Video sản phẩm" allowfullscreen></iframe>`;
 }
