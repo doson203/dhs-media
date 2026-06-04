@@ -305,7 +305,10 @@ async function save() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(site)
   });
-  if (!res.ok) return status("Lưu lỗi. Hãy đăng nhập lại.");
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    return status(data.message || "Lưu lỗi. Hãy đăng nhập lại.");
+  }
   site = (await res.json()).site;
   status("Đã lưu thành công.");
   renderAll();
