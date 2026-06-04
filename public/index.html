@@ -85,14 +85,28 @@
     <section class="section soft-section" id="apps">
       <div class="section-heading row-heading">
         <div>
-          <p class="eyebrow">Kho tool</p>
-          <h2>Tất cả sản phẩm DHS MEDIA</h2>
-          <p>Bạn có thể thêm app, link tải, video demo và bảng giá trong file cấu hình.</p>
+          <p class="eyebrow">Kho sản phẩm</p>
+          <h2>Sản phẩm video AI và tool DHS MEDIA</h2>
+          <p>Video/prompt tạo bằng app AI được tách riêng khỏi tool reup để khách dễ chọn đúng sản phẩm.</p>
         </div>
         <div class="filter-tabs">
           <button class="active" data-filter="all">Tất cả</button>
           <button data-filter="ready">Đang bán</button>
           <button data-filter="soon">Sắp ra mắt</button>
+        </div>
+      </div>
+      <div class="sub-heading">
+        <div>
+          <h3>Video sản phẩm AI / Prompt</h3>
+          <p>Khách bấm vào thumbnail để xem video giống trải nghiệm YouTube, sau đó chọn mua prompt hoặc file liên quan.</p>
+        </div>
+      </div>
+      <div class="video-product-grid" id="videoProductGrid"></div>
+
+      <div class="sub-heading">
+        <div>
+          <h3>Tool Reup / Automation</h3>
+          <p>Nhóm phần mềm riêng của DHS MEDIA như tool reup, key app và automation.</p>
         </div>
       </div>
       <div class="product-grid" id="appGrid"></div>
@@ -103,8 +117,10 @@
     <section class="section workflow-section" id="workflow">
       <div class="section-heading">
         <p class="eyebrow">Quy trình mua hàng</p>
-        <h2>Từ xem demo đến nhận key kích hoạt</h2>
+        <h2>Workflow riêng cho khách cần quy trình dựng video</h2>
+        <p>Workflow được tách khỏi tool reup và video/prompt để bạn bán như một nhóm sản phẩm riêng.</p>
       </div>
+      <div class="workflow-product-grid" id="workflowProductGrid"></div>
       <div class="workflow-grid">
         <article><span>01</span><strong>Chọn tool</strong><p>Xem tính năng, bảng giá và video demo phù hợp với nhu cầu.</p></article>
         <article><span>02</span><strong>Đăng ký thông tin</strong><p>Khách để lại email/Zalo để admin gửi bản cài đặt và thông báo cập nhật.</p></article>
@@ -226,6 +242,19 @@
         <button class="btn primary" type="submit">Đăng ký</button>
       </form>
       <p class="form-note" id="authMessage"></p>
+    </div>
+  </div>
+
+  <div class="modal" id="videoModal" hidden>
+    <div class="modal-card video-modal-card">
+      <button class="modal-close" id="videoClose" aria-label="Đóng">x</button>
+      <div class="video-player" id="videoPlayer"></div>
+      <h2 id="videoTitle">Video sản phẩm</h2>
+      <p class="muted" id="videoDesc"></p>
+      <div class="hero-actions">
+        <button class="btn primary" id="videoBuyBtn" type="button">Mua prompt</button>
+        <button class="btn secondary" id="videoCloseBtn" type="button">Đóng</button>
+      </div>
     </div>
   </div>
 

@@ -2,20 +2,29 @@
   "brand": {
     "name": "DHS MEDIA",
     "logoText": "DM",
-    "tagline": "Kho tool hỗ trợ automation và reup video"
+    "tagline": "Kho tool, video AI và workflow cho người bán hàng"
   },
   "hero": {
-    "eyebrow": "DHS MEDIA - kho tool automation",
-    "title": "Kho tool reup video và automation cho người bán hàng",
-    "description": "Chọn tool phù hợp, xem demo, đăng ký thông tin và nhận key kích hoạt. DHS MEDIA tập trung vào cào video, xử lý video, voice/TTS, preset và quản lý bản quyền.",
-    "primaryCta": "Xem tool đang bán",
+    "eyebrow": "DHS MEDIA - kho sản phẩm số",
+    "title": "Kho tool reup, video AI và workflow cho người bán hàng online",
+    "description": "Chọn tool phù hợp, xem video demo, đăng ký nhận cập nhật và mua các bộ prompt/workflow phục vụ sản xuất nội dung bán hàng.",
+    "primaryCta": "Xem sản phẩm",
     "secondaryCta": "Xem video demo",
     "image": "/assets/app-preview.svg"
   },
   "stats": [
-    { "label": "Tool đang bán", "value": "3+" },
-    { "label": "Nền tảng", "value": "Windows" },
-    { "label": "Hỗ trợ", "value": "Zalo" }
+    {
+      "label": "Tool đang bán",
+      "value": "3+"
+    },
+    {
+      "label": "Video/Prompt AI",
+      "value": "2+"
+    },
+    {
+      "label": "Hỗ trợ",
+      "value": "Zalo"
+    }
   ],
   "apps": [
     {
@@ -25,17 +34,32 @@
       "description": "Phần mềm desktop hỗ trợ người bán hàng tạo video reup nhanh hơn với bộ công cụ lọc video, cắt ghép, voice, subtitle, overlay và render CPU/GPU.",
       "version": "3.2.0",
       "status": "Đang bán",
-      "priceFrom": "250,000 VND / 1 Tháng",
+      "priceFrom": "250,000 VND / 1 tháng",
       "cover": "/assets/app-preview.svg",
       "demoUrl": "",
       "guideUrl": "",
       "downloadUrl": "",
       "prices": [
-        { "name": "1 Tháng", "price": "250,000 VND" },
-        { "name": "3 Tháng", "price": "600,000 VND" },
-        { "name": "6 Tháng", "price": "1,100,000 VND" },
-        { "name": "1 Năm", "price": "1,500,000 VND" },
-        { "name": "Vĩnh viễn", "price": "5,000,000 VND" }
+        {
+          "name": "1 tháng",
+          "price": "250,000 VND"
+        },
+        {
+          "name": "3 tháng",
+          "price": "600,000 VND"
+        },
+        {
+          "name": "6 tháng",
+          "price": "1,100,000 VND"
+        },
+        {
+          "name": "1 năm",
+          "price": "1,500,000 VND"
+        },
+        {
+          "name": "Vĩnh viễn",
+          "price": "5,000,000 VND"
+        }
       ],
       "features": [
         "Cào TikTok Việt theo sản phẩm",
@@ -58,9 +82,18 @@
       "guideUrl": "",
       "downloadUrl": "",
       "prices": [
-        { "name": "1 Tháng", "price": "200,000 VND" },
-        { "name": "3 Tháng", "price": "570,000 VND" },
-        { "name": "Vĩnh viễn", "price": "3,000,000 VND" }
+        {
+          "name": "1 tháng",
+          "price": "200,000 VND"
+        },
+        {
+          "name": "3 tháng",
+          "price": "570,000 VND"
+        },
+        {
+          "name": "Vĩnh viễn",
+          "price": "3,000,000 VND"
+        }
       ],
       "features": [
         "Tạo và quản lý license key",
@@ -68,29 +101,65 @@
         "Khóa/mở key khi cần",
         "Phù hợp bán app cho nhiều khách"
       ]
+    }
+  ],
+  "videoProducts": [
+    {
+      "id": "ai-video-product-prompt",
+      "title": "Gói prompt tạo video sản phẩm TikTok",
+      "description": "Bộ prompt giúp tạo video sản phẩm bằng app AI, có cấu trúc cảnh quay, lời thoại và CTA bán hàng.",
+      "category": "Prompt AI",
+      "format": "Video + Prompt",
+      "status": "Đang bán",
+      "price": "299,000 VND",
+      "license": "1 bộ prompt",
+      "thumbnail": "/assets/app-preview.svg",
+      "videoUrl": "",
+      "promptUrl": ""
     },
     {
-      "id": "reup-auto",
-      "name": "REUP AUTO",
-      "tagline": "Theo dõi nguồn video và tự động xử lý hàng loạt",
-      "description": "Gói automation nâng cao cho người cần theo dõi nguồn, xử lý video và nhận thông báo khi có nội dung mới.",
-      "version": "1.0.0",
-      "status": "Đang phát triển",
-      "priceFrom": "350,000 VND / 1 Tháng",
+      "id": "ai-video-review-pack",
+      "title": "Bộ video mẫu review sản phẩm",
+      "description": "Gói video demo để khách xem trước phong cách dựng, phù hợp sản phẩm TikTok Shop và nội dung bán hàng ngắn.",
+      "category": "Video AI",
+      "format": "Video demo",
+      "status": "Đang bán",
+      "price": "Liên hệ",
+      "license": "Theo gói",
+      "thumbnail": "/assets/app-preview.svg",
+      "videoUrl": "",
+      "promptUrl": ""
+    }
+  ],
+  "workflows": [
+    {
+      "id": "workflow-ai-product-video",
+      "title": "Workflow dựng video sản phẩm bằng AI",
+      "description": "Quy trình từ ý tưởng, prompt, render video, voice đến xuất bản để tạo nội dung bán hàng ổn định.",
+      "level": "Nâng cao",
+      "duration": "60 phút",
+      "price": "499,000 VND",
       "cover": "/assets/app-preview.svg",
-      "demoUrl": "",
-      "guideUrl": "",
-      "downloadUrl": "",
-      "prices": [
-        { "name": "1 Tháng", "price": "350,000 VND" },
-        { "name": "3 Tháng", "price": "875,000 VND" },
-        { "name": "1 Năm", "price": "2,100,000 VND" }
-      ],
-      "features": [
-        "Theo dõi nhiều nguồn video",
-        "Tự động tải và xử lý",
-        "Thông báo tiến độ",
-        "Phù hợp team nội dung"
+      "steps": [
+        "Chuẩn bị thông tin sản phẩm",
+        "Tạo prompt và cảnh quay",
+        "Render video/voice",
+        "Tối ưu caption và CTA"
+      ]
+    },
+    {
+      "id": "workflow-reup-content",
+      "title": "Workflow reup nội dung bán hàng",
+      "description": "Bộ quy trình quản lý nguồn video, xử lý lại nội dung và xuất bản theo lịch cho team bán hàng.",
+      "level": "Cơ bản",
+      "duration": "45 phút",
+      "price": "399,000 VND",
+      "cover": "/assets/app-preview.svg",
+      "steps": [
+        "Chọn nguồn video",
+        "Lọc nội dung phù hợp",
+        "Dựng lại bằng tool",
+        "Theo dõi kết quả"
       ]
     }
   ],
@@ -115,8 +184,8 @@
       "answer": "Sau khi liên hệ admin và thanh toán, bạn sẽ nhận file cài đặt và key kích hoạt."
     },
     {
-      "question": "Có thể thêm nhiều tool trên web không?",
-      "answer": "Có. Chỉ cần thêm sản phẩm trong data/site.json hoặc trang admin local."
+      "question": "Có thể thêm nhiều tool, video và workflow trên web không?",
+      "answer": "Có. Bạn đăng nhập trang admin để thêm tool, video/prompt AI, workflow, video demo và cập nhật thông tin liên hệ."
     }
   ]
 }

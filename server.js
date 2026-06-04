@@ -69,6 +69,10 @@ app.get("/api/admin/site", requireAdmin, async (_req, res) => {
   res.json(await readSite());
 });
 
+app.get("/api/admin/leads", requireAdmin, async (_req, res) => {
+  res.json(await readLeads());
+});
+
 app.put("/api/admin/site", requireAdmin, async (req, res) => {
   const clean = normalizeSite(req.body || {});
   await writeSite(clean);
@@ -138,6 +142,29 @@ function normalizeSite(site) {
       })),
       features: array(item.features).map(String)
     })),
+    videoProducts: array(site.videoProducts).map((item, index) => ({
+      id: String(item.id || slug(item.title) || `video-product-${index + 1}`),
+      title: String(item.title || "Video/Prompt moi"),
+      description: String(item.description || ""),
+      category: String(item.category || "Prompt AI"),
+      format: String(item.format || "Video + Prompt"),
+      status: String(item.status || "Dang ban"),
+      price: String(item.price || ""),
+      license: String(item.license || ""),
+      thumbnail: String(item.thumbnail || ""),
+      videoUrl: String(item.videoUrl || ""),
+      promptUrl: String(item.promptUrl || "")
+    })),
+    workflows: array(site.workflows).map((item, index) => ({
+      id: String(item.id || slug(item.title) || `workflow-${index + 1}`),
+      title: String(item.title || "Workflow moi"),
+      description: String(item.description || ""),
+      level: String(item.level || ""),
+      duration: String(item.duration || ""),
+      price: String(item.price || ""),
+      cover: String(item.cover || ""),
+      steps: array(item.steps).map(String)
+    })),
     pricing: array(site.pricing).map((item, index) => ({
       id: String(item.id || slug(item.name) || `plan-${index + 1}`),
       name: String(item.name || "Goi moi"),
@@ -168,13 +195,25 @@ function requireAdmin(req, res, next) {
 
 async function appendLead(lead) {
   await fs.mkdir(dataDir, { recursive: true });
-  let leads = [];
-  try {
-    leads = JSON.parse(await fs.readFile(leadsPath, "utf8"));
-  } catch {}
+  const leads = await readLeads();
   const filtered = array(leads).filter((item) => item.email !== lead.email);
   filtered.push({ ...lead, createdAt: new Date().toISOString() });
   await fs.writeFile(leadsPath, JSON.stringify(filtered, null, 2), "utf8");
+}
+
+async function readLeads() {
+  try {
+    return array(JSON.parse(await fs.readFile(leadsPath, "utf8"))).map((lead) => ({
+      name: String(lead.name || ""),
+      email: String(lead.email || ""),
+      phone: String(lead.phone || ""),
+      interest: String(lead.interest || ""),
+      source: String(lead.source || ""),
+      createdAt: String(lead.createdAt || "")
+    }));
+  } catch {
+    return [];
+  }
 }
 
 function normalizeLead(value) {

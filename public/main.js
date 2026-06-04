@@ -20,6 +20,8 @@ async function loadSite() {
   `).join("");
 
   renderProducts();
+  renderVideoProducts(site);
+  renderWorkflowProducts(site);
   renderDemos(site);
   renderFaq(site);
   renderContact(site);
@@ -46,6 +48,59 @@ function renderProducts() {
   document.querySelectorAll(".buy-btn").forEach((button) => {
     button.addEventListener("click", () => openBuyModal(apps[Number(button.dataset.index)]));
   });
+}
+
+function renderVideoProducts(site) {
+  const products = site.videoProducts || [];
+  byId("videoProductGrid").innerHTML = products.map((item, index) => `
+    <article class="video-product-card">
+      <button class="video-thumb-button" data-video-index="${index}" type="button" aria-label="Xem ${escapeAttr(item.title)}">
+        <img src="${escapeAttr(item.thumbnail || "/assets/app-preview.svg")}" alt="${escapeAttr(item.title)}">
+        <span class="play-mark">▶</span>
+        <span class="sale-badge">${escapeHtml(item.category || "Prompt AI")}</span>
+      </button>
+      <div class="product-body">
+        <div class="product-tags">
+          <span>${escapeHtml(item.status || "Đang bán")}</span>
+          <span>${escapeHtml(item.format || "Video + Prompt")}</span>
+        </div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="product-price">
+          <strong>${escapeHtml(item.price || "Liên hệ")}</strong>
+          <span>${escapeHtml(item.license || "Bản quyền sử dụng")}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn primary buy-video-btn" data-video-index="${index}" type="button">Mua prompt</button>
+          <button class="btn ghost" data-video-index="${index}" type="button">Xem video</button>
+        </div>
+      </div>
+    </article>
+  `).join("") || `<div class="empty-state">Chưa có sản phẩm video AI/prompt.</div>`;
+
+  document.querySelectorAll("[data-video-index]").forEach((button) => {
+    button.addEventListener("click", () => openVideoModal(products[Number(button.dataset.videoIndex)]));
+  });
+}
+
+function renderWorkflowProducts(site) {
+  byId("workflowProductGrid").innerHTML = (site.workflows || []).map((item) => `
+    <article class="workflow-product-card">
+      <img src="${escapeAttr(item.cover || "/assets/app-preview.svg")}" alt="${escapeAttr(item.title)}">
+      <div>
+        <div class="product-tags">
+          <span>${escapeHtml(item.level || "Cơ bản")}</span>
+          <span>${escapeHtml(item.duration || "Theo nhu cầu")}</span>
+        </div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="product-price">
+          <strong>${escapeHtml(item.price || "Liên hệ")}</strong>
+          <span>Workflow</span>
+        </div>
+      </div>
+    </article>
+  `).join("") || `<div class="empty-state">Chưa có workflow riêng.</div>`;
 }
 
 function productCard(app) {
@@ -128,6 +183,38 @@ function openBuyModal(app) {
   byId("planSelect").onchange = updateAmount;
   updateAmount();
   byId("buyModal").hidden = false;
+}
+
+function openVideoModal(item) {
+  if (!item) return;
+  byId("videoTitle").textContent = item.title || "Video sản phẩm";
+  byId("videoDesc").textContent = item.description || "";
+  byId("videoPlayer").innerHTML = videoEmbed(item.videoUrl, item.thumbnail);
+  byId("videoBuyBtn").onclick = () => {
+    byId("videoModal").hidden = true;
+    openAuth("register");
+  };
+  byId("videoModal").hidden = false;
+}
+
+function videoEmbed(url, thumbnail) {
+  const cleanUrl = String(url || "").trim();
+  if (!cleanUrl) {
+    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Chưa có link video</span></div>`;
+  }
+  const youtubeId = getYouTubeId(cleanUrl);
+  if (youtubeId) {
+    return `<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}" title="Video sản phẩm" allowfullscreen></iframe>`;
+  }
+  if (/\.(mp4|webm|ogg)(\?|$)/i.test(cleanUrl)) {
+    return `<video src="${escapeAttr(cleanUrl)}" controls poster="${escapeAttr(thumbnail || "")}"></video>`;
+  }
+  return `<iframe src="${escapeAttr(cleanUrl)}" title="Video sản phẩm" allowfullscreen></iframe>`;
+}
+
+function getYouTubeId(url) {
+  const match = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  return match ? match[1] : "";
 }
 
 function openAuth(mode = "login") {
@@ -221,6 +308,8 @@ byId("searchForm")?.addEventListener("submit", (event) => {
 
 byId("modalClose")?.addEventListener("click", () => byId("buyModal").hidden = true);
 byId("authClose")?.addEventListener("click", () => byId("authModal").hidden = true);
+byId("videoClose")?.addEventListener("click", () => byId("videoModal").hidden = true);
+byId("videoCloseBtn")?.addEventListener("click", () => byId("videoModal").hidden = true);
 
 byId("leadForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
