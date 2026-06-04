@@ -1,4 +1,4 @@
-# Reup Tools Sales Web
+# DHS MEDIA Sales Web
 
 Web gioi thieu va ban cac app desktop theo dang shop tool. Co trang khach xem va trang admin local de cap nhat noi dung, bang gia, video demo va file tai app.
 
