@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DHS MEDIA - Kho tool reup video</title>
   <meta name="description" content="Kho tool automation, reup video, TTS và workflow cho người bán hàng online.">
-  <link rel="stylesheet" href="/styles.css?v=20260604-auth-media">
+  <link rel="stylesheet" href="/styles.css?v=20260605-checkout">
 </head>
 <body>
   <header class="site-header">
@@ -259,6 +259,27 @@
     </div>
   </div>
 
-  <script src="/main.js?v=20260604-auth-media"></script>
+  <div class="modal" id="checkoutModal" hidden>
+    <div class="modal-card auth-card">
+      <button class="modal-close" id="checkoutClose" aria-label="Đóng">x</button>
+      <h2>Thanh toán sản phẩm</h2>
+      <p class="muted" id="checkoutProduct"></p>
+      <form id="checkoutForm" class="auth-form">
+        <label>Họ tên
+          <input name="name" required placeholder="Tên khách hàng">
+        </label>
+        <label>Email nhận sản phẩm
+          <input name="email" type="email" required placeholder="email@example.com">
+        </label>
+        <label>Số điện thoại/Zalo
+          <input name="phone" placeholder="Số điện thoại hoặc Zalo">
+        </label>
+        <button class="btn primary" type="submit">Tạo link thanh toán</button>
+      </form>
+      <p class="form-note" id="checkoutMessage"></p>
+    </div>
+  </div>
+
+  <script src="/main.js?v=20260605-checkout"></script>
 </body>
 </html>

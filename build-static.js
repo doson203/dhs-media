@@ -23,6 +23,7 @@ fs.rmSync(distDir, { recursive: true, force: true });
 copyDir(publicDir, distDir);
 fs.copyFileSync(dataFile, path.join(distDir, "site.json"));
 fs.copyFileSync(path.join(root, "sheet-utils.js"), path.join(distDir, "sheet-utils.js"));
+fs.copyFileSync(path.join(root, "checkout-utils.js"), path.join(distDir, "checkout-utils.js"));
 fs.writeFileSync(
   path.join(distDir, "index.js"),
   `const express = require("express");
@@ -30,6 +31,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs/promises");
 const path = require("path");
 const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
+const { createCheckout, handlePayosWebhook } = require("./checkout-utils");
 
 const app = express();
 const root = __dirname;
@@ -107,6 +109,23 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
   }
   res.json({ ok: true, customer: publicAccount(account) });
+});
+
+app.post("/api/checkout/create", async (req, res) => {
+  const result = await createCheckout(req.body || {}, {
+    readSite: readPublicSite,
+    saveOrder,
+    updateOrder
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.post("/api/payments/payos-webhook", async (req, res) => {
+  const result = await handlePayosWebhook(req.body || {}, {
+    getOrder,
+    updateOrder
+  });
+  res.status(result.status || 200).json(result);
 });
 
 app.post("/api/login", (req, res) => {
@@ -187,6 +206,34 @@ async function readBundledSite() {
 async function readPublicSite() {
   const baseSite = await readBundledSite();
   return readSheetSite(baseSite, { sheetId: GOOGLE_SHEET_ID });
+}
+
+async function readOrders() {
+  if (!GITHUB_TOKEN) return [];
+  return readRepoJson("data/orders.json", []);
+}
+
+async function writeOrders(orders) {
+  if (!GITHUB_TOKEN) throw new Error("GITHUB_TOKEN is required to save orders on Vercel");
+  await writeRepoJson("data/orders.json", orders, "Update payment orders");
+}
+
+async function saveOrder(order) {
+  const orders = await readOrders();
+  const next = orders.filter((item) => Number(item.orderCode) !== Number(order.orderCode));
+  next.push(order);
+  await writeOrders(next);
+}
+
+async function getOrder(orderCode) {
+  const orders = await readOrders();
+  return array(orders).find((item) => Number(item.orderCode) === Number(orderCode));
+}
+
+async function updateOrder(orderCode, patch) {
+  const orders = await readOrders();
+  const next = array(orders).map((item) => Number(item.orderCode) === Number(orderCode) ? { ...item, ...patch, updatedAt: new Date().toISOString() } : item);
+  await writeOrders(next);
 }
 
 async function readRepoJson(filePath, fallback) {

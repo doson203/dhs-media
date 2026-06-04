@@ -5,6 +5,7 @@ const path = require("node:path");
 const express = require("express");
 const multer = require("multer");
 const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
+const { createCheckout, handlePayosWebhook } = require("./checkout-utils");
 
 const app = express();
 const rootDir = __dirname;
@@ -13,6 +14,7 @@ const uploadDir = path.join(rootDir, "uploads");
 const sitePath = path.join(dataDir, "site.json");
 const leadsPath = path.join(dataDir, "leads.json");
 const accountsPath = path.join(dataDir, "accounts.json");
+const ordersPath = path.join(dataDir, "orders.json");
 
 const PORT = Number(process.env.PORT || 8080);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -82,6 +84,23 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
   }
   res.json({ ok: true, customer: publicAccount(account) });
+});
+
+app.post("/api/checkout/create", async (req, res) => {
+  const result = await createCheckout(req.body || {}, {
+    readSite,
+    saveOrder,
+    updateOrder
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.post("/api/payments/payos-webhook", async (req, res) => {
+  const result = await handlePayosWebhook(req.body || {}, {
+    getOrder,
+    updateOrder
+  });
+  res.status(result.status || 200).json(result);
 });
 
 app.post("/api/login", async (req, res) => {
@@ -340,6 +359,37 @@ async function saveAccount(account) {
     : [...accounts, saved];
   await writeAccounts(next);
   return saved;
+}
+
+async function readOrders() {
+  try {
+    return array(JSON.parse(await fs.readFile(ordersPath, "utf8")));
+  } catch {
+    return [];
+  }
+}
+
+async function writeOrders(orders) {
+  await fs.mkdir(dataDir, { recursive: true });
+  await fs.writeFile(ordersPath, JSON.stringify(orders, null, 2), "utf8");
+}
+
+async function saveOrder(order) {
+  const orders = await readOrders();
+  const next = orders.filter((item) => Number(item.orderCode) !== Number(order.orderCode));
+  next.push(order);
+  await writeOrders(next);
+}
+
+async function getOrder(orderCode) {
+  const orders = await readOrders();
+  return orders.find((item) => Number(item.orderCode) === Number(orderCode));
+}
+
+async function updateOrder(orderCode, patch) {
+  const orders = await readOrders();
+  const next = orders.map((item) => Number(item.orderCode) === Number(orderCode) ? { ...item, ...patch, updatedAt: new Date().toISOString() } : item);
+  await writeOrders(next);
 }
 
 function normalizeAccount(value) {

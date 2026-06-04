@@ -3,6 +3,7 @@ const money = (value) => value || "Liên hệ";
 let currentSite = null;
 let activeFilter = "all";
 let searchTerm = "";
+let activeCheckoutProduct = null;
 
 async function loadSite() {
   const site = await loadSiteData();
@@ -79,7 +80,16 @@ function renderVideoProducts(site) {
   `).join("") || `<div class="empty-state">Chưa có sản phẩm video AI/prompt.</div>`;
 
   document.querySelectorAll("[data-video-index]").forEach((button) => {
-    button.addEventListener("click", () => openVideoModal(products[Number(button.dataset.videoIndex)]));
+    button.addEventListener("click", () => {
+      if (button.classList.contains("buy-video-btn")) return;
+      openVideoModal(products[Number(button.dataset.videoIndex)]);
+    });
+  });
+  document.querySelectorAll(".buy-video-btn").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openCheckoutModal(products[Number(button.dataset.videoIndex)]);
+    });
   });
   document.querySelectorAll("[data-preview-index]").forEach((button) => {
     let timer = null;
@@ -260,9 +270,20 @@ function openVideoModal(item) {
   }
   byId("videoBuyBtn").onclick = () => {
     byId("videoModal").hidden = true;
-    openAuth("register");
+    openCheckoutModal(item);
   };
   byId("videoModal").hidden = false;
+}
+
+function openCheckoutModal(product) {
+  if (!product) return;
+  activeCheckoutProduct = product;
+  byId("checkoutProduct").textContent = `${product.title || product.name} - ${product.price || "Liên hệ"}`;
+  byId("checkoutMessage").textContent = "";
+  const currentEmail = localStorage.getItem("dhsCurrentCustomer") || "";
+  const form = byId("checkoutForm");
+  form.querySelector('[name="email"]').value = currentEmail.includes("@") ? currentEmail : "";
+  byId("checkoutModal").hidden = false;
 }
 
 function videoEmbed(url, thumbnail) {
@@ -524,6 +545,7 @@ byId("modalClose")?.addEventListener("click", () => byId("buyModal").hidden = tr
 byId("authClose")?.addEventListener("click", () => byId("authModal").hidden = true);
 byId("videoClose")?.addEventListener("click", () => byId("videoModal").hidden = true);
 byId("videoCloseBtn")?.addEventListener("click", () => byId("videoModal").hidden = true);
+byId("checkoutClose")?.addEventListener("click", () => byId("checkoutModal").hidden = true);
 
 byId("leadForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -560,6 +582,35 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
   byId("loginForm").querySelector('[name="email"]').value = customer.email;
   byId("loginForm").querySelector('[name="password"]').value = customer.password;
   byId("authMessage").textContent = "Đăng ký thành công. Bạn có thể đăng nhập bằng tài khoản vừa tạo.";
+});
+
+byId("checkoutForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!activeCheckoutProduct) return;
+  const form = new FormData(event.currentTarget);
+  byId("checkoutMessage").textContent = "Đang tạo link thanh toán...";
+  try {
+    const res = await fetch("/api/checkout/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: activeCheckoutProduct.id,
+        name: String(form.get("name") || ""),
+        email: String(form.get("email") || "").toLowerCase(),
+        phone: String(form.get("phone") || "")
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok || !data.checkoutUrl) {
+      byId("checkoutMessage").textContent = data.message || "Chưa tạo được link thanh toán. Vui lòng liên hệ admin.";
+      return;
+    }
+    localStorage.setItem("dhsCurrentCustomer", String(form.get("email") || "").toLowerCase());
+    byId("checkoutMessage").textContent = "Đã tạo link thanh toán. Đang mở cổng thanh toán...";
+    window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+  } catch (error) {
+    byId("checkoutMessage").textContent = "Không kết nối được cổng thanh toán. Vui lòng thử lại.";
+  }
 });
 
 byId("loginForm")?.addEventListener("submit", async (event) => {
