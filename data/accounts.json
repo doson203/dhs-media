@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Prod Codex",
+    "email": "prod-codex-846928@example.com",
+    "phone": "0900000000",
+    "passwordHash": "scrypt:e0f20224237c514394fb7932165a7c9c:ee16537dee21eda302758d7ef1de5e02c1c5266e31a9750681900659451ebd076c5e5b559a96ce0afa190124fff6d7c439ba49e3de285095a4c197f81f4eefd6",
+    "createdAt": "2026-06-04T12:50:49.588Z",
+    "updatedAt": "2026-06-04T12:50:49.588Z"
+  }
+]
