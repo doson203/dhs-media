@@ -41,6 +41,10 @@
     "buyerEmail": "codex-payment-test2@example.com",
     "buyerName": "Codex Payment Test 2",
     "buyerPhone": "0900000000",
-    "createdAt": "2026-06-04T19:21:32.586Z"
+    "createdAt": "2026-06-04T19:21:32.586Z",
+    "paymentLinkId": "81a7d26e8faa4fa8ab48cf396f3ded92",
+    "checkoutUrl": "https://pay.payos.vn/web/81a7d26e8faa4fa8ab48cf396f3ded92",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMHI44840208QRIBFTTA53037045405690005802VN62160812DHS60089258563046030",
+    "updatedAt": "2026-06-04T19:21:34.705Z"
   }
 ]
