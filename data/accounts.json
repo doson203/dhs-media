@@ -3,8 +3,8 @@
     "name": "DO HONG SON",
     "email": "anhemoi@gmail.com",
     "phone": "6856657567",
-    "passwordHash": "scrypt:0645955598e44deccdc03e290e201b39:c239c48d9ef94fac85299b6290a0cb207db3376fea677d3d4823c6ba4fbcbb69922784c8130588a26ec9ef0cc469109253c6227bcb0464f433254cf6bf6792aa",
-    "createdAt": "2026-06-04T14:02:00.846Z",
-    "updatedAt": "2026-06-04T14:02:00.846Z"
+    "passwordHash": "scrypt:63f79070833d5892e8df50bbfd7c19f3:166292b61cb7db1197d9b4c17c610a7100dd11b214c7ae5739045464fb6872d30229dbe73261d55c29a1bac4a3d8d5366d23bade76635442a2aaf1bd86de4fa2",
+    "createdAt": "2026-06-04T14:02:02.327Z",
+    "updatedAt": "2026-06-04T14:02:02.327Z"
   }
 ]
