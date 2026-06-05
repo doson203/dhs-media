@@ -927,6 +927,20 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   color: #ffffff;
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
 }
+.google-login-box {
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+}
+.google-login-box:empty::before {
+  content: "Đang kiểm tra cấu hình Google...";
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 850;
+}
+.google-auth-message {
+  margin-top: -8px;
+}
 .auth-form {
   display: grid;
   gap: 14px;

@@ -5,6 +5,8 @@ let activeFilter = "all";
 let searchTerm = "";
 let activeCheckoutProduct = null;
 const CURRENT_CUSTOMER_KEY = "dhsCurrentCustomer";
+let googleClientId = "";
+let googleAuthReady = false;
 
 async function loadSite() {
   const site = await loadSiteData();
@@ -29,7 +31,9 @@ async function loadSite() {
   renderContact(site);
   normalizeAuthCopy();
   renderAuthState();
+  initGoogleLogin();
   applyInitialView();
+  handleEmailVerificationReturn();
   handlePaymentReturn();
 }
 
@@ -674,6 +678,13 @@ function setAuthMessage(text, type = "info") {
   message.dataset.state = type;
 }
 
+function setGoogleAuthMessage(text, type = "info") {
+  const message = byId("googleAuthMessage");
+  if (!message) return;
+  message.textContent = text;
+  message.dataset.state = type;
+}
+
 function getCurrentCustomer() {
   const raw = localStorage.getItem(CURRENT_CUSTOMER_KEY) || "";
   if (!raw) return null;
@@ -760,6 +771,31 @@ function applyInitialView() {
   if (path === "/dang-ky" || path === "/register") openAuth("register");
 }
 
+async function handleEmailVerificationReturn() {
+  const path = String(location.pathname || "").replace(/\/+$/, "");
+  const token = new URLSearchParams(location.search).get("token") || "";
+  if (path !== "/xac-nhan-email" || !token) return;
+  showPaymentNotice("Đang xác nhận email tài khoản...", "loading");
+  try {
+    const res = await fetch("/api/accounts/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      showPaymentNotice(data.message || "Không xác nhận được email. Vui lòng thử lại hoặc đăng ký lại.", "error");
+      openAuth("login");
+      return;
+    }
+    showPaymentNotice("Xác nhận email thành công. Bạn có thể đăng nhập tài khoản.", "success");
+    openAuth("login");
+    window.history.replaceState(null, "", "/#home");
+  } catch (error) {
+    showPaymentNotice("Không kết nối được máy chủ xác nhận email.", "error");
+  }
+}
+
 function saveCustomer(customer) {
   const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
   const exists = customers.some((item) => item.email === customer.email);
@@ -790,15 +826,15 @@ async function registerAccount(customer) {
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.ok) {
-      saveCustomer(customer);
+      saveCustomer(stripPrivateCustomer(customer));
       return data;
     }
     return { ok: false, message: data.message || "Máy chủ chưa lưu được tài khoản. Vui lòng thử lại." };
   } catch {
-    saveCustomer(customer);
+    saveCustomer(stripPrivateCustomer(customer));
   }
   await sendLead(customer);
-  return { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) };
+  return { ok: false, message: "Không gửi được email xác nhận. Vui lòng thử lại sau." };
 }
 
 async function loginAccount(email, password) {
@@ -814,10 +850,88 @@ async function loginAccount(email, password) {
       body: JSON.stringify({ email, password })
     });
     if (res.ok) return await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (data?.needsVerification) return { ok: false, needsVerification: true, message: data.message };
     const fallback = fallbackLogin();
     if (fallback.ok || res.status === 501 || res.status >= 500) return fallback;
   } catch {}
   return fallbackLogin();
+}
+
+async function initGoogleLogin() {
+  const box = byId("googleLoginBox");
+  if (!box || googleAuthReady) return;
+  try {
+    const res = await fetch("/api/auth/config");
+    const data = await res.json().catch(() => ({}));
+    googleClientId = String(data.googleClientId || "");
+    if (!googleClientId) {
+      box.innerHTML = "";
+      setGoogleAuthMessage("Chưa cấu hình Google Client ID trên Vercel.", "error");
+      return;
+    }
+    await loadGoogleIdentityScript();
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredential
+    });
+    window.google.accounts.id.renderButton(box, {
+      theme: "outline",
+      size: "large",
+      width: Math.min(360, box.clientWidth || 360),
+      text: "signin_with",
+      shape: "rectangular"
+    });
+    googleAuthReady = true;
+    setGoogleAuthMessage("");
+  } catch (error) {
+    setGoogleAuthMessage("Không tải được đăng nhập Google.", "error");
+  }
+}
+
+function loadGoogleIdentityScript() {
+  return new Promise((resolve, reject) => {
+    if (window.google?.accounts?.id) return resolve();
+    const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (existing) {
+      existing.addEventListener("load", resolve, { once: true });
+      existing.addEventListener("error", reject, { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function handleGoogleCredential(response) {
+  const credential = response?.credential || "";
+  if (!credential) return setGoogleAuthMessage("Google chưa trả thông tin đăng nhập.", "error");
+  setGoogleAuthMessage("Đang xác thực Google...", "loading");
+  try {
+    const res = await fetch("/api/accounts/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      setGoogleAuthMessage(data.message || "Không đăng nhập được bằng Google.", "error");
+      return;
+    }
+    setCurrentCustomer(data.customer);
+    setGoogleAuthMessage("Đăng nhập Google thành công.", "success");
+    showPaymentNotice("Đăng nhập Google thành công.", "success");
+    window.setTimeout(() => {
+      byId("authModal").hidden = true;
+    }, 900);
+  } catch (error) {
+    setGoogleAuthMessage("Không kết nối được máy chủ Google login.", "error");
+  }
 }
 
 function stripPrivateCustomer(customer) {
@@ -901,13 +1015,11 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
     setAuthMessage(result?.message || "Chưa đăng ký được tài khoản. Vui lòng thử lại.", "error");
     return;
   }
-  setCurrentCustomer(result.customer || customer);
   event.currentTarget.reset();
-  setAuthMessage("Đăng ký thành công. Tài khoản đã được đăng nhập và hiển thị trên thanh trên cùng.", "success");
-  showPaymentNotice("Đăng ký thành công. Bạn đang đăng nhập bằng " + customer.email + ".", "success");
-  window.setTimeout(() => {
-    byId("authModal").hidden = true;
-  }, 1300);
+  setAuthTab("login");
+  byId("loginForm").querySelector('[name="email"]').value = customer.email;
+  setAuthMessage(result.message || "Đăng ký thành công. Vui lòng mở email và bấm link xác nhận trước khi đăng nhập.", "success");
+  showPaymentNotice("Đã gửi email xác nhận tài khoản tới " + customer.email + ".", "success");
 });
 
 byId("checkoutForm")?.addEventListener("submit", async (event) => {
@@ -953,7 +1065,7 @@ byId("loginForm")?.addEventListener("submit", async (event) => {
   setAuthMessage("Đang kiểm tra tài khoản...", "loading");
   const result = await loginAccount(email, password);
   if (!result?.ok) {
-    setAuthMessage(result?.message || "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước.", "error");
+    setAuthMessage(result?.message || (result?.needsVerification ? "Bạn cần xác nhận email trước khi đăng nhập." : "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước."), "error");
     return;
   }
   const customer = result.customer || { email };

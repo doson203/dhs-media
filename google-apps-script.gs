@@ -14,8 +14,11 @@ function doPost(e) {
     if (secret && body.secret !== secret) return json({ ok: false, message: "Unauthorized" }, 401);
 
     if (body.action === "lead") return json(saveLead(body.lead || {}));
-    if (body.action === "register") return json(registerAccount(body.account || {}));
+    if (body.action === "register") return json(registerAccount(body.account || {}, body.verificationUrl || ""));
+    if (body.action === "registerWithVerification") return json(registerAccount(body.account || {}, body.verificationUrl || ""));
     if (body.action === "login") return json(loginAccount(body.email || "", body.password || ""));
+    if (body.action === "verifyAccount") return json(verifyAccount(body.token || ""));
+    if (body.action === "googleLogin") return json(googleLogin(body.profile || {}));
     if (body.action === "upsertProduct") return json(upsertProduct(body.product || {}));
     if (body.action === "deleteProduct") return json(deleteProduct(body.id || ""));
     if (body.action === "sendDeliveryEmail") return json(sendDeliveryEmail(body.order || {}));
@@ -137,8 +140,13 @@ function saveLead(lead) {
   return { ok: true };
 }
 
-function registerAccount(account) {
-  const sheet = ensureSheet(ACCOUNTS_SHEET, ["createdAt", "updatedAt", "name", "email", "phone", "salt", "passwordHash"]);
+function accountHeaders() {
+  return ["createdAt", "updatedAt", "name", "email", "phone", "salt", "passwordHash", "verified", "verificationToken", "verificationSentAt", "provider", "googleSub"];
+}
+
+function registerAccount(account, verificationUrl) {
+  const sheet = ensureSheet(ACCOUNTS_SHEET, accountHeaders());
+  const headers = ensureHeaders(sheet, accountHeaders());
   const email = String(account.email || "").trim().toLowerCase();
   const password = String(account.password || "");
   if (!email || !password) return { ok: false, message: "Missing email or password" };
@@ -146,6 +154,8 @@ function registerAccount(account) {
   const existing = findByEmail(sheet, email);
   const salt = existing ? existing.row.salt : Utilities.getUuid().replace(/-/g, "");
   const now = new Date().toISOString();
+  const token = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
+  const keepVerified = String(existing && existing.row.verified || "").toUpperCase() === "TRUE";
   const saved = {
     createdAt: existing ? existing.row.createdAt : now,
     updatedAt: now,
@@ -153,21 +163,98 @@ function registerAccount(account) {
     email,
     phone: String(account.phone || ""),
     salt,
-    passwordHash: hashPassword(password, salt)
+    passwordHash: hashPassword(password, salt),
+    verified: keepVerified ? "TRUE" : "FALSE",
+    verificationToken: keepVerified ? "" : token,
+    verificationSentAt: keepVerified ? "" : now,
+    provider: "password",
+    googleSub: existing ? String(existing.row.googleSub || "") : ""
   };
-  upsertByEmail(sheet, saved);
+  upsertByEmailWithHeaders(sheet, saved, headers);
   saveLead({ name: saved.name, email: saved.email, phone: saved.phone, interest: "Tai khoan khach hang", source: "account" });
-  return { ok: true, customer: publicAccount(saved) };
+  if (!keepVerified) sendVerificationEmail(saved, verificationUrl || "https://dhs-media.vercel.app/xac-nhan-email");
+  return { ok: true, requiresVerification: !keepVerified, customer: publicAccount(saved) };
 }
 
 function loginAccount(emailValue, passwordValue) {
-  const sheet = ensureSheet(ACCOUNTS_SHEET, ["createdAt", "updatedAt", "name", "email", "phone", "salt", "passwordHash"]);
+  const sheet = ensureSheet(ACCOUNTS_SHEET, accountHeaders());
+  ensureHeaders(sheet, accountHeaders());
   const email = String(emailValue || "").trim().toLowerCase();
   const found = findByEmail(sheet, email);
   if (!found) return { ok: false, message: "Email hoac mat khau khong dung" };
   const actual = hashPassword(String(passwordValue || ""), found.row.salt);
   if (actual !== found.row.passwordHash) return { ok: false, message: "Email hoac mat khau khong dung" };
+  const verified = String(found.row.verified || "").toUpperCase();
+  if (verified && verified !== "TRUE") {
+    return { ok: false, needsVerification: true, message: "Can xac nhan email truoc khi dang nhap." };
+  }
   return { ok: true, customer: publicAccount(found.row) };
+}
+
+function verifyAccount(tokenValue) {
+  const token = String(tokenValue || "").trim();
+  if (!token) return { ok: false, message: "Missing verification token" };
+  const sheet = ensureSheet(ACCOUNTS_SHEET, accountHeaders());
+  const headers = ensureHeaders(sheet, accountHeaders());
+  const found = findByColumn(sheet, "verificationToken", token);
+  if (!found) return { ok: false, message: "Token khong hop le hoac da het han." };
+  const row = Object.assign({}, found.row, {
+    updatedAt: new Date().toISOString(),
+    verified: "TRUE",
+    verificationToken: "",
+    verificationSentAt: ""
+  });
+  sheet.getRange(found.index, 1, 1, headers.length).setValues([headers.map((header) => row[header] || "")]);
+  return { ok: true, customer: publicAccount(row) };
+}
+
+function googleLogin(profile) {
+  const email = String(profile.email || "").trim().toLowerCase();
+  const emailVerified = profile.email_verified === true || String(profile.email_verified || "").toLowerCase() === "true";
+  if (!email || !emailVerified) return { ok: false, message: "Google email chua duoc xac minh" };
+  const sheet = ensureSheet(ACCOUNTS_SHEET, accountHeaders());
+  const headers = ensureHeaders(sheet, accountHeaders());
+  const existing = findByEmail(sheet, email);
+  const now = new Date().toISOString();
+  const row = {
+    createdAt: existing ? existing.row.createdAt : now,
+    updatedAt: now,
+    name: String(profile.name || (existing && existing.row.name) || ""),
+    email,
+    phone: existing ? String(existing.row.phone || "") : "",
+    salt: existing ? String(existing.row.salt || "") : "",
+    passwordHash: existing ? String(existing.row.passwordHash || "") : "",
+    verified: "TRUE",
+    verificationToken: "",
+    verificationSentAt: "",
+    provider: "google",
+    googleSub: String(profile.sub || "")
+  };
+  upsertByEmailWithHeaders(sheet, row, headers);
+  saveLead({ name: row.name, email: row.email, phone: row.phone, interest: "Google account", source: "google" });
+  return { ok: true, customer: publicAccount(row) };
+}
+
+function sendVerificationEmail(account, verificationUrl) {
+  const link = String(verificationUrl || "https://dhs-media.vercel.app/xac-nhan-email").replace(/\?+$/, "") + "?token=" + encodeURIComponent(account.verificationToken);
+  const subject = "DHS MEDIA - Xac nhan tai khoan";
+  const plainBody = [
+    "Cam on ban da dang ky tai khoan DHS MEDIA.",
+    "",
+    "Vui long bam link duoi day de xac nhan email truoc khi dang nhap:",
+    link,
+    "",
+    "Neu ban khong dang ky tai khoan, hay bo qua email nay."
+  ].join("\n");
+  const htmlBody = [
+    "<meta charset=\"UTF-8\">",
+    "<h2>DHS MEDIA - Xác nhận tài khoản</h2>",
+    "<p>Cảm ơn bạn đã đăng ký tài khoản DHS MEDIA.</p>",
+    "<p>Vui lòng bấm nút bên dưới để xác nhận email trước khi đăng nhập.</p>",
+    "<p><a href=\"" + escapeHtml(link) + "\" style=\"display:inline-block;padding:12px 18px;background:#0f172a;color:#fff;border-radius:10px;text-decoration:none;font-weight:700\">Xác nhận tài khoản</a></p>",
+    "<p>Hoặc mở link này: <a href=\"" + escapeHtml(link) + "\">" + escapeHtml(link) + "</a></p>"
+  ].join("");
+  MailApp.sendEmail({ to: account.email, subject: subject, body: plainBody, htmlBody: htmlBody });
 }
 
 function ensureSheet(name, headers) {
@@ -182,6 +269,13 @@ function ensureSheet(name, headers) {
 
 function upsertByEmail(sheet, object) {
   const headers = getHeaders(sheet);
+  const found = findByEmail(sheet, object.email);
+  const row = headers.map((header) => object[header] || "");
+  if (found) sheet.getRange(found.index, 1, 1, headers.length).setValues([row]);
+  else sheet.appendRow(row);
+}
+
+function upsertByEmailWithHeaders(sheet, object, headers) {
   const found = findByEmail(sheet, object.email);
   const row = headers.map((header) => object[header] || "");
   if (found) sheet.getRange(found.index, 1, 1, headers.length).setValues([row]);

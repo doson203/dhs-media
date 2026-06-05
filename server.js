@@ -23,6 +23,7 @@ const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").replace(/\/$/,
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 2048);
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
 const SITE_CACHE_MS = Number(process.env.SITE_CACHE_MS || 60_000);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 let siteCache = null;
 
 const upload = multer({
@@ -52,6 +53,10 @@ app.get("/api/site", async (_req, res) => {
   res.json(await readSiteCached());
 });
 
+app.get("/api/auth/config", (_req, res) => {
+  res.json({ googleClientId: GOOGLE_CLIENT_ID });
+});
+
 app.post("/api/leads", async (req, res) => {
   const lead = normalizeLead(req.body || {});
   if (!lead.email) return res.status(400).json({ ok: false, message: "Thieu email" });
@@ -64,15 +69,17 @@ app.post("/api/accounts/register", async (req, res) => {
   if (!account.email || !account.password) {
     return res.status(400).json({ ok: false, message: "Thieu email hoac mat khau" });
   }
-  const saved = await saveAccount(account);
-  await appendLead({
-    name: saved.name,
-    email: saved.email,
-    phone: saved.phone,
-    interest: "Tai khoan khach hang",
-    source: "account"
-  });
-  res.json({ ok: true, customer: publicAccount(saved) });
+  try {
+    const saved = await saveAccount(account, getBaseUrl(req));
+    res.json({
+      ok: true,
+      requiresVerification: true,
+      message: "Da gui email xac nhan. Vui long xac nhan email truoc khi dang nhap.",
+      customer: publicAccount(saved)
+    });
+  } catch (error) {
+    res.status(501).json({ ok: false, message: error.message || "Chua cau hinh xac nhan email." });
+  }
 });
 
 app.post("/api/accounts/login", async (req, res) => {
@@ -82,11 +89,38 @@ app.post("/api/accounts/login", async (req, res) => {
   if (sheetLogin?.ok && sheetLogin.customer) {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
+  if (sheetLogin?.needsVerification) {
+    return res.status(403).json({ ok: false, needsVerification: true, message: sheetLogin.message || "Can xac nhan email truoc khi dang nhap." });
+  }
   const account = await findAccount(email);
   if (!account || !verifyPassword(password, account.passwordHash)) {
     return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
   }
+  if (account.verified === false) {
+    return res.status(403).json({ ok: false, needsVerification: true, message: "Can xac nhan email truoc khi dang nhap." });
+  }
   res.json({ ok: true, customer: publicAccount(account) });
+});
+
+app.post("/api/accounts/verify", async (req, res) => {
+  const token = String(req.body?.token || "").trim();
+  if (!token) return res.status(400).json({ ok: false, message: "Thieu token xac nhan" });
+  const sheetResult = await postSheetAction("verifyAccount", { token }).catch(() => null);
+  if (sheetResult?.ok) return res.json({ ok: true, customer: publicAccount(sheetResult.customer || {}) });
+  return res.status(501).json({ ok: false, message: "Chua cau hinh xac nhan email tren Google Apps Script." });
+});
+
+app.post("/api/accounts/google-login", async (req, res) => {
+  if (!GOOGLE_CLIENT_ID) return res.status(501).json({ ok: false, message: "Chua cau hinh GOOGLE_CLIENT_ID tren Vercel." });
+  const credential = String(req.body?.credential || "");
+  const profile = await verifyGoogleCredential(credential).catch((error) => ({ error }));
+  if (!profile || profile.error) return res.status(401).json({ ok: false, message: "Google token khong hop le." });
+  if (!profile.email || !profile.email_verified) return res.status(403).json({ ok: false, message: "Email Google chua duoc xac minh." });
+  const sheetResult = await postSheetAction("googleLogin", { profile }).catch(() => null);
+  if (sheetResult?.ok && sheetResult.customer) {
+    return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetResult.customer) });
+  }
+  return res.status(501).json({ ok: false, message: "Chua cau hinh Google login tren Google Apps Script." });
 });
 
 app.post("/api/checkout/create", async (req, res) => {
@@ -351,8 +385,11 @@ async function findAccount(email) {
   return accounts.find((account) => account.email === String(email || "").trim().toLowerCase());
 }
 
-async function saveAccount(account) {
-  const sheetResult = await postSheetAction("register", { account }).catch(() => null);
+async function saveAccount(account, baseUrl = "") {
+  const sheetResult = await postSheetAction("registerWithVerification", {
+    account,
+    verificationUrl: `${baseUrl || PUBLIC_BASE_URL}/xac-nhan-email`
+  }).catch(() => null);
   if (sheetResult?.ok && sheetResult.customer) {
     return {
       name: String(sheetResult.customer.name || account.name),
@@ -360,25 +397,32 @@ async function saveAccount(account) {
       phone: String(sheetResult.customer.phone || account.phone),
       passwordHash: String(sheetResult.customer.passwordHash || ""),
       createdAt: String(sheetResult.customer.createdAt || ""),
-      updatedAt: String(sheetResult.customer.updatedAt || "")
+      updatedAt: String(sheetResult.customer.updatedAt || ""),
+      verified: sheetResult.customer.verified === true || String(sheetResult.customer.verified || "").toUpperCase() === "TRUE"
     };
   }
-  const accounts = await readAccounts();
-  const now = new Date().toISOString();
-  const existing = accounts.find((item) => item.email === account.email);
-  const saved = {
-    name: account.name,
-    email: account.email,
-    phone: account.phone,
-    passwordHash: hashPassword(account.password),
-    createdAt: existing?.createdAt || now,
-    updatedAt: now
+  throw new Error("Email verification is not configured. Update Google Apps Script first.");
+}
+
+function getBaseUrl(req) {
+  if (PUBLIC_BASE_URL) return PUBLIC_BASE_URL;
+  const proto = String(req.headers["x-forwarded-proto"] || req.protocol || "http").split(",")[0];
+  const host = req.headers["x-forwarded-host"] || req.headers.host || "";
+  return `${proto}://${host}`.replace(/\/$/, "");
+}
+
+async function verifyGoogleCredential(credential) {
+  const response = await fetch("https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(credential));
+  if (!response.ok) throw new Error("Invalid Google credential");
+  const data = await response.json();
+  if (String(data.aud || "") !== GOOGLE_CLIENT_ID) throw new Error("Google audience mismatch");
+  return {
+    email: String(data.email || "").toLowerCase(),
+    email_verified: data.email_verified === true || String(data.email_verified) === "true",
+    name: String(data.name || ""),
+    picture: String(data.picture || ""),
+    sub: String(data.sub || "")
   };
-  const next = existing
-    ? accounts.map((item) => item.email === account.email ? saved : item)
-    : [...accounts, saved];
-  await writeAccounts(next);
-  return saved;
 }
 
 async function readOrders() {

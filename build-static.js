@@ -43,6 +43,7 @@ const GITHUB_REPO = process.env.GITHUB_REPO || "dhs-media";
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
 const SITE_CACHE_MS = Number(process.env.SITE_CACHE_MS || 60000);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 let siteCache = null;
 
 app.use(express.json({ limit: "10mb" }));
@@ -51,6 +52,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/api/site", async (req, res) => {
   res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
   res.json(await readPublicSiteCached());
+});
+
+app.get("/api/auth/config", (req, res) => {
+  res.json({ googleClientId: GOOGLE_CLIENT_ID });
 });
 
 app.post("/api/leads", async (req, res) => {
@@ -71,11 +76,20 @@ app.post("/api/accounts/register", async (req, res) => {
   if (!account.email || !account.password) {
     return res.status(400).json({ ok: false, message: "Thieu email hoac mat khau" });
   }
-  const sheetResult = await postSheetAction("register", { account }).catch(() => null);
+  const sheetResult = await postSheetAction("registerWithVerification", {
+    account,
+    verificationUrl: getBaseUrl(req) + "/xac-nhan-email"
+  }).catch(() => null);
   if (sheetResult?.ok) {
-    return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetResult.customer || account) });
+    return res.json({
+      ok: true,
+      storage: "google-sheet",
+      requiresVerification: true,
+      message: "Da gui email xac nhan. Vui long xac nhan email truoc khi dang nhap.",
+      customer: publicAccount(sheetResult.customer || account)
+    });
   }
-  if (!GITHUB_TOKEN) return res.json({ ok: true, storage: "browser-only", customer: publicAccount(account) });
+  if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Chua cap nhat Google Apps Script de gui email xac nhan." });
   const accounts = await readRepoJson("data/accounts.json", []);
   const now = new Date().toISOString();
   const existing = array(accounts).find((item) => String(item.email || "").toLowerCase() === account.email);
@@ -95,7 +109,7 @@ app.post("/api/accounts/register", async (req, res) => {
   const filtered = array(leads).filter((item) => item.email !== saved.email);
   filtered.push({ name: saved.name, email: saved.email, phone: saved.phone, interest: "Tai khoan khach hang", source: "account", createdAt: now });
   await writeRepoJson("data/leads.json", filtered, "Update customer leads");
-  res.json({ ok: true, storage: "github", customer: publicAccount(saved) });
+  res.status(501).json({ ok: false, message: "Dang ky email/password can Google Apps Script gui mail xac nhan. Vui long cap nhat Apps Script." });
 });
 
 app.post("/api/accounts/login", async (req, res) => {
@@ -105,6 +119,9 @@ app.post("/api/accounts/login", async (req, res) => {
   if (sheetLogin?.ok && sheetLogin.customer) {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
+  if (sheetLogin?.needsVerification) {
+    return res.status(403).json({ ok: false, needsVerification: true, message: sheetLogin.message || "Can xac nhan email truoc khi dang nhap." });
+  }
   if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Tai khoan online chua duoc cau hinh storage" });
   const accounts = await readRepoJson("data/accounts.json", []);
   const account = array(accounts).find((item) => String(item.email || "").toLowerCase() === email);
@@ -112,6 +129,27 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
   }
   res.json({ ok: true, customer: publicAccount(account) });
+});
+
+app.post("/api/accounts/verify", async (req, res) => {
+  const token = String(req.body?.token || "").trim();
+  if (!token) return res.status(400).json({ ok: false, message: "Thieu token xac nhan" });
+  const sheetResult = await postSheetAction("verifyAccount", { token }).catch(() => null);
+  if (sheetResult?.ok) return res.json({ ok: true, customer: publicAccount(sheetResult.customer || {}) });
+  return res.status(501).json({ ok: false, message: "Chua cau hinh xac nhan email tren Google Apps Script." });
+});
+
+app.post("/api/accounts/google-login", async (req, res) => {
+  if (!GOOGLE_CLIENT_ID) return res.status(501).json({ ok: false, message: "Chua cau hinh GOOGLE_CLIENT_ID tren Vercel." });
+  const credential = String(req.body?.credential || "");
+  const profile = await verifyGoogleCredential(credential).catch((error) => ({ error }));
+  if (!profile || profile.error) return res.status(401).json({ ok: false, message: "Google token khong hop le." });
+  if (!profile.email || !profile.email_verified) return res.status(403).json({ ok: false, message: "Email Google chua duoc xac minh." });
+  const sheetResult = await postSheetAction("googleLogin", { profile }).catch(() => null);
+  if (sheetResult?.ok && sheetResult.customer) {
+    return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetResult.customer) });
+  }
+  return res.status(501).json({ ok: false, message: "Chua cau hinh Google login tren Google Apps Script." });
 });
 
 app.post("/api/checkout/create", async (req, res) => {
@@ -316,6 +354,26 @@ function requireAdmin(req, res, next) {
   const cookies = parseCookies(req.headers.cookie || "");
   if (verifyToken(cookies.admin_token)) return next();
   res.status(401).json({ ok: false, message: "Cần đăng nhập admin" });
+}
+
+function getBaseUrl(req) {
+  const proto = String(req.headers["x-forwarded-proto"] || req.protocol || "https").split(",")[0];
+  const host = req.headers["x-forwarded-host"] || req.headers.host || "dhs-media.vercel.app";
+  return (proto + "://" + host).replace(/\\/$/, "");
+}
+
+async function verifyGoogleCredential(credential) {
+  const response = await fetch("https://oauth2.googleapis.com/tokeninfo?id_token=" + encodeURIComponent(credential));
+  if (!response.ok) throw new Error("Invalid Google credential");
+  const data = await response.json();
+  if (String(data.aud || "") !== GOOGLE_CLIENT_ID) throw new Error("Google audience mismatch");
+  return {
+    email: String(data.email || "").toLowerCase(),
+    email_verified: data.email_verified === true || String(data.email_verified) === "true",
+    name: String(data.name || ""),
+    picture: String(data.picture || ""),
+    sub: String(data.sub || "")
+  };
 }
 
 function normalizeLead(value) {
