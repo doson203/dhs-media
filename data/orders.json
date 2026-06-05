@@ -129,7 +129,7 @@
   },
   {
     "orderCode": 623050524,
-    "status": "PENDING",
+    "status": "PAID",
     "productId": "prompt-001-mau-studio-nhieu-bo-quan-ao",
     "productTitle": "mẫu studio nhiều bộ quần áo",
     "promptUrl": "https://drive.google.com/file/d/1PIAtKeXwNRWypkk9Ebvc83Q-xw-126Jg/view?usp=drive_link",
@@ -141,6 +141,33 @@
     "paymentLinkId": "c71644f85e564b8c944d17c643923e84",
     "checkoutUrl": "https://pay.payos.vn/web/c71644f85e564b8c944d17c643923e84",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMIX82000208QRIBFTTA5303704540420005802VN62160812DHS62305052463041234",
-    "updatedAt": "2026-06-05T01:30:52.192Z"
+    "updatedAt": "2026-06-05T01:41:38.938Z",
+    "paidAt": "2026-06-05T01:41:38.872Z",
+    "payosData": {
+      "id": "c71644f85e564b8c944d17c643923e84",
+      "orderCode": 623050524,
+      "amount": 2000,
+      "amountPaid": 2000,
+      "amountRemaining": 0,
+      "status": "PAID",
+      "createdAt": "2026-06-05T08:30:51+07:00",
+      "transactions": [
+        {
+          "accountNumber": "071120026888",
+          "amount": 2000,
+          "counterAccountBankId": "01310001",
+          "counterAccountBankName": null,
+          "counterAccountName": "DO HONG SON",
+          "counterAccountNumber": "761266668888",
+          "description": "Qajmix8200  CASSO9625 4 OWSOcoyl3Ci7gC2mONfVIGiI DHS623050524 FT26156797527839 kCM6TDLD233155",
+          "reference": "FT26156019548086",
+          "transactionDateTime": "2026-06-05T08:31:05+07:00",
+          "virtualAccountName": null,
+          "virtualAccountNumber": null
+        }
+      ],
+      "canceledAt": null,
+      "cancellationReason": null
+    }
   }
 ]
