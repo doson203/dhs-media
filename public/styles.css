@@ -451,7 +451,33 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   font-size: 13px;
   font-weight: 900;
 }
-.form-note { min-height: 20px; margin: 0; color: #0f766e; font-weight: 900; }
+.form-note {
+  min-height: 20px;
+  margin: 0;
+  color: #0f766e;
+  font-weight: 900;
+}
+.form-note:not(:empty) {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #99f6e4;
+  background: #ecfeff;
+}
+.form-note[data-state="success"] {
+  color: #047857;
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+.form-note[data-state="error"] {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.form-note[data-state="loading"] {
+  color: #075985;
+  border-color: #bae6fd;
+  background: #f0f9ff;
+}
 
 .footer {
   display: grid;

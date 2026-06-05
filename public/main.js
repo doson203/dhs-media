@@ -26,6 +26,7 @@ async function loadSite() {
   renderDemos(site);
   renderFaq(site);
   renderContact(site);
+  normalizeAuthCopy();
   applyInitialView();
 }
 
@@ -420,7 +421,44 @@ function setAuthTab(mode) {
   document.querySelectorAll("[data-auth-tab]").forEach((button) => {
     button.classList.toggle("active", button.dataset.authTab === mode);
   });
-  byId("authMessage").textContent = "";
+  setAuthMessage("");
+}
+
+function normalizeAuthCopy() {
+  const tabs = document.querySelectorAll("[data-auth-tab]");
+  tabs.forEach((button) => {
+    button.textContent = button.dataset.authTab === "register" ? "Đăng ký" : "Đăng nhập";
+  });
+  const loginForm = byId("loginForm");
+  const registerForm = byId("registerForm");
+  if (loginForm) {
+    loginForm.querySelector("h2").textContent = "Đăng nhập khách hàng";
+    loginForm.querySelector('label:nth-of-type(2)').firstChild.textContent = "Mật khẩu\n          ";
+    loginForm.querySelector('[name="password"]').placeholder = "Mật khẩu";
+    loginForm.querySelector('button[type="submit"]').textContent = "Đăng nhập";
+  }
+  if (registerForm) {
+    registerForm.querySelector("h2").textContent = "Tạo tài khoản nhận cập nhật";
+    registerForm.querySelector('label:nth-of-type(1)').firstChild.textContent = "Họ tên\n          ";
+    registerForm.querySelector('[name="name"]').placeholder = "Tên khách hàng";
+    registerForm.querySelector('label:nth-of-type(3)').firstChild.textContent = "Số điện thoại/Zalo\n          ";
+    registerForm.querySelector('[name="phone"]').placeholder = "Số điện thoại hoặc Zalo";
+    registerForm.querySelector('label:nth-of-type(4)').firstChild.textContent = "Mật khẩu\n          ";
+    registerForm.querySelector('[name="password"]').placeholder = "Mật khẩu";
+    registerForm.querySelector('button[type="submit"]').textContent = "Đăng ký";
+  }
+  const message = byId("authMessage");
+  if (message) {
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-live", "polite");
+  }
+}
+
+function setAuthMessage(text, type = "info") {
+  const message = byId("authMessage");
+  if (!message) return;
+  message.textContent = text;
+  message.dataset.state = type;
 }
 
 function switchView(view) {
@@ -466,15 +504,21 @@ async function sendLead(customer) {
 }
 
 async function registerAccount(customer) {
-  saveCustomer(customer);
   try {
     const res = await fetch("/api/accounts/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(customer)
     });
-    if (res.ok) return await res.json();
-  } catch {}
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      saveCustomer(customer);
+      return data;
+    }
+    return { ok: false, message: data.message || "Máy chủ chưa lưu được tài khoản. Vui lòng thử lại." };
+  } catch {
+    saveCustomer(customer);
+  }
   await sendLead(customer);
   return { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) };
 }
@@ -571,9 +615,10 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
     password: String(form.get("password") || ""),
     source: "account"
   };
+  setAuthMessage("Đang tạo tài khoản...", "loading");
   const result = await registerAccount(customer);
   if (!result?.ok) {
-    byId("authMessage").textContent = "Chưa đăng ký được tài khoản. Vui lòng thử lại.";
+    setAuthMessage(result?.message || "Chưa đăng ký được tài khoản. Vui lòng thử lại.", "error");
     return;
   }
   localStorage.setItem("dhsCurrentCustomer", customer.email);
@@ -581,7 +626,7 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
   setAuthTab("login");
   byId("loginForm").querySelector('[name="email"]').value = customer.email;
   byId("loginForm").querySelector('[name="password"]').value = customer.password;
-  byId("authMessage").textContent = "Đăng ký thành công. Bạn có thể đăng nhập bằng tài khoản vừa tạo.";
+  setAuthMessage("Đăng ký thành công. Email và mật khẩu đã được điền sẵn, bấm Đăng nhập để vào tài khoản.", "success");
 });
 
 byId("checkoutForm")?.addEventListener("submit", async (event) => {
@@ -618,15 +663,19 @@ byId("loginForm")?.addEventListener("submit", async (event) => {
   const form = new FormData(event.currentTarget);
   const email = String(form.get("email") || "").toLowerCase();
   const password = String(form.get("password") || "");
+  setAuthMessage("Đang kiểm tra tài khoản...", "loading");
   const result = await loginAccount(email, password);
   if (!result?.ok) {
-    byId("authMessage").textContent = "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước.";
+    setAuthMessage(result?.message || "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước.", "error");
     return;
   }
   const customer = result.customer || { email };
   saveCustomer({ ...customer, password });
   localStorage.setItem("dhsCurrentCustomer", email);
-  byId("authMessage").textContent = "Xin chào " + (customer.name || email) + ".";
+  setAuthMessage("Đăng nhập thành công. Xin chào " + (customer.name || email) + ".", "success");
+  window.setTimeout(() => {
+    byId("authModal").hidden = true;
+  }, 900);
 });
 
 function normalizeText(value) {
