@@ -89,6 +89,10 @@
     "buyerEmail": "xuandong000003@gmail.com",
     "buyerName": "NGUYEN XUAN DONG",
     "buyerPhone": "0379352138",
-    "createdAt": "2026-06-05T01:26:15.332Z"
+    "createdAt": "2026-06-05T01:26:15.332Z",
+    "paymentLinkId": "a15997e8eba44c678f212a0e76f45e14",
+    "checkoutUrl": "https://pay.payos.vn/web/a15997e8eba44c678f212a0e76f45e14",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMIT42340208QRIBFTTA530370454061790005802VN62160812DHS6227753326304B2DB",
+    "updatedAt": "2026-06-05T01:26:17.544Z"
   }
 ]
