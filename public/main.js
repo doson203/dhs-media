@@ -28,6 +28,7 @@ async function loadSite() {
   renderContact(site);
   normalizeAuthCopy();
   applyInitialView();
+  handlePaymentReturn();
 }
 
 function renderProducts() {
@@ -285,6 +286,57 @@ function openCheckoutModal(product) {
   const form = byId("checkoutForm");
   form.querySelector('[name="email"]').value = currentEmail.includes("@") ? currentEmail : "";
   byId("checkoutModal").hidden = false;
+}
+
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const payment = params.get("payment");
+  const orderCode = params.get("orderCode");
+  if (!payment || !orderCode) return;
+  if (payment === "cancel") {
+    showPaymentNotice("Thanh toán đã bị hủy. Bạn có thể bấm mua lại khi cần.", "error");
+    return;
+  }
+  showPaymentNotice("Đang kiểm tra trạng thái thanh toán...", "loading");
+  try {
+    const res = await fetch("/api/checkout/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderCode })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      showPaymentNotice(data.message || "Chưa kiểm tra được thanh toán. Vui lòng liên hệ admin kèm mã đơn " + orderCode + ".", "error");
+      return;
+    }
+    if (!data.paid) {
+      showPaymentNotice("Đơn hàng chưa được payOS xác nhận thanh toán. Mã đơn: " + orderCode + ".", "loading");
+      return;
+    }
+    const emailText = data.emailStatus === "SENT"
+      ? "Link sản phẩm đã được gửi qua email."
+      : "Email chưa gửi được tự động, bạn có thể lấy link sản phẩm ngay bên dưới.";
+    showPaymentNotice(`Thanh toán thành công. ${emailText}`, data.emailStatus === "SENT" ? "success" : "warning", data.promptUrl);
+  } catch (error) {
+    showPaymentNotice("Không kiểm tra được thanh toán. Vui lòng liên hệ admin kèm mã đơn " + orderCode + ".", "error");
+  }
+}
+
+function showPaymentNotice(message, type = "info", promptUrl = "") {
+  let notice = byId("paymentNotice");
+  if (!notice) {
+    notice = document.createElement("div");
+    notice.id = "paymentNotice";
+    notice.className = "payment-notice";
+    notice.setAttribute("role", "status");
+    notice.setAttribute("aria-live", "polite");
+    document.body.prepend(notice);
+  }
+  notice.dataset.state = type;
+  notice.innerHTML = `
+    <strong>${escapeHtml(message)}</strong>
+    ${promptUrl ? `<a class="btn small primary" href="${escapeAttr(promptUrl)}" target="_blank" rel="noopener noreferrer">Mở link sản phẩm</a>` : ""}
+  `;
 }
 
 function videoEmbed(url, thumbnail) {

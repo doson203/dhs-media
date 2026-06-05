@@ -5,7 +5,7 @@ const path = require("node:path");
 const express = require("express");
 const multer = require("multer");
 const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
-const { createCheckout, handlePayosWebhook } = require("./checkout-utils");
+const { createCheckout, handlePayosWebhook, verifyCheckout } = require("./checkout-utils");
 
 const app = express();
 const rootDir = __dirname;
@@ -90,6 +90,14 @@ app.post("/api/checkout/create", async (req, res) => {
   const result = await createCheckout(req.body || {}, {
     readSite,
     saveOrder,
+    updateOrder
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.post("/api/checkout/verify", async (req, res) => {
+  const result = await verifyCheckout(req.body || {}, {
+    getOrder,
     updateOrder
   });
   res.status(result.status || 200).json(result);

@@ -103,13 +103,70 @@ async function handlePayosWebhook(body, deps) {
   if (!verifyPayosWebhook(body, config.payosChecksumKey)) return { ok: false, status: 400, message: "Invalid signature" };
   const orderCode = Number(body?.data?.orderCode || 0);
   if (!body.success || !orderCode) return { ok: true, ignored: true };
+  return processPaidOrder(orderCode, body.data, deps);
+}
+
+async function verifyCheckout(body, deps) {
+  const orderCode = Number(body?.orderCode || 0);
+  if (!orderCode) return { ok: false, status: 400, message: "Thieu ma don hang." };
+  const order = await deps.getOrder(orderCode);
+  if (!order) return { ok: false, status: 404, message: "Khong tim thay don hang." };
+  if (order.status === "PAID") {
+    return {
+      ok: true,
+      paid: true,
+      emailStatus: order.emailStatus || "",
+      emailError: order.emailError || "",
+      productTitle: order.productTitle || "",
+      promptUrl: order.promptUrl || ""
+    };
+  }
+  const payment = await getPayosPayment(orderCode);
+  if (!payment.ok) return payment;
+  const payosStatus = String(payment.data?.status || "").toUpperCase();
+  if (payosStatus !== "PAID") {
+    return { ok: true, paid: false, paymentStatus: payosStatus || "PENDING", productTitle: order.productTitle || "" };
+  }
+  return processPaidOrder(orderCode, payment.data, deps);
+}
+
+async function processPaidOrder(orderCode, payosData, deps) {
   const order = await deps.getOrder(orderCode);
   if (!order) return { ok: false, status: 404, message: "Order not found" };
-  if (order.status === "PAID" && order.emailSentAt) return { ok: true, duplicate: true };
-  await deps.updateOrder(orderCode, { status: "PAID", paidAt: new Date().toISOString(), payosData: body.data });
+  if (order.status === "PAID" && order.emailSentAt) {
+    return { ok: true, paid: true, duplicate: true, emailStatus: order.emailStatus || "", promptUrl: order.promptUrl || "", productTitle: order.productTitle || "" };
+  }
+  await deps.updateOrder(orderCode, { status: "PAID", paidAt: new Date().toISOString(), payosData });
   const email = await sendDeliveryEmailV2({ ...order, status: "PAID" });
   await deps.updateOrder(orderCode, { emailSentAt: new Date().toISOString(), emailStatus: email.ok ? "SENT" : "FAILED", emailError: email.message || "" });
-  return { ok: true };
+  return {
+    ok: true,
+    paid: true,
+    emailStatus: email.ok ? "SENT" : "FAILED",
+    emailError: email.message || "",
+    productTitle: order.productTitle || "",
+    promptUrl: order.promptUrl || ""
+  };
+}
+
+async function getPayosPayment(orderCode) {
+  const config = paymentConfig();
+  if (!config.payosClientId || !config.payosApiKey) {
+    return { ok: false, status: 501, message: "Chua cau hinh payOS de kiem tra thanh toan." };
+  }
+  const response = await fetch(`${PAYOS_API}/${encodeURIComponent(orderCode)}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-client-id": config.payosClientId,
+      "x-api-key": config.payosApiKey
+    }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.code !== "00") {
+    return { ok: false, status: response.status || 502, message: data.desc || "Khong kiem tra duoc trang thai thanh toan payOS.", details: data };
+  }
+  return { ok: true, data: data.data || {} };
 }
 
 async function sendDeliveryEmail(order) {
@@ -215,4 +272,4 @@ function normalizePublicUrl(value) {
   return /^https?:\/\//i.test(text) ? text : `https://${text}`;
 }
 
-module.exports = { createCheckout, handlePayosWebhook, parseAmount };
+module.exports = { createCheckout, handlePayosWebhook, verifyCheckout, parseAmount };
