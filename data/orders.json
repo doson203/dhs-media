@@ -183,6 +183,10 @@
     "buyerEmail": "codex-inline-live@example.com",
     "buyerName": "Codex Inline Live",
     "buyerPhone": "0900000000",
-    "createdAt": "2026-06-05T02:33:53.524Z"
+    "createdAt": "2026-06-05T02:33:53.524Z",
+    "paymentLinkId": "f29950fc67a0450cb3d563fae6f117b9",
+    "checkoutUrl": "https://pay.payos.vn/web/f29950fc67a0450cb3d563fae6f117b9",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMJW58900208QRIBFTTA5303704540420005802VN62160812DHS62683352463041BC4",
+    "updatedAt": "2026-06-05T02:33:55.845Z"
   }
 ]
