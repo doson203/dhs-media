@@ -85,14 +85,14 @@ app.post("/api/accounts/register", async (req, res) => {
       ok: true,
       storage: "google-sheet",
       requiresVerification: true,
-      message: "Da gui email xac nhan. Vui long xac nhan email truoc khi dang nhap.",
+      message: "Đã gửi email xác nhận. Vui lòng xác nhận email trước khi đăng nhập.",
       customer: publicAccount(sheetResult.customer || account)
     });
   }
   if (sheetResult?.timeout) {
-    return res.status(504).json({ ok: false, message: "May chu dang cho Google Sheet/Email phan hoi qua lau. Vui long thu lai sau." });
+    return res.status(504).json({ ok: false, message: "Máy chủ đang chờ Google Sheet/Email phản hồi quá lâu. Vui lòng thử lại sau." });
   }
-  if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: sheetResult?.message || "Chua cap nhat Google Apps Script de gui email xac nhan." });
+  if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: sheetResult?.message || "Chưa cập nhật Google Apps Script để gửi email xác nhận." });
   const accounts = await readRepoJson("data/accounts.json", []);
   const now = new Date().toISOString();
   const existing = array(accounts).find((item) => String(item.email || "").toLowerCase() === account.email);
@@ -125,16 +125,16 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
   if (sheetLogin?.needsVerification) {
-    return res.status(403).json({ ok: false, needsVerification: true, message: sheetLogin.message || "Can xac nhan email truoc khi dang nhap." });
+    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần xác nhận email trước khi đăng nhập." });
   }
   if (sheetLogin?.timeout) {
-    return res.status(504).json({ ok: false, message: "May chu dang kiem tra tai khoan qua lau. Vui long thu lai sau." });
+    return res.status(504).json({ ok: false, message: "Máy chủ đang kiểm tra tài khoản quá lâu. Vui lòng thử lại sau." });
   }
   if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Tai khoan online chua duoc cau hinh storage" });
   const accounts = await readRepoJson("data/accounts.json", []);
   const account = array(accounts).find((item) => String(item.email || "").toLowerCase() === email);
   if (!account || !verifyPassword(password, account.passwordHash)) {
-    return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
+    return res.status(401).json({ ok: false, message: "Email hoặc mật khẩu không đúng." });
   }
   res.json({ ok: true, customer: publicAccount(account) });
 });

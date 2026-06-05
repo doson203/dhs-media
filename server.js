@@ -74,7 +74,7 @@ app.post("/api/accounts/register", async (req, res) => {
     res.json({
       ok: true,
       requiresVerification: true,
-      message: "Da gui email xac nhan. Vui long xac nhan email truoc khi dang nhap.",
+      message: "Đã gửi email xác nhận. Vui lòng xác nhận email trước khi đăng nhập.",
       customer: publicAccount(saved)
     });
   } catch (error) {
@@ -82,8 +82,8 @@ app.post("/api/accounts/register", async (req, res) => {
     res.status(timedOut ? 504 : 501).json({
       ok: false,
       message: timedOut
-        ? "May chu dang cho Google Sheet/Email phan hoi qua lau. Vui long thu lai sau."
-        : (error.message || "Chua cau hinh xac nhan email.")
+        ? "Máy chủ đang chờ Google Sheet/Email phản hồi quá lâu. Vui lòng thử lại sau."
+        : (error.message || "Chưa cấu hình xác nhận email.")
     });
   }
 });
@@ -98,17 +98,17 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
   if (sheetLogin?.needsVerification) {
-    return res.status(403).json({ ok: false, needsVerification: true, message: sheetLogin.message || "Can xac nhan email truoc khi dang nhap." });
+    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần xác nhận email trước khi đăng nhập." });
   }
   if (sheetLogin?.timeout) {
-    return res.status(504).json({ ok: false, message: "May chu dang kiem tra tai khoan qua lau. Vui long thu lai sau." });
+    return res.status(504).json({ ok: false, message: "Máy chủ đang kiểm tra tài khoản quá lâu. Vui lòng thử lại sau." });
   }
   const account = await findAccount(email);
   if (!account || !verifyPassword(password, account.passwordHash)) {
-    return res.status(401).json({ ok: false, message: "Email hoac mat khau khong dung" });
+    return res.status(401).json({ ok: false, message: "Email hoặc mật khẩu không đúng." });
   }
   if (account.verified === false) {
-    return res.status(403).json({ ok: false, needsVerification: true, message: "Can xac nhan email truoc khi dang nhap." });
+    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần xác nhận email trước khi đăng nhập." });
   }
   res.json({ ok: true, customer: publicAccount(account) });
 });
