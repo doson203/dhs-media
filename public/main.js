@@ -433,7 +433,8 @@ function openVideoModal(item) {
   byId("videoTitle").textContent = item.title || "Video sản phẩm";
   byId("videoDesc").textContent = item.description || "";
   byId("videoPlayer").className = `video-player ${getVideoPlayerModeSafe(item)}`;
-  byId("videoPlayer").innerHTML = videoEmbedSafe(item.videoUrl, item.thumbnail);
+  byId("videoPlayer").innerHTML = videoEmbedSafeV2(item.videoUrl, item.thumbnail);
+  bindVideoFallback(item);
   const sourceBtn = byId("videoSourceBtn");
   if (sourceBtn) {
     sourceBtn.hidden = !sourceUrl;
@@ -649,6 +650,57 @@ function videoEmbedSafe(url, thumbnail) {
     return `<video src="${escapeAttr(cleanUrl)}" controls autoplay muted loop playsinline preload="auto" poster="${escapeAttr(thumbnail || "")}"></video>`;
   }
   return `<iframe src="${escapeAttr(cleanUrl)}" title="Video sản phẩm" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+}
+
+function videoEmbedSafeV2(url, thumbnail) {
+  const cleanUrl = normalizeVideoUrl(url);
+  if (!cleanUrl) {
+    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Dang hien thi anh san pham</span></div>`;
+  }
+  const youtubeId = getYouTubeIdSafe(cleanUrl);
+  if (youtubeId) {
+    return `<iframe src="https://www.youtube.com/embed/${escapeAttr(youtubeId)}?rel=0&playsinline=1&autoplay=1&mute=1&controls=1" title="Video san pham" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+  }
+  if (isVideoFile(cleanUrl)) {
+    return `<video src="${escapeAttr(cleanUrl)}" controls autoplay muted loop playsinline preload="auto" poster="${escapeAttr(thumbnail || "")}"></video>`;
+  }
+  return `<iframe src="${escapeAttr(cleanUrl)}" title="Video san pham" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+}
+
+function bindVideoFallback(item) {
+  const player = byId("videoPlayer");
+  if (!player) return;
+  const sourceUrl = normalizeVideoUrl(item?.videoUrl);
+  const video = player.querySelector("video");
+  if (video) {
+    video.addEventListener("error", () => renderVideoFallback(item), { once: true });
+    video.play?.().catch(() => {});
+  }
+  const iframe = player.querySelector("iframe");
+  if (iframe && sourceUrl) {
+    window.setTimeout(() => {
+      if (player.querySelector("iframe") !== iframe || byId("videoModal")?.hidden) return;
+      if (!player.querySelector(".video-open-fallback")) {
+        player.insertAdjacentHTML("beforeend", `
+          <a class="video-open-fallback" href="${escapeAttr(sourceUrl)}" target="_blank" rel="noreferrer">M&#7903; video g&#7889;c</a>
+        `);
+      }
+    }, 1200);
+  }
+}
+
+function renderVideoFallback(item) {
+  const player = byId("videoPlayer");
+  if (!player) return;
+  const sourceUrl = normalizeVideoUrl(item?.videoUrl);
+  player.className = "video-player placeholder";
+  player.innerHTML = `
+    <div class="video-placeholder">
+      <img src="${escapeAttr(item?.thumbnail || "/assets/app-preview.svg")}" alt="Video preview">
+      <span>Video kh&#244;ng ph&#225;t tr&#7921;c ti&#7871;p tr&#234;n tr&#236;nh duy&#7879;t n&#224;y.</span>
+      ${sourceUrl ? `<a class="btn primary" href="${escapeAttr(sourceUrl)}" target="_blank" rel="noreferrer">M&#7903; video g&#7889;c</a>` : ""}
+    </div>
+  `;
 }
 
 function hoverPreviewEmbedSafe(item) {

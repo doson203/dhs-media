@@ -715,6 +715,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
 }
 .video-modal-card { width: min(640px, 100%); }
 .video-player {
+  position: relative;
   display: grid;
   place-items: center;
   aspect-ratio: 16 / 9;
@@ -749,6 +750,24 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   border: 0;
   background: #0f172a;
   object-fit: contain;
+}
+.video-open-fallback {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.86);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.22);
 }
 .video-player.video-file video {
   display: block;
