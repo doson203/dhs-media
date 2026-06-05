@@ -172,5 +172,17 @@
     "emailSentAt": "2026-06-05T01:59:54.667Z",
     "emailStatus": "SENT",
     "emailError": ""
+  },
+  {
+    "orderCode": 626833524,
+    "status": "PENDING",
+    "productId": "prompt-001-mau-studio-nhieu-bo-quan-ao",
+    "productTitle": "mẫu studio nhiều bộ quần áo",
+    "promptUrl": "https://drive.google.com/file/d/1PIAtKeXwNRWypkk9Ebvc83Q-xw-126Jg/view?usp=drive_link",
+    "amount": 2000,
+    "buyerEmail": "codex-inline-live@example.com",
+    "buyerName": "Codex Inline Live",
+    "buyerPhone": "0900000000",
+    "createdAt": "2026-06-05T02:33:53.524Z"
   }
 ]
