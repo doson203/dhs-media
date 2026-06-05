@@ -298,5 +298,17 @@
     "emailSentAt": "2026-06-05T05:29:53.586Z",
     "emailStatus": "SENT",
     "emailError": ""
+  },
+  {
+    "orderCode": 645490736,
+    "status": "PENDING",
+    "productId": "prompt-001-mau-studio-nhieu-bo-quan-ao",
+    "productTitle": "mẫu studio nhiều bộ quần áo",
+    "promptUrl": "https://drive.google.com/file/d/1PIAtKeXwNRWypkk9Ebvc83Q-xw-126Jg/view?usp=drive_link",
+    "amount": 2000,
+    "buyerEmail": "doson380@gmail.com",
+    "buyerName": "HỒNG SƠN ĐỖ",
+    "buyerPhone": "389755587",
+    "createdAt": "2026-06-05T07:44:50.737Z"
   }
 ]
