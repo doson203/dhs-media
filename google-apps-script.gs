@@ -103,6 +103,15 @@ function sendDeliveryEmail(order) {
   return { ok: true, provider: "gmail" };
 }
 
+function authorizeMailApp() {
+  MailApp.sendEmail({
+    to: Session.getActiveUser().getEmail(),
+    subject: "DHS MEDIA - Kich hoat gui email",
+    body: "Google Apps Script da duoc cap quyen gui email cho DHS MEDIA."
+  });
+  return { ok: true };
+}
+
 function productHeaders() {
   return ["active", "type", "id", "title", "description", "category", "format", "status", "price", "license", "thumbnail", "videoUrl", "promptUrl"];
 }

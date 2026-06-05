@@ -112,6 +112,18 @@ async function verifyCheckout(body, deps) {
   const order = await deps.getOrder(orderCode);
   if (!order) return { ok: false, status: 404, message: "Khong tim thay don hang." };
   if (order.status === "PAID") {
+    if (order.emailStatus !== "SENT") {
+      const email = await sendDeliveryEmailV2({ ...order, status: "PAID" });
+      await deps.updateOrder(orderCode, { emailSentAt: new Date().toISOString(), emailStatus: email.ok ? "SENT" : "FAILED", emailError: email.message || "" });
+      return {
+        ok: true,
+        paid: true,
+        emailStatus: email.ok ? "SENT" : "FAILED",
+        emailError: email.message || "",
+        productTitle: order.productTitle || "",
+        promptUrl: order.promptUrl || ""
+      };
+    }
     return {
       ok: true,
       paid: true,
