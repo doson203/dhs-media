@@ -247,6 +247,10 @@
     "buyerEmail": "doson380@gmail.com",
     "buyerName": "Final Pay Test",
     "buyerPhone": "0900000000",
-    "createdAt": "2026-06-05T05:01:43.512Z"
+    "createdAt": "2026-06-05T05:01:43.512Z",
+    "paymentLinkId": "05a82df06f4d4a7e955ede2efa9e687b",
+    "checkoutUrl": "https://pay.payos.vn/web/05a82df06f4d4a7e955ede2efa9e687b",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMMQ28260208QRIBFTTA5303704540420005802VN62160812DHS635703512630431F6",
+    "updatedAt": "2026-06-05T05:01:45.621Z"
   }
 ]
