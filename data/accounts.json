@@ -6,5 +6,13 @@
     "passwordHash": "scrypt:d3dbd74b773c55de48e55a9313d1398b:957eb8833d7f077da01e20b45de4747653ba9d1fa981ede9ea627a497bb17a7d6bb85b8b86f748b2a1bba99d80e60414d2e8c31edb216b023c554cdddff59c67",
     "createdAt": "2026-06-04T14:02:02.327Z",
     "updatedAt": "2026-06-04T15:17:43.492Z"
+  },
+  {
+    "name": "Verify Pending",
+    "email": "verify_pending_20260605112228@example.com",
+    "phone": "0900000000",
+    "passwordHash": "scrypt:631ad9b39ab5655632976cc86ed7d53d:4a6248f1a2ed0a9b14bbaaa0f7caa9b5b6b292f2cff00bf1cd761a3dd7761e77e78cc2856a0ad5e5be4ab4401ef018f61aecefcbfd08676ed4c0c9441159ff79",
+    "createdAt": "2026-06-05T04:22:31.657Z",
+    "updatedAt": "2026-06-05T04:22:31.657Z"
   }
 ]
