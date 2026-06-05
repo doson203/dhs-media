@@ -72,26 +72,27 @@ function sendDeliveryEmail(order) {
   if (!email) return { ok: false, message: "Missing buyer email" };
   if (!promptUrl) return { ok: false, message: "Missing product link" };
 
-  const productTitle = String(order.productTitle || "San pham DHS MEDIA");
+  const productTitle = String(order.productTitle || "Sản phẩm DHS MEDIA");
   const orderCode = String(order.orderCode || "");
-  const subject = "DHS MEDIA - Link san pham " + productTitle;
+  const subject = "DHS MEDIA - Link sản phẩm " + productTitle;
   const plainBody = [
-    "Cam on ban da mua san pham tai DHS MEDIA.",
+    "Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA.",
     "",
-    "San pham: " + productTitle,
-    "Ma don: " + orderCode,
-    "Link nhan san pham/prompt:",
+    "Sản phẩm: " + productTitle,
+    "Mã đơn: " + orderCode,
+    "Link nhận sản phẩm/prompt:",
     promptUrl,
     "",
-    "Neu can ho tro, vui long phan hoi email nay."
+    "Nếu cần hỗ trợ, vui lòng phản hồi email này."
   ].join("\n");
   const htmlBody = [
-    "<h2>Cam on ban da mua san pham tai DHS MEDIA</h2>",
-    "<p>San pham: <strong>" + escapeHtml(productTitle) + "</strong></p>",
-    "<p>Ma don: <strong>" + escapeHtml(orderCode) + "</strong></p>",
-    "<p>Link nhan san pham/prompt:</p>",
+    "<meta charset=\"UTF-8\">",
+    "<h2>Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA</h2>",
+    "<p>Sản phẩm: <strong>" + escapeHtml(productTitle) + "</strong></p>",
+    "<p>Mã đơn: <strong>" + escapeHtml(orderCode) + "</strong></p>",
+    "<p>Link nhận sản phẩm/prompt:</p>",
     "<p><a href=\"" + escapeHtml(promptUrl) + "\">" + escapeHtml(promptUrl) + "</a></p>",
-    "<p>Neu can ho tro, vui long phan hoi email nay.</p>"
+    "<p>Nếu cần hỗ trợ, vui lòng phản hồi email này.</p>"
   ].join("");
 
   MailApp.sendEmail({
