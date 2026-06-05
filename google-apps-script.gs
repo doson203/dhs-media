@@ -72,27 +72,27 @@ function sendDeliveryEmail(order) {
   if (!email) return { ok: false, message: "Missing buyer email" };
   if (!promptUrl) return { ok: false, message: "Missing product link" };
 
-  const productTitle = String(order.productTitle || "Sản phẩm DHS MEDIA");
+  const productTitle = String(order.productTitle || u("S\u1ea3n ph\u1ea9m DHS MEDIA"));
   const orderCode = String(order.orderCode || "");
-  const subject = "DHS MEDIA - Link sản phẩm " + productTitle;
+  const subject = u("DHS MEDIA - Link s\u1ea3n ph\u1ea9m ") + productTitle;
   const plainBody = [
-    "Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA.",
+    u("C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 mua s\u1ea3n ph\u1ea9m t\u1ea1i DHS MEDIA."),
     "",
-    "Sản phẩm: " + productTitle,
-    "Mã đơn: " + orderCode,
-    "Link nhận sản phẩm/prompt:",
+    u("S\u1ea3n ph\u1ea9m: ") + productTitle,
+    u("M\u00e3 \u0111\u01a1n: ") + orderCode,
+    u("Link nh\u1eadn s\u1ea3n ph\u1ea9m/prompt:"),
     promptUrl,
     "",
-    "Nếu cần hỗ trợ, vui lòng phản hồi email này."
+    u("N\u1ebfu c\u1ea7n h\u1ed7 tr\u1ee3, vui l\u00f2ng ph\u1ea3n h\u1ed3i email n\u00e0y.")
   ].join("\n");
   const htmlBody = [
     "<meta charset=\"UTF-8\">",
-    "<h2>Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA</h2>",
-    "<p>Sản phẩm: <strong>" + escapeHtml(productTitle) + "</strong></p>",
-    "<p>Mã đơn: <strong>" + escapeHtml(orderCode) + "</strong></p>",
-    "<p>Link nhận sản phẩm/prompt:</p>",
+    "<h2>" + u("C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 mua s\u1ea3n ph\u1ea9m t\u1ea1i DHS MEDIA") + "</h2>",
+    "<p>" + u("S\u1ea3n ph\u1ea9m:") + " <strong>" + escapeHtml(productTitle) + "</strong></p>",
+    "<p>" + u("M\u00e3 \u0111\u01a1n:") + " <strong>" + escapeHtml(orderCode) + "</strong></p>",
+    "<p>" + u("Link nh\u1eadn s\u1ea3n ph\u1ea9m/prompt:") + "</p>",
     "<p><a href=\"" + escapeHtml(promptUrl) + "\">" + escapeHtml(promptUrl) + "</a></p>",
-    "<p>Nếu cần hỗ trợ, vui lòng phản hồi email này.</p>"
+    "<p>" + u("N\u1ebfu c\u1ea7n h\u1ed7 tr\u1ee3, vui l\u00f2ng ph\u1ea3n h\u1ed3i email n\u00e0y.") + "</p>"
   ].join("");
 
   MailApp.sendEmail({
@@ -111,6 +111,10 @@ function authorizeMailApp() {
     body: "Google Apps Script da duoc cap quyen gui email cho DHS MEDIA."
   });
   return { ok: true };
+}
+
+function u(value) {
+  return value;
 }
 
 function productHeaders() {
