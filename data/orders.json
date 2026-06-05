@@ -215,6 +215,10 @@
     "buyerEmail": "ali01004214707@gmail.com",
     "buyerName": "duythang",
     "buyerPhone": "0374851248",
-    "createdAt": "2026-06-05T04:27:35.594Z"
+    "createdAt": "2026-06-05T04:27:35.594Z",
+    "paymentLinkId": "2b5885e252a24839b0ba0e75cc68d946",
+    "checkoutUrl": "https://pay.payos.vn/web/2b5885e252a24839b0ba0e75cc68d946",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMLQ70600208QRIBFTTA53037045405990005802VN62160812DHS63365559363046564",
+    "updatedAt": "2026-06-05T04:27:37.759Z"
   }
 ]
