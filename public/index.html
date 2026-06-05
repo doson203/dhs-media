@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DHS MEDIA - Kho tool reup video</title>
   <meta name="description" content="Kho tool automation, reup video, TTS và workflow cho người bán hàng online.">
-  <link rel="stylesheet" href="/styles.css?v=20260605-marketplace-inlinepay">
+  <link rel="stylesheet" href="/styles.css?v=20260605-auth-redesign">
 </head>
 <body>
   <header class="site-header">
@@ -230,39 +230,60 @@
   </div>
 
   <div class="modal" id="authModal" hidden>
-    <div class="modal-card auth-card">
-      <button class="modal-close" id="authClose" aria-label="Dong">x</button>
-      <div class="auth-tabs">
-        <button class="active" data-auth-tab="login">Đăng nhập</button>
-        <button data-auth-tab="register">Đăng ký</button>
-      </div>
-      <form id="loginForm" class="auth-form">
-        <h2>Đăng nhập khách hàng</h2>
-        <label>Email
-          <input name="email" type="email" required placeholder="email@example.com">
-        </label>
-        <label>Mật khẩu
-          <input name="password" type="password" required placeholder="Mật khẩu">
-        </label>
-        <button class="btn primary" type="submit">Đăng nhập</button>
-      </form>
-      <form id="registerForm" class="auth-form" hidden>
-        <h2>Tạo tài khoản nhận cập nhật</h2>
-        <label>Họ tên
-          <input name="name" required placeholder="Tên khách hàng">
-        </label>
-        <label>Email
-          <input name="email" type="email" required placeholder="email@example.com">
-        </label>
-        <label>Số điện thoại/Zalo
-          <input name="phone" placeholder="Số điện thoại hoặc Zalo">
-        </label>
-        <label>Mật khẩu
-          <input name="password" type="password" required placeholder="Mật khẩu">
-        </label>
-        <button class="btn primary" type="submit">Đăng ký</button>
-      </form>
-      <p class="form-note" id="authMessage"></p>
+    <div class="modal-card auth-card auth-shell" data-auth-mode="login">
+      <button class="modal-close" id="authClose" aria-label="Đóng">x</button>
+      <aside class="auth-brand-panel">
+        <div class="auth-logo-mark">DM</div>
+        <p class="eyebrow">DHS MEDIA Account</p>
+        <h2>Quản lý tài khoản và nhận sản phẩm tự động</h2>
+        <p>Đăng ký để lưu thông tin khách hàng, nhận cập nhật sản phẩm mới và nhận link prompt sau khi thanh toán.</p>
+        <div class="auth-benefits">
+          <span>Giao prompt qua email</span>
+          <span>Quản lý thông tin trên Google Sheet</span>
+          <span>Đăng nhập lại bằng email và mật khẩu</span>
+        </div>
+      </aside>
+      <section class="auth-form-panel">
+        <div class="auth-tabs" role="tablist" aria-label="Tài khoản khách hàng">
+          <button class="active" data-auth-tab="login" type="button">Đăng nhập</button>
+          <button data-auth-tab="register" type="button">Đăng ký</button>
+        </div>
+        <form id="loginForm" class="auth-form auth-form-card">
+          <div class="auth-heading">
+            <span>Xin chào trở lại</span>
+            <h2>Đăng nhập tài khoản</h2>
+            <p>Nhập email và mật khẩu đã đăng ký để tiếp tục.</p>
+          </div>
+          <label>Email
+            <input name="email" type="email" required autocomplete="email" placeholder="email@example.com">
+          </label>
+          <label>Mật khẩu
+            <input name="password" type="password" required autocomplete="current-password" placeholder="Mật khẩu">
+          </label>
+          <button class="btn primary auth-submit" type="submit">Đăng nhập</button>
+        </form>
+        <form id="registerForm" class="auth-form auth-form-card" hidden>
+          <div class="auth-heading">
+            <span>Tạo tài khoản mới</span>
+            <h2>Đăng ký khách hàng</h2>
+            <p>Thông tin này sẽ được lưu trên Sheet để bạn quản lý khách và gửi cập nhật sản phẩm.</p>
+          </div>
+          <label>Họ tên
+            <input name="name" required autocomplete="name" placeholder="Tên khách hàng">
+          </label>
+          <label>Email
+            <input name="email" type="email" required autocomplete="email" placeholder="email@example.com">
+          </label>
+          <label>Số điện thoại/Zalo
+            <input name="phone" autocomplete="tel" placeholder="Số điện thoại hoặc Zalo">
+          </label>
+          <label>Mật khẩu
+            <input name="password" type="password" required autocomplete="new-password" minlength="6" placeholder="Tối thiểu 6 ký tự">
+          </label>
+          <button class="btn primary auth-submit" type="submit">Tạo tài khoản</button>
+        </form>
+        <p class="form-note" id="authMessage"></p>
+      </section>
     </div>
   </div>
 
@@ -302,6 +323,6 @@
     </div>
   </div>
 
-  <script src="/main.js?v=20260605-marketplace-inlinepay"></script>
+  <script src="/main.js?v=20260605-auth-redesign"></script>
 </body>
 </html>

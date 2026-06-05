@@ -627,6 +627,7 @@ function setAuthTab(mode) {
   const isRegister = mode === "register";
   byId("loginForm").hidden = isRegister;
   byId("registerForm").hidden = !isRegister;
+  byId("authModal")?.querySelector(".auth-card")?.setAttribute("data-auth-mode", isRegister ? "register" : "login");
   document.querySelectorAll("[data-auth-tab]").forEach((button) => {
     button.classList.toggle("active", button.dataset.authTab === mode);
   });
@@ -641,20 +642,18 @@ function normalizeAuthCopy() {
   const loginForm = byId("loginForm");
   const registerForm = byId("registerForm");
   if (loginForm) {
-    loginForm.querySelector("h2").textContent = "Đăng nhập khách hàng";
-    loginForm.querySelector('label:nth-of-type(2)').firstChild.textContent = "Mật khẩu\n          ";
+    loginForm.querySelector("h2").textContent = "Đăng nhập tài khoản";
+    loginForm.querySelector('[name="email"]').placeholder = "email@example.com";
     loginForm.querySelector('[name="password"]').placeholder = "Mật khẩu";
     loginForm.querySelector('button[type="submit"]').textContent = "Đăng nhập";
   }
   if (registerForm) {
-    registerForm.querySelector("h2").textContent = "Tạo tài khoản nhận cập nhật";
-    registerForm.querySelector('label:nth-of-type(1)').firstChild.textContent = "Họ tên\n          ";
+    registerForm.querySelector("h2").textContent = "Đăng ký khách hàng";
     registerForm.querySelector('[name="name"]').placeholder = "Tên khách hàng";
-    registerForm.querySelector('label:nth-of-type(3)').firstChild.textContent = "Số điện thoại/Zalo\n          ";
+    registerForm.querySelector('[name="email"]').placeholder = "email@example.com";
     registerForm.querySelector('[name="phone"]').placeholder = "Số điện thoại hoặc Zalo";
-    registerForm.querySelector('label:nth-of-type(4)').firstChild.textContent = "Mật khẩu\n          ";
-    registerForm.querySelector('[name="password"]').placeholder = "Mật khẩu";
-    registerForm.querySelector('button[type="submit"]').textContent = "Đăng ký";
+    registerForm.querySelector('[name="password"]').placeholder = "Tối thiểu 6 ký tự";
+    registerForm.querySelector('button[type="submit"]').textContent = "Tạo tài khoản";
   }
   const message = byId("authMessage");
   if (message) {
@@ -688,7 +687,10 @@ function switchView(view) {
 
 function applyInitialView() {
   const initialView = String(location.hash || "#home").replace("#", "");
+  const path = String(location.pathname || "").replace(/\/+$/, "");
   switchView(["home", "apps", "workflow", "demo", "account"].includes(initialView) ? initialView : "home");
+  if (path === "/dang-nhap" || path === "/login") openAuth("login");
+  if (path === "/dang-ky" || path === "/register") openAuth("register");
 }
 
 function saveCustomer(customer) {
