@@ -155,11 +155,15 @@ async function postSheetAction(action, payload, options = {}) {
   const url = options.url || process.env.GOOGLE_SHEETS_WEBAPP_URL || DEFAULT_SHEETS_WEBAPP_URL;
   if (!url) return null;
   const secret = options.secret || process.env.GOOGLE_SHEETS_SECRET || "";
+  const timeoutMs = Number(options.timeoutMs || process.env.GOOGLE_SHEETS_TIMEOUT_MS || 15000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, secret, ...payload })
-  });
+    body: JSON.stringify({ action, secret, ...payload }),
+    signal: controller.signal
+  }).finally(() => clearTimeout(timer));
   const data = await response.json().catch(() => ({}));
   if (!response.ok || data.ok === false) {
     const error = new Error(data.message || "Google Sheet action failed");

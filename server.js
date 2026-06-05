@@ -78,19 +78,30 @@ app.post("/api/accounts/register", async (req, res) => {
       customer: publicAccount(saved)
     });
   } catch (error) {
-    res.status(501).json({ ok: false, message: error.message || "Chua cau hinh xac nhan email." });
+    const timedOut = error?.name === "AbortError";
+    res.status(timedOut ? 504 : 501).json({
+      ok: false,
+      message: timedOut
+        ? "May chu dang cho Google Sheet/Email phan hoi qua lau. Vui long thu lai sau."
+        : (error.message || "Chua cau hinh xac nhan email.")
+    });
   }
 });
 
 app.post("/api/accounts/login", async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
-  const sheetLogin = await postSheetAction("login", { email, password }).catch((error) => error.details || null);
+  const sheetLogin = await postSheetAction("login", { email, password }).catch((error) => (
+    error?.name === "AbortError" ? { timeout: true } : (error.details || null)
+  ));
   if (sheetLogin?.ok && sheetLogin.customer) {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
   if (sheetLogin?.needsVerification) {
     return res.status(403).json({ ok: false, needsVerification: true, message: sheetLogin.message || "Can xac nhan email truoc khi dang nhap." });
+  }
+  if (sheetLogin?.timeout) {
+    return res.status(504).json({ ok: false, message: "May chu dang kiem tra tai khoan qua lau. Vui long thu lai sau." });
   }
   const account = await findAccount(email);
   if (!account || !verifyPassword(password, account.passwordHash)) {

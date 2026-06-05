@@ -79,7 +79,7 @@ app.post("/api/accounts/register", async (req, res) => {
   const sheetResult = await postSheetAction("registerWithVerification", {
     account,
     verificationUrl: getBaseUrl(req) + "/xac-nhan-email"
-  }).catch(() => null);
+  }).catch((error) => ({ ok: false, timeout: error?.name === "AbortError", message: error?.message || "" }));
   if (sheetResult?.ok) {
     return res.json({
       ok: true,
@@ -89,7 +89,10 @@ app.post("/api/accounts/register", async (req, res) => {
       customer: publicAccount(sheetResult.customer || account)
     });
   }
-  if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Chua cap nhat Google Apps Script de gui email xac nhan." });
+  if (sheetResult?.timeout) {
+    return res.status(504).json({ ok: false, message: "May chu dang cho Google Sheet/Email phan hoi qua lau. Vui long thu lai sau." });
+  }
+  if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: sheetResult?.message || "Chua cap nhat Google Apps Script de gui email xac nhan." });
   const accounts = await readRepoJson("data/accounts.json", []);
   const now = new Date().toISOString();
   const existing = array(accounts).find((item) => String(item.email || "").toLowerCase() === account.email);
@@ -115,12 +118,17 @@ app.post("/api/accounts/register", async (req, res) => {
 app.post("/api/accounts/login", async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
-  const sheetLogin = await postSheetAction("login", { email, password }).catch((error) => error.details || null);
+  const sheetLogin = await postSheetAction("login", { email, password }).catch((error) => (
+    error?.name === "AbortError" ? { timeout: true } : (error.details || null)
+  ));
   if (sheetLogin?.ok && sheetLogin.customer) {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
   if (sheetLogin?.needsVerification) {
     return res.status(403).json({ ok: false, needsVerification: true, message: sheetLogin.message || "Can xac nhan email truoc khi dang nhap." });
+  }
+  if (sheetLogin?.timeout) {
+    return res.status(504).json({ ok: false, message: "May chu dang kiem tra tai khoan qua lau. Vui long thu lai sau." });
   }
   if (!GITHUB_TOKEN) return res.status(501).json({ ok: false, message: "Tai khoan online chua duoc cau hinh storage" });
   const accounts = await readRepoJson("data/accounts.json", []);

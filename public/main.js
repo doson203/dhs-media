@@ -7,6 +7,39 @@ let activeCheckoutProduct = null;
 const CURRENT_CUSTOMER_KEY = "dhsCurrentCustomer";
 let googleClientId = "";
 let googleAuthReady = false;
+const AUTH_REQUEST_TIMEOUT_MS = 20000;
+
+async function apiJson(url, options = {}, timeoutMs = AUTH_REQUEST_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      return {
+        res: { ok: false, status: 504 },
+        data: { ok: false, message: "Máy chủ phản hồi quá lâu. Vui lòng thử lại sau." }
+      };
+    }
+    return {
+      res: { ok: false, status: 0 },
+      data: { ok: false, message: "Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại." }
+    };
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+function setFormBusy(form, busy, label) {
+  if (!form) return;
+  const button = form.querySelector('button[type="submit"]');
+  if (!button) return;
+  if (!button.dataset.idleText) button.dataset.idleText = button.textContent;
+  button.disabled = Boolean(busy);
+  button.textContent = busy ? label : button.dataset.idleText;
+}
 
 async function loadSite() {
   const site = await loadSiteData();
@@ -818,44 +851,30 @@ async function sendLead(customer) {
 }
 
 async function registerAccount(customer) {
-  try {
-    const res = await fetch("/api/accounts/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(customer)
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.ok && data.ok) {
-      saveCustomer(stripPrivateCustomer(customer));
-      return data;
-    }
-    return { ok: false, message: data.message || "Máy chủ chưa lưu được tài khoản. Vui lòng thử lại." };
-  } catch {
+  const { res, data } = await apiJson("/api/accounts/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(customer)
+  });
+  if (res.ok && data.ok) {
     saveCustomer(stripPrivateCustomer(customer));
+    return data;
   }
-  await sendLead(customer);
-  return { ok: false, message: "Không gửi được email xác nhận. Vui lòng thử lại sau." };
+  return { ok: false, message: data.message || "Máy chủ chưa lưu được tài khoản. Vui lòng thử lại." };
 }
 
 async function loginAccount(email, password) {
-  const fallbackLogin = () => {
-    const customers = JSON.parse(localStorage.getItem("dhsCustomers") || "[]");
-    const customer = customers.find((item) => item.email === email && item.password === password);
-    return customer ? { ok: true, storage: "browser-only", customer: stripPrivateCustomer(customer) } : { ok: false };
+  const { res, data } = await apiJson("/api/accounts/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  if (res.ok && data.ok) return data;
+  return {
+    ok: false,
+    needsVerification: Boolean(data?.needsVerification),
+    message: data?.message || "Email hoặc mật khẩu chưa đúng."
   };
-  try {
-    const res = await fetch("/api/accounts/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-    if (res.ok) return await res.json();
-    const data = await res.json().catch(() => ({}));
-    if (data?.needsVerification) return { ok: false, needsVerification: true, message: data.message };
-    const fallback = fallbackLogin();
-    if (fallback.ok || res.status === 501 || res.status >= 500) return fallback;
-  } catch {}
-  return fallbackLogin();
 }
 
 async function initGoogleLogin() {
@@ -1001,6 +1020,7 @@ byId("leadForm")?.addEventListener("submit", async (event) => {
 
 byId("registerForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const currentForm = event.currentTarget;
   const form = new FormData(event.currentTarget);
   const customer = {
     name: String(form.get("name") || ""),
@@ -1009,8 +1029,9 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
     password: String(form.get("password") || ""),
     source: "account"
   };
-  setAuthMessage("Đang tạo tài khoản...", "loading");
-  const result = await registerAccount(customer);
+  setAuthMessage("Đang tạo tài khoản và gửi email xác nhận...", "loading");
+  setFormBusy(currentForm, true, "Đang tạo...");
+  const result = await registerAccount(customer).finally(() => setFormBusy(currentForm, false));
   if (!result?.ok) {
     setAuthMessage(result?.message || "Chưa đăng ký được tài khoản. Vui lòng thử lại.", "error");
     return;
@@ -1059,11 +1080,13 @@ byId("checkoutForm")?.addEventListener("submit", async (event) => {
 
 byId("loginForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const currentForm = event.currentTarget;
   const form = new FormData(event.currentTarget);
   const email = String(form.get("email") || "").toLowerCase();
   const password = String(form.get("password") || "");
-  setAuthMessage("Đang kiểm tra tài khoản...", "loading");
-  const result = await loginAccount(email, password);
+  setAuthMessage("Đang kiểm tra tài khoản trên máy chủ...", "loading");
+  setFormBusy(currentForm, true, "Đang kiểm tra...");
+  const result = await loginAccount(email, password).finally(() => setFormBusy(currentForm, false));
   if (!result?.ok) {
     setAuthMessage(result?.message || (result?.needsVerification ? "Bạn cần xác nhận email trước khi đăng nhập." : "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước."), "error");
     return;
