@@ -3,6 +3,8 @@ const DEFAULT_SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxQqU
 
 const SHEET_NAMES = {
   products: ["Products", "products", "SanPham", "san_pham", "Sản phẩm", "Sản phẩm"],
+  promptFree: ["Prompt_Free", "Prompts_Free", "Free_Prompts", "Prompt Mien Phi", "Prompt Miễn Phí", "MienPhi", "Miễn phí"],
+  promptPaid: ["Prompt_Paid", "Prompts_Paid", "Paid_Prompts", "Prompt Tra Phi", "Prompt Trả Phí", "TraPhi", "Trả phí"],
   apps: ["Apps", "apps", "Tools", "tools", "Tool", "tool"],
   workflows: ["Workflows", "workflows", "Workflow", "workflow"],
   demos: ["Demos", "demos", "Demo", "demo"],
@@ -15,17 +17,27 @@ async function readSheetSite(baseSite, options = {}) {
   const fetcher = options.fetch || fetch;
   const site = clone(baseSite);
 
-  const [productRows, appRows, workflowRows, demoRows, faqRows] = await Promise.all([
+  const [productRows, freePromptRows, paidPromptRows, appRows, workflowRows, demoRows, faqRows] = await Promise.all([
     firstNonEmptyRows(sheetId, SHEET_NAMES.products, fetcher),
+    firstNonEmptyRows(sheetId, SHEET_NAMES.promptFree, fetcher),
+    firstNonEmptyRows(sheetId, SHEET_NAMES.promptPaid, fetcher),
     firstNonEmptyRows(sheetId, SHEET_NAMES.apps, fetcher),
     firstNonEmptyRows(sheetId, SHEET_NAMES.workflows, fetcher),
     firstNonEmptyRows(sheetId, SHEET_NAMES.demos, fetcher),
     firstNonEmptyRows(sheetId, SHEET_NAMES.faq, fetcher)
   ]);
 
+  const dedicatedPromptRows = [
+    ...freePromptRows.map((row) => ({ ...row, pricingtype: row.pricingtype || row.pricingType || "free", price: row.price || row.gia || "0đ" })),
+    ...paidPromptRows.map((row) => ({ ...row, pricingtype: row.pricingtype || row.pricingType || "paid" }))
+  ];
+  if (dedicatedPromptRows.length) {
+    site.videoProducts = dedicatedPromptRows.filter(isActiveRow).map(mapVideoProductRow).filter(Boolean);
+  }
+
   if (productRows.length) {
     const grouped = splitProductRows(productRows);
-    if (grouped.videoProducts.length) site.videoProducts = grouped.videoProducts;
+    if (!dedicatedPromptRows.length && grouped.videoProducts.length) site.videoProducts = grouped.videoProducts;
     if (grouped.apps.length) site.apps = grouped.apps;
     if (grouped.workflows.length) site.workflows = grouped.workflows;
   }

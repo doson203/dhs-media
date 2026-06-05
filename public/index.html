@@ -107,6 +107,13 @@
           <button data-filter="soon">Sắp ra mắt</button>
         </div>
       </div>
+      <div class="product-switch" aria-label="Lọc sản phẩm">
+        <button class="active" type="button" data-product-view="all">Tất cả</button>
+        <button type="button" data-product-view="free">Miễn phí</button>
+        <button type="button" data-product-view="paid">Trả phí</button>
+        <button type="button" data-product-view="tools">Tool/App</button>
+        <button type="button" data-product-view="workflow">Workflow</button>
+      </div>
       <div class="sub-heading">
         <div>
           <h3>Video sản phẩm AI / Prompt</h3>
@@ -114,6 +121,7 @@
         </div>
       </div>
       <div class="prompt-board">
+        <div class="product-section" id="freeProductSection" data-product-section="free">
         <div class="sub-heading prompt-heading">
           <div>
             <span class="prompt-kicker">Free prompts</span>
@@ -123,7 +131,9 @@
           <span class="count-pill" id="freePromptCount">0 mẫu</span>
         </div>
         <div class="video-product-grid prompt-grid" id="freePromptGrid"></div>
+        </div>
 
+        <div class="product-section" id="paidProductSection" data-product-section="paid">
         <div class="sub-heading prompt-heading paid-heading">
           <div>
             <span class="prompt-kicker paid">Premium prompts</span>
@@ -133,9 +143,11 @@
           <span class="count-pill paid" id="paidPromptCount">0 mẫu</span>
         </div>
         <div class="video-product-grid prompt-grid" id="paidPromptGrid"></div>
+        </div>
       </div>
       <div class="video-product-grid legacy-prompt-grid" id="videoProductGrid" hidden></div>
 
+      <div class="product-section" id="toolProductSection" data-product-section="tools">
       <div class="sub-heading">
         <div>
           <h3>Tool Reup / Automation</h3>
@@ -143,6 +155,17 @@
         </div>
       </div>
       <div class="product-grid" id="appGrid"></div>
+      </div>
+
+      <div class="product-section" id="workflowProductSection" data-product-section="workflow">
+        <div class="sub-heading">
+          <div>
+            <h3>Workflow triển khai</h3>
+            <p>Quy trình thực hành sẵn cho khách muốn rút ngắn thời gian dựng video và vận hành nội dung.</p>
+          </div>
+        </div>
+        <div class="workflow-product-grid" id="productWorkflowGrid"></div>
+      </div>
     </section>
     </section>
 

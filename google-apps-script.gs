@@ -23,6 +23,7 @@ function doPost(e) {
     if (body.action === "deleteProduct") return json(deleteProduct(body.id || ""));
     if (body.action === "sendDeliveryEmail") return json(sendDeliveryEmail(body.order || {}));
     if (body.action === "initProducts") return json(initProductsSheet());
+    if (body.action === "organizeManagerSheets") return json(organizeManagerSheets());
     return json({ ok: false, message: "Unknown action" }, 400);
   } catch (error) {
     return json({ ok: false, message: String(error && error.message || error) }, 500);
@@ -123,6 +124,141 @@ function u(value) {
 
 function productHeaders() {
   return ["active", "type", "id", "title", "description", "category", "format", "status", "price", "pricingType", "license", "thumbnail", "videoUrl", "promptUrl"];
+}
+
+function organizeManagerSheets() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const productsSheet = ensureSheet(PRODUCTS_SHEET, productHeaders());
+  const headers = ensureHeaders(productsSheet, productHeaders());
+  const rows = productsSheet.getDataRange().getValues();
+  const products = [];
+  for (let i = 1; i < rows.length; i += 1) {
+    const item = {};
+    headers.forEach(function(header, index) {
+      item[header] = rows[i][index];
+    });
+    if (String(item.id || item.title || "").trim()) products.push(item);
+  }
+
+  const promptFree = [];
+  const promptPaid = [];
+  const apps = [];
+  const workflows = [];
+  products.forEach(function(item) {
+    const type = normalizePlain(item.type);
+    if (type.indexOf("tool") >= 0 || type.indexOf("app") >= 0 || type.indexOf("software") >= 0 || type.indexOf("phanmem") >= 0) {
+      apps.push(Object.assign({}, item, { type: "tool" }));
+      return;
+    }
+    if (type.indexOf("workflow") >= 0 || type.indexOf("wordflow") >= 0 || type.indexOf("quytrinh") >= 0) {
+      workflows.push(Object.assign({}, item, { type: "workflow" }));
+      return;
+    }
+    if (isFreeManagerProduct(item)) {
+      promptFree.push(Object.assign({}, item, { type: "prompt", pricingType: "free", price: item.price || "0đ" }));
+      return;
+    }
+    promptPaid.push(Object.assign({}, item, { type: "prompt", pricingType: item.pricingType || "paid" }));
+  });
+
+  writeManagerSheet(ss, "Prompt_Free", productHeaders(), promptFree);
+  writeManagerSheet(ss, "Prompt_Paid", productHeaders(), promptPaid);
+  writeManagerSheet(ss, "Apps", productHeaders(), apps);
+  writeManagerSheet(ss, "Workflows", productHeaders(), workflows);
+  ensureManagerSheet(ss, "Demos", demoHeaders());
+  ensureManagerSheet(ss, "FAQ", faqHeaders());
+  writeGuideSheet(ss);
+
+  return {
+    ok: true,
+    sheets: {
+      Prompt_Free: promptFree.length,
+      Prompt_Paid: promptPaid.length,
+      Apps: apps.length,
+      Workflows: workflows.length,
+      Demos: 0,
+      FAQ: 0
+    }
+  };
+}
+
+function ensureManagerSheet(ss, name, headers) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  } else {
+    ensureHeaders(sheet, headers);
+  }
+  formatManagerSheet(sheet, headers.length);
+}
+
+function writeManagerSheet(ss, name, headers, items) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
+  sheet.clear();
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  if (items.length) {
+    const values = items.map(function(item) {
+      return headers.map(function(header) {
+        return item[header] || "";
+      });
+    });
+    sheet.getRange(2, 1, values.length, headers.length).setValues(values);
+  }
+  formatManagerSheet(sheet, headers.length);
+}
+
+function formatManagerSheet(sheet, headerCount) {
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, headerCount);
+  const existingFilter = sheet.getFilter();
+  if (existingFilter) existingFilter.remove();
+  sheet.getRange(1, 1, Math.max(2, sheet.getLastRow()), headerCount).createFilter();
+  sheet.getRange(1, 1, 1, headerCount).setFontWeight("bold").setBackground("#0f172a").setFontColor("#ffffff");
+}
+
+function demoHeaders() {
+  return ["active", "title", "description", "url", "poster"];
+}
+
+function faqHeaders() {
+  return ["active", "question", "answer"];
+}
+
+function writeGuideSheet(ss) {
+  const name = "Huong_Dan_Quan_Ly";
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name, 0);
+  sheet.clear();
+  const rows = [
+    ["Tab", "Dùng để sửa gì", "Cột quan trọng"],
+    ["Prompt_Free", "Sản phẩm/prompt miễn phí hiển thị trong mục Miễn phí", "active, title, price, thumbnail, videoUrl, promptUrl"],
+    ["Prompt_Paid", "Sản phẩm/prompt trả phí hiển thị trong mục Trả phí", "active, title, price, thumbnail, videoUrl, promptUrl"],
+    ["Apps", "Tool/App hiển thị trong mục Tool/App", "active, title, description, price, thumbnail, videoUrl, promptUrl"],
+    ["Workflows", "Workflow hiển thị trong mục Workflow", "active, title, description, price, thumbnail"],
+    ["Demos", "Video demo hiển thị ở tab Demo", "active, title, description, url, poster"],
+    ["FAQ", "Câu hỏi thường gặp", "active, question, answer"],
+    ["active", "TRUE để hiển thị, FALSE để ẩn sản phẩm", ""],
+    ["Lưu ý", "Web ưu tiên đọc các tab riêng ở trên. Tab Products cũ được giữ lại làm dữ liệu gốc.", ""]
+  ];
+  sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, 3);
+}
+
+function isFreeManagerProduct(item) {
+  const text = normalizePlain([item.pricingType, item.price, item.status, item.category].join(" "));
+  const digits = String(item.price || "").replace(/[^\d]/g, "");
+  return text.indexOf("free") >= 0 || text.indexOf("mienphi") >= 0 || text.indexOf("0d") >= 0 || text.indexOf("0vnd") >= 0 || digits === "0";
+}
+
+function normalizePlain(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
 }
 
 function saveLead(lead) {

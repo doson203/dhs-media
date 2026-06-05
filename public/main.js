@@ -2,6 +2,7 @@ const money = (value) => value || "Liên hệ";
 
 let currentSite = null;
 let activeFilter = "all";
+let activeProductView = "all";
 let searchTerm = "";
 let activeCheckoutProduct = null;
 const CURRENT_CUSTOMER_KEY = "dhsCurrentCustomer";
@@ -59,6 +60,7 @@ async function loadSite() {
   renderProducts();
   renderPromptProducts(site);
   renderWorkflowProducts(site);
+  renderProductWorkflows(site);
   renderDemos(site);
   renderFaq(site);
   renderContact(site);
@@ -89,6 +91,16 @@ function renderProducts() {
 
   document.querySelectorAll(".buy-btn").forEach((button) => {
     button.addEventListener("click", () => openBuyModal(apps[Number(button.dataset.index)]));
+  });
+}
+
+function applyProductView() {
+  document.querySelectorAll("[data-product-section]").forEach((section) => {
+    const sectionName = section.dataset.productSection;
+    section.hidden = activeProductView !== "all" && sectionName !== activeProductView;
+  });
+  document.querySelectorAll("[data-product-view]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.productView === activeProductView);
   });
 }
 
@@ -245,6 +257,7 @@ function renderPromptProducts(site) {
     button.addEventListener("focus", () => showHoverPreview(button, item));
     button.addEventListener("blur", () => hideHoverPreview(button));
   });
+  applyProductView();
 }
 
 function promptProductCard(item, index, isFree) {
@@ -307,6 +320,29 @@ function renderWorkflowProducts(site) {
       </div>
     </article>
   `).join("") || `<div class="empty-state">Chưa có workflow riêng.</div>`;
+}
+
+function renderProductWorkflows(site) {
+  const grid = byId("productWorkflowGrid");
+  if (!grid) return;
+  grid.innerHTML = (site.workflows || []).map((item) => `
+    <article class="workflow-product-card">
+      <img src="${escapeAttr(item.cover || "/assets/app-preview.svg")}" alt="${escapeAttr(item.title)}">
+      <div>
+        <div class="product-tags">
+          <span>${escapeHtml(item.level || "Cơ bản")}</span>
+          <span>${escapeHtml(item.duration || "Theo nhu cầu")}</span>
+        </div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="product-price">
+          <strong>${escapeHtml(item.price || "Liên hệ")}</strong>
+          <span>Workflow</span>
+        </div>
+      </div>
+    </article>
+  `).join("") || `<div class="empty-state">Các workflow sẽ được cập nhật thêm trong thời gian tới.</div>`;
+  applyProductView();
 }
 
 function productCard(app) {
@@ -986,6 +1022,13 @@ document.querySelectorAll("[data-filter]").forEach((button) => {
     activeFilter = button.dataset.filter;
     document.querySelectorAll("[data-filter]").forEach((item) => item.classList.toggle("active", item === button));
     renderProducts();
+  });
+});
+
+document.querySelectorAll("[data-product-view]").forEach((button) => {
+  button.addEventListener("click", () => {
+    activeProductView = button.dataset.productView || "all";
+    applyProductView();
   });
 });
 
