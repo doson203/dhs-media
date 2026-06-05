@@ -1,4 +1,4 @@
-// DHS MEDIA Google Sheet backend.
+﻿// DHS MEDIA Google Sheet backend.
 // Deploy as Web App: Execute as "Me", Who has access "Anyone".
 // Add Script Property: DHS_SECRET = the same value as GOOGLE_SHEETS_SECRET on Vercel.
 
@@ -48,10 +48,10 @@ function upsertProduct(product) {
     description: String(product.description || ""),
     category: String(product.category || "Prompt AI"),
     format: String(product.format || "Video + Prompt"),
-    status: String(product.status || "Đang bán"),
-    price: String(product.price || "Liên hệ"),
+    status: String(product.status || "Äang bÃ¡n"),
+    price: String(product.price || "LiÃªn há»‡"),
     pricingType: String(product.pricingType || product.priceType || ""),
-    license: String(product.license || "1 bộ prompt/tài liệu"),
+    license: String(product.license || "1 bá»™ prompt/tÃ i liá»‡u"),
     thumbnail: String(product.thumbnail || product.cover || ""),
     videoUrl: String(product.videoUrl || ""),
     promptUrl: String(product.promptUrl || "")
@@ -185,7 +185,8 @@ function loginAccount(emailValue, passwordValue) {
   const actual = hashPassword(String(passwordValue || ""), found.row.salt);
   if (actual !== found.row.passwordHash) return { ok: false, message: "Email hoac mat khau khong dung" };
   const verified = String(found.row.verified || "").toUpperCase();
-  if (verified && verified !== "TRUE") {
+  const provider = String(found.row.provider || "password").toLowerCase();
+  if (provider !== "google" && verified !== "TRUE") {
     return { ok: false, needsVerification: true, message: "Can xac nhan email truoc khi dang nhap." };
   }
   return { ok: true, customer: publicAccount(found.row) };
@@ -237,26 +238,25 @@ function googleLogin(profile) {
 
 function sendVerificationEmail(account, verificationUrl) {
   const link = String(verificationUrl || "https://dhs-media.vercel.app/xac-nhan-email").replace(/\?+$/, "") + "?token=" + encodeURIComponent(account.verificationToken);
-  const subject = "DHS MEDIA - Xac nhan tai khoan";
+  const subject = u("DHS MEDIA - X\u00e1c nh\u1eadn t\u00e0i kho\u1ea3n");
   const plainBody = [
-    "Cam on ban da dang ky tai khoan DHS MEDIA.",
+    u("C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 \u0111\u0103ng k\u00fd t\u00e0i kho\u1ea3n DHS MEDIA."),
     "",
-    "Vui long bam link duoi day de xac nhan email truoc khi dang nhap:",
+    u("Vui l\u00f2ng b\u1ea5m link d\u01b0\u1edbi \u0111\u00e2y \u0111\u1ec3 x\u00e1c nh\u1eadn email tr\u01b0\u1edbc khi \u0111\u0103ng nh\u1eadp:"),
     link,
     "",
-    "Neu ban khong dang ky tai khoan, hay bo qua email nay."
+    u("N\u1ebfu b\u1ea1n kh\u00f4ng \u0111\u0103ng k\u00fd t\u00e0i kho\u1ea3n, h\u00e3y b\u1ecf qua email n\u00e0y.")
   ].join("\n");
   const htmlBody = [
     "<meta charset=\"UTF-8\">",
-    "<h2>DHS MEDIA - Xác nhận tài khoản</h2>",
-    "<p>Cảm ơn bạn đã đăng ký tài khoản DHS MEDIA.</p>",
-    "<p>Vui lòng bấm nút bên dưới để xác nhận email trước khi đăng nhập.</p>",
-    "<p><a href=\"" + escapeHtml(link) + "\" style=\"display:inline-block;padding:12px 18px;background:#0f172a;color:#fff;border-radius:10px;text-decoration:none;font-weight:700\">Xác nhận tài khoản</a></p>",
-    "<p>Hoặc mở link này: <a href=\"" + escapeHtml(link) + "\">" + escapeHtml(link) + "</a></p>"
+    "<h2>" + u("DHS MEDIA - X\u00e1c nh\u1eadn t\u00e0i kho\u1ea3n") + "</h2>",
+    "<p>" + u("C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 \u0111\u0103ng k\u00fd t\u00e0i kho\u1ea3n DHS MEDIA.") + "</p>",
+    "<p>" + u("Vui l\u00f2ng b\u1ea5m n\u00fat b\u00ean d\u01b0\u1edbi \u0111\u1ec3 x\u00e1c nh\u1eadn email tr\u01b0\u1edbc khi \u0111\u0103ng nh\u1eadp.") + "</p>",
+    "<p><a href=\"" + escapeHtml(link) + "\" style=\"display:inline-block;padding:12px 18px;background:#0f172a;color:#fff;border-radius:10px;text-decoration:none;font-weight:700\">" + u("X\u00e1c nh\u1eadn t\u00e0i kho\u1ea3n") + "</a></p>",
+    "<p>" + u("Ho\u1eb7c m\u1edf link n\u00e0y:") + " <a href=\"" + escapeHtml(link) + "\">" + escapeHtml(link) + "</a></p>"
   ].join("");
   MailApp.sendEmail({ to: account.email, subject: subject, body: plainBody, htmlBody: htmlBody });
 }
-
 function ensureSheet(name, headers) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(name);
@@ -360,3 +360,4 @@ function json(value, status) {
     .createTextOutput(JSON.stringify(value))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
