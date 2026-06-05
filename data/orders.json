@@ -255,7 +255,7 @@
   },
   {
     "orderCode": 637366592,
-    "status": "PENDING",
+    "status": "PAID",
     "productId": "prompt-001-mau-studio-nhieu-bo-quan-ao",
     "productTitle": "mẫu studio nhiều bộ quần áo",
     "promptUrl": "https://drive.google.com/file/d/1PIAtKeXwNRWypkk9Ebvc83Q-xw-126Jg/view?usp=drive_link",
@@ -267,6 +267,33 @@
     "paymentLinkId": "92b9dd3c70f9471cba8d8bb4af1ceac9",
     "checkoutUrl": "https://pay.payos.vn/web/92b9dd3c70f9471cba8d8bb4af1ceac9",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMNA36760208QRIBFTTA5303704540420005802VN62160812DHS6373665926304B2EF",
-    "updatedAt": "2026-06-05T05:29:28.578Z"
+    "updatedAt": "2026-06-05T05:29:51.229Z",
+    "paidAt": "2026-06-05T05:29:51.160Z",
+    "payosData": {
+      "id": "92b9dd3c70f9471cba8d8bb4af1ceac9",
+      "orderCode": 637366592,
+      "amount": 2000,
+      "amountPaid": 2000,
+      "amountRemaining": 0,
+      "status": "PAID",
+      "createdAt": "2026-06-05T12:29:28+07:00",
+      "transactions": [
+        {
+          "accountNumber": "071120026888",
+          "amount": 2000,
+          "counterAccountBankId": "970422",
+          "counterAccountBankName": null,
+          "counterAccountName": "NGUYEN DUY THANG",
+          "counterAccountNumber": "0929666198",
+          "description": "QAJMNA3676  CASSO9625 4 OBGQqaBXBWNGONlSnBQ6hP8o DHS637366592",
+          "reference": "FT26156400397116",
+          "transactionDateTime": "2026-06-05T12:29:43+07:00",
+          "virtualAccountName": null,
+          "virtualAccountNumber": null
+        }
+      ],
+      "canceledAt": null,
+      "cancellationReason": null
+    }
   }
 ]
