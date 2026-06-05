@@ -94,5 +94,17 @@
     "checkoutUrl": "https://pay.payos.vn/web/a15997e8eba44c678f212a0e76f45e14",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMIT42340208QRIBFTTA530370454061790005802VN62160812DHS6227753326304B2DB",
     "updatedAt": "2026-06-05T01:26:17.544Z"
+  },
+  {
+    "orderCode": 622965388,
+    "status": "PENDING",
+    "productId": "prompt-001-mau-studio-nhieu-bo-quan-ao",
+    "productTitle": "mẫu studio nhiều bộ quần áo",
+    "promptUrl": "https://drive.google.com/file/d/1PIAtKeXwNRWypkk9Ebvc83Q-xw-126Jg/view?usp=drive_link",
+    "amount": 1000,
+    "buyerEmail": "doson380@gmail.com",
+    "buyerName": "HỒNG SƠN ĐỖ",
+    "buyerPhone": "0389755587",
+    "createdAt": "2026-06-05T01:29:25.389Z"
   }
 ]
