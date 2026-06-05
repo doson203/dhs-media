@@ -192,10 +192,11 @@ async function sendDeliveryEmail(order) {
   const config = paymentConfig();
   if (!config.resendApiKey) return { ok: false, message: "Chua cau hinh RESEND_API_KEY." };
   const html = `
-    <h2>Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA</h2>
-    <p>Sản phẩm: <strong>${escapeHtml(order.productTitle)}</strong></p>
-    <p>Mã đơn: <strong>${escapeHtml(order.orderCode)}</strong></p>
-    <p>Link nhận sản phẩm/prompt:</p>
+    <meta charset="UTF-8">
+    <h2>${u("C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 mua s\u1ea3n ph\u1ea9m t\u1ea1i DHS MEDIA")}</h2>
+    <p>${u("S\u1ea3n ph\u1ea9m:")} <strong>${escapeHtml(order.productTitle)}</strong></p>
+    <p>${u("M\u00e3 \u0111\u01a1n:")} <strong>${escapeHtml(order.orderCode)}</strong></p>
+    <p>${u("Link nh\u1eadn s\u1ea3n ph\u1ea9m/prompt:")}</p>
     <p><a href="${escapeHtml(order.promptUrl)}">${escapeHtml(order.promptUrl)}</a></p>
   `;
   const response = await fetch("https://api.resend.com/emails", {
@@ -204,7 +205,7 @@ async function sendDeliveryEmail(order) {
     body: JSON.stringify({
       from: config.mailFrom,
       to: [order.buyerEmail],
-      subject: `DHS MEDIA - Link sản phẩm ${order.productTitle}`,
+      subject: `${u("DHS MEDIA - Link s\u1ea3n ph\u1ea9m")} ${order.productTitle}`,
       html
     })
   });
@@ -216,10 +217,11 @@ async function sendDeliveryEmailV2(order) {
   const config = paymentConfig();
   if (!config.resendApiKey) return sendDeliveryViaSheet(order, config);
   const html = `
-    <h2>Cảm ơn bạn đã mua sản phẩm tại DHS MEDIA</h2>
-    <p>Sản phẩm: <strong>${escapeHtml(order.productTitle)}</strong></p>
-    <p>Mã đơn: <strong>${escapeHtml(order.orderCode)}</strong></p>
-    <p>Link nhận sản phẩm/prompt:</p>
+    <meta charset="UTF-8">
+    <h2>${u("C\u1ea3m \u01a1n b\u1ea1n \u0111\u00e3 mua s\u1ea3n ph\u1ea9m t\u1ea1i DHS MEDIA")}</h2>
+    <p>${u("S\u1ea3n ph\u1ea9m:")} <strong>${escapeHtml(order.productTitle)}</strong></p>
+    <p>${u("M\u00e3 \u0111\u01a1n:")} <strong>${escapeHtml(order.orderCode)}</strong></p>
+    <p>${u("Link nh\u1eadn s\u1ea3n ph\u1ea9m/prompt:")}</p>
     <p><a href="${escapeHtml(order.promptUrl)}">${escapeHtml(order.promptUrl)}</a></p>
   `;
   const response = await fetch("https://api.resend.com/emails", {
@@ -228,7 +230,7 @@ async function sendDeliveryEmailV2(order) {
     body: JSON.stringify({
       from: config.mailFrom,
       to: [order.buyerEmail],
-      subject: `DHS MEDIA - Link sản phẩm ${order.productTitle}`,
+      subject: `${u("DHS MEDIA - Link s\u1ea3n ph\u1ea9m")} ${order.productTitle}`,
       html
     })
   });
@@ -281,6 +283,10 @@ function verifyPayosWebhook(body, key) {
   return payosSignature(body.data, key) === body.signature;
 }
 
+function u(value) {
+  return value;
+}
+
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 }
@@ -292,3 +298,4 @@ function normalizePublicUrl(value) {
 }
 
 module.exports = { createCheckout, handlePayosWebhook, verifyCheckout, parseAmount };
+

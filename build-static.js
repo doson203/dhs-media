@@ -115,7 +115,7 @@ app.post("/api/accounts/register", async (req, res) => {
 app.post("/api/accounts/login", async (req, res) => {
   const email = String(req.body?.email || "").trim().toLowerCase();
   const password = String(req.body?.password || "");
-  const sheetLogin = await postSheetAction("login", { email, password }).catch(() => null);
+  const sheetLogin = await postSheetAction("login", { email, password }).catch((error) => error.details || null);
   if (sheetLogin?.ok && sheetLogin.customer) {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
