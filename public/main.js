@@ -4,6 +4,7 @@ let currentSite = null;
 let activeFilter = "all";
 let searchTerm = "";
 let activeCheckoutProduct = null;
+const CURRENT_CUSTOMER_KEY = "dhsCurrentCustomer";
 
 async function loadSite() {
   const site = await loadSiteData();
@@ -27,6 +28,7 @@ async function loadSite() {
   renderFaq(site);
   renderContact(site);
   normalizeAuthCopy();
+  renderAuthState();
   applyInitialView();
   handlePaymentReturn();
 }
@@ -376,9 +378,12 @@ function openCheckoutModal(product) {
   activeCheckoutProduct = product;
   byId("checkoutProduct").textContent = `${product.title || product.name} - ${product.price || "Liên hệ"}`;
   byId("checkoutMessage").textContent = "";
-  const currentEmail = localStorage.getItem("dhsCurrentCustomer") || "";
+  const currentCustomer = getCurrentCustomer();
+  const currentEmail = currentCustomer?.email || "";
   const form = byId("checkoutForm");
   form.querySelector('[name="email"]').value = currentEmail.includes("@") ? currentEmail : "";
+  form.querySelector('[name="name"]').value = currentCustomer?.name || "";
+  form.querySelector('[name="phone"]').value = currentCustomer?.phone || "";
   const submit = form.querySelector('button[type="submit"]');
   if (submit) submit.textContent = "Hiển thị mã thanh toán";
   const inlineBox = byId("inlinePaymentBox");
@@ -669,6 +674,68 @@ function setAuthMessage(text, type = "info") {
   message.dataset.state = type;
 }
 
+function getCurrentCustomer() {
+  const raw = localStorage.getItem(CURRENT_CUSTOMER_KEY) || "";
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed?.email) return parsed;
+  } catch (error) {
+    if (raw.includes("@")) return { email: raw };
+  }
+  return null;
+}
+
+function setCurrentCustomer(customer) {
+  if (!customer?.email) return;
+  const clean = {
+    name: String(customer.name || "").trim(),
+    email: String(customer.email || "").trim().toLowerCase(),
+    phone: String(customer.phone || "").trim()
+  };
+  localStorage.setItem(CURRENT_CUSTOMER_KEY, JSON.stringify(clean));
+  saveCustomer(clean);
+  renderAuthState();
+}
+
+function clearCurrentCustomer() {
+  localStorage.removeItem(CURRENT_CUSTOMER_KEY);
+  renderAuthState();
+  showPaymentNotice("Đã đăng xuất tài khoản khách hàng.", "info");
+}
+
+function customerInitials(customer) {
+  const source = String(customer?.name || customer?.email || "KH").trim();
+  const parts = source.includes("@") ? [source[0], source.split("@")[0]?.[1]] : source.split(/\s+/).slice(0, 2).map((part) => part[0]);
+  return parts.filter(Boolean).join("").slice(0, 2).toUpperCase() || "KH";
+}
+
+function renderAuthState() {
+  const customer = getCurrentCustomer();
+  const isLoggedIn = Boolean(customer?.email);
+  const guest = byId("authGuestActions");
+  const chip = byId("customerChip");
+  if (guest) guest.hidden = isLoggedIn;
+  if (chip) chip.hidden = !isLoggedIn;
+  if (isLoggedIn) {
+    const displayName = customer.name || customer.email.split("@")[0] || "Khách hàng";
+    byId("customerAvatar").textContent = customerInitials(customer);
+    byId("customerName").textContent = displayName;
+    byId("customerEmail").textContent = customer.email;
+    byId("accountAvatar").textContent = customerInitials(customer);
+    byId("accountName").textContent = displayName;
+    byId("accountEmail").textContent = customer.email;
+    byId("accountPhone").textContent = customer.phone || "Chưa có số điện thoại";
+    byId("accountSummary").hidden = false;
+    byId("accountTitle").textContent = "Thông tin tài khoản khách hàng";
+    byId("accountDescription").textContent = "Bạn đang đăng nhập. Thông tin này dùng để nhận cập nhật, nhận prompt và đối soát đơn hàng.";
+    return;
+  }
+  if (byId("accountSummary")) byId("accountSummary").hidden = true;
+  if (byId("accountTitle")) byId("accountTitle").textContent = "Đăng ký để nhận cập nhật sản phẩm mới";
+  if (byId("accountDescription")) byId("accountDescription").textContent = "Tạo tài khoản để lưu thông tin khách hàng, nhận email giao sản phẩm và nhận cập nhật prompt mới.";
+}
+
 function switchView(view) {
   const nextView = view || "home";
   document.querySelectorAll("[data-view-section]").forEach((section) => {
@@ -801,6 +868,8 @@ byId("authClose")?.addEventListener("click", () => byId("authModal").hidden = tr
 byId("videoClose")?.addEventListener("click", () => byId("videoModal").hidden = true);
 byId("videoCloseBtn")?.addEventListener("click", () => byId("videoModal").hidden = true);
 byId("checkoutClose")?.addEventListener("click", () => byId("checkoutModal").hidden = true);
+byId("logoutBtn")?.addEventListener("click", clearCurrentCustomer);
+byId("accountLogoutBtn")?.addEventListener("click", clearCurrentCustomer);
 
 byId("leadForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -832,12 +901,13 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
     setAuthMessage(result?.message || "Chưa đăng ký được tài khoản. Vui lòng thử lại.", "error");
     return;
   }
-  localStorage.setItem("dhsCurrentCustomer", customer.email);
+  setCurrentCustomer(result.customer || customer);
   event.currentTarget.reset();
-  setAuthTab("login");
-  byId("loginForm").querySelector('[name="email"]').value = customer.email;
-  byId("loginForm").querySelector('[name="password"]').value = customer.password;
-  setAuthMessage("Đăng ký thành công. Email và mật khẩu đã được điền sẵn, bấm Đăng nhập để vào tài khoản.", "success");
+  setAuthMessage("Đăng ký thành công. Tài khoản đã được đăng nhập và hiển thị trên thanh trên cùng.", "success");
+  showPaymentNotice("Đăng ký thành công. Bạn đang đăng nhập bằng " + customer.email + ".", "success");
+  window.setTimeout(() => {
+    byId("authModal").hidden = true;
+  }, 1300);
 });
 
 byId("checkoutForm")?.addEventListener("submit", async (event) => {
@@ -863,7 +933,11 @@ byId("checkoutForm")?.addEventListener("submit", async (event) => {
       byId("checkoutMessage").textContent = data.message || "Chưa tạo được link thanh toán. Vui lòng liên hệ admin.";
       return;
     }
-    localStorage.setItem("dhsCurrentCustomer", String(form.get("email") || "").toLowerCase());
+    setCurrentCustomer({
+      name: String(form.get("name") || ""),
+      email: String(form.get("email") || "").toLowerCase(),
+      phone: String(form.get("phone") || "")
+    });
     renderInlinePayment(data);
     byId("checkoutMessage").textContent = "Mã thanh toán đã sẵn sàng. Quét QR hoặc chuyển khoản theo nội dung hiển thị, sau đó bấm Tôi đã thanh toán.";
   } catch (error) {
@@ -883,12 +957,12 @@ byId("loginForm")?.addEventListener("submit", async (event) => {
     return;
   }
   const customer = result.customer || { email };
-  saveCustomer({ ...customer, password });
-  localStorage.setItem("dhsCurrentCustomer", email);
+  setCurrentCustomer({ ...customer, email });
   setAuthMessage("Đăng nhập thành công. Xin chào " + (customer.name || email) + ".", "success");
+  showPaymentNotice("Đăng nhập thành công. Xin chào " + (customer.name || email) + ".", "success");
   window.setTimeout(() => {
     byId("authModal").hidden = true;
-  }, 900);
+  }, 1300);
 });
 
 function normalizeText(value) {

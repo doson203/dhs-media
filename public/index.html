@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DHS MEDIA - Kho tool reup video</title>
   <meta name="description" content="Kho tool automation, reup video, TTS và workflow cho người bán hàng online.">
-  <link rel="stylesheet" href="/styles.css?v=20260605-auth-redesign">
+  <link rel="stylesheet" href="/styles.css?v=20260605-auth-state">
 </head>
 <body>
   <header class="site-header">
@@ -21,8 +21,20 @@
       <button class="nav-tab" data-view="account">Tài khoản</button>
     </nav>
     <div class="header-actions">
-      <button class="link-btn" data-auth-open="login">Đăng nhập</button>
-      <button class="btn small primary" data-auth-open="register">Đăng ký</button>
+      <div class="auth-guest-actions" id="authGuestActions">
+        <button class="link-btn" data-auth-open="login">Đăng nhập</button>
+        <button class="btn small primary" data-auth-open="register">Đăng ký</button>
+      </div>
+      <div class="customer-chip" id="customerChip" hidden>
+        <button class="customer-main" type="button" data-view="account">
+          <span class="customer-avatar" id="customerAvatar">KH</span>
+          <span>
+            <strong id="customerName">Khách hàng</strong>
+            <small id="customerEmail">email@example.com</small>
+          </span>
+        </button>
+        <button class="link-btn logout-btn" id="logoutBtn" type="button">Đăng xuất</button>
+      </div>
     </div>
   </header>
 
@@ -169,8 +181,17 @@
     <section class="section updates" id="updates">
       <div>
         <p class="eyebrow">Tài khoản khách hàng</p>
-        <h2>Đăng ký để nhận cập nhật sản phẩm mới</h2>
-        <p class="muted">Form đã sẵn sàng để nối database/email service. Bản hiện tại lưu tạm trên trình duyệt và gọi API nếu server có cấu hình lưu.</p>
+        <h2 id="accountTitle">Đăng ký để nhận cập nhật sản phẩm mới</h2>
+        <p class="muted" id="accountDescription">Tạo tài khoản để lưu thông tin khách hàng, nhận email giao sản phẩm và nhận cập nhật prompt mới.</p>
+        <div class="account-summary" id="accountSummary" hidden>
+          <div class="customer-avatar large" id="accountAvatar">KH</div>
+          <div>
+            <strong id="accountName">Khách hàng</strong>
+            <span id="accountEmail">email@example.com</span>
+            <small id="accountPhone">Chưa có số điện thoại</small>
+          </div>
+          <button class="btn secondary" id="accountLogoutBtn" type="button">Đăng xuất</button>
+        </div>
       </div>
       <form class="signup-card" id="leadForm">
         <label>Họ tên
@@ -323,6 +344,6 @@
     </div>
   </div>
 
-  <script src="/main.js?v=20260605-auth-redesign"></script>
+  <script src="/main.js?v=20260605-auth-state"></script>
 </body>
 </html>
