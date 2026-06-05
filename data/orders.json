@@ -141,7 +141,7 @@
     "paymentLinkId": "c71644f85e564b8c944d17c643923e84",
     "checkoutUrl": "https://pay.payos.vn/web/c71644f85e564b8c944d17c643923e84",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMIX82000208QRIBFTTA5303704540420005802VN62160812DHS62305052463041234",
-    "updatedAt": "2026-06-05T01:41:41.840Z",
+    "updatedAt": "2026-06-05T01:59:54.736Z",
     "paidAt": "2026-06-05T01:41:38.872Z",
     "payosData": {
       "id": "c71644f85e564b8c944d17c643923e84",
@@ -169,8 +169,8 @@
       "canceledAt": null,
       "cancellationReason": null
     },
-    "emailSentAt": "2026-06-05T01:41:41.750Z",
-    "emailStatus": "FAILED",
-    "emailError": "Unknown action"
+    "emailSentAt": "2026-06-05T01:59:54.667Z",
+    "emailStatus": "SENT",
+    "emailError": ""
   }
 ]
