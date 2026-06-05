@@ -95,7 +95,14 @@ async function createCheckout(body, deps) {
     checkoutUrl: data.data?.checkoutUrl || "",
     qrCode: data.data?.qrCode || ""
   });
-  return { ok: true, orderCode, checkoutUrl: data.data?.checkoutUrl, qrCode: data.data?.qrCode };
+  return {
+    ok: true,
+    orderCode,
+    amount,
+    productTitle: product.title || product.name || "",
+    checkoutUrl: data.data?.checkoutUrl,
+    qrCode: data.data?.qrCode
+  };
 }
 
 async function handlePayosWebhook(body, deps) {

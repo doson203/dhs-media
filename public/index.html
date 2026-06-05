@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DHS MEDIA - Kho tool reup video</title>
   <meta name="description" content="Kho tool automation, reup video, TTS và workflow cho người bán hàng online.">
-  <link rel="stylesheet" href="/styles.css?v=20260605-payment-verify">
+  <link rel="stylesheet" href="/styles.css?v=20260605-marketplace-inlinepay">
 </head>
 <body>
   <header class="site-header">
@@ -101,7 +101,28 @@
           <p>Khách bấm vào thumbnail để xem video giống trải nghiệm YouTube, sau đó chọn mua prompt hoặc file liên quan.</p>
         </div>
       </div>
-      <div class="video-product-grid" id="videoProductGrid"></div>
+      <div class="prompt-board">
+        <div class="sub-heading prompt-heading">
+          <div>
+            <span class="prompt-kicker">Free prompts</span>
+            <h3>Prompt miễn phí</h3>
+            <p>Các mẫu prompt dùng thử, tài nguyên chia sẻ và sản phẩm 0đ được tách riêng để khách lấy nhanh.</p>
+          </div>
+          <span class="count-pill" id="freePromptCount">0 mẫu</span>
+        </div>
+        <div class="video-product-grid prompt-grid" id="freePromptGrid"></div>
+
+        <div class="sub-heading prompt-heading paid-heading">
+          <div>
+            <span class="prompt-kicker paid">Premium prompts</span>
+            <h3>Prompt trả phí</h3>
+            <p>Sản phẩm prompt/video AI có giá bán, bấm mua để hiện mã QR thanh toán ngay trong trang.</p>
+          </div>
+          <span class="count-pill paid" id="paidPromptCount">0 mẫu</span>
+        </div>
+        <div class="video-product-grid prompt-grid" id="paidPromptGrid"></div>
+      </div>
+      <div class="video-product-grid legacy-prompt-grid" id="videoProductGrid" hidden></div>
 
       <div class="sub-heading">
         <div>
@@ -274,12 +295,13 @@
         <label>Số điện thoại/Zalo
           <input name="phone" placeholder="Số điện thoại hoặc Zalo">
         </label>
-        <button class="btn primary" type="submit">Tạo link thanh toán</button>
+        <button class="btn primary" type="submit">Hiển thị mã thanh toán</button>
       </form>
+      <div class="inline-payment" id="inlinePaymentBox" hidden></div>
       <p class="form-note" id="checkoutMessage"></p>
     </div>
   </div>
 
-  <script src="/main.js?v=20260605-payment-verify"></script>
+  <script src="/main.js?v=20260605-marketplace-inlinepay"></script>
 </body>
 </html>

@@ -87,6 +87,7 @@ function mapVideoProductRow(row, index = 0) {
     format: cell(row, ["format", "dinhdang", "định dạng"]) || "Video + Prompt",
     status: cell(row, ["status", "trangthai", "trạng thái"]) || "Đang bán",
     price: cell(row, ["price", "gia", "giá"]) || "Liên hệ",
+    pricingType: cell(row, ["pricingType", "pricing type", "priceType", "price type", "loai gia", "loại giá", "mien phi", "miễn phí", "free"]),
     license: cell(row, ["license", "banquyen", "bản quyền"]) || "1 bộ prompt/tài liệu",
     thumbnail: cell(row, ["thumbnail", "thumb", "image", "anh", "ảnh", "cover"]),
     videoUrl: cell(row, ["videoUrl", "video url", "video", "linkvideo", "link video"]),

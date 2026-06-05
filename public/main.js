@@ -21,7 +21,7 @@ async function loadSite() {
   `).join("");
 
   renderProducts();
-  renderVideoProductsSafe(site);
+  renderPromptProducts(site);
   renderWorkflowProducts(site);
   renderDemos(site);
   renderFaq(site);
@@ -156,6 +156,100 @@ function renderVideoProductsSafe(site) {
   });
 }
 
+function renderPromptProducts(site) {
+  const products = site.videoProducts || [];
+  const indexed = products.map((item, index) => ({ item, index }));
+  const freeProducts = indexed.filter(({ item }) => isFreePrompt(item));
+  const paidProducts = indexed.filter(({ item }) => !isFreePrompt(item));
+  const freeGrid = byId("freePromptGrid");
+  const paidGrid = byId("paidPromptGrid");
+  if (byId("freePromptCount")) byId("freePromptCount").textContent = `${freeProducts.length} mẫu`;
+  if (byId("paidPromptCount")) byId("paidPromptCount").textContent = `${paidProducts.length} mẫu`;
+  if (freeGrid) {
+    freeGrid.innerHTML = freeProducts.map(({ item, index }) => promptProductCard(item, index, true)).join("")
+      || `<div class="empty-state">Chưa có prompt miễn phí. Cập nhật Sheet cột price = 0đ hoặc pricingType = free.</div>`;
+  }
+  if (paidGrid) {
+    paidGrid.innerHTML = paidProducts.map(({ item, index }) => promptProductCard(item, index, false)).join("")
+      || `<div class="empty-state">Chưa có prompt trả phí.</div>`;
+  }
+  if (byId("videoProductGrid")) byId("videoProductGrid").innerHTML = "";
+  document.querySelectorAll(".buy-video-btn").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const product = products[Number(button.dataset.videoIndex)];
+      if (isFreePrompt(product)) {
+        if (!product?.promptUrl) {
+          showPaymentNotice("Prompt miễn phí này chưa có link nhận sản phẩm. Bạn cập nhật cột promptUrl trên Sheet nhé.", "error");
+          return;
+        }
+        showPaymentNotice("Prompt miễn phí đã sẵn sàng. Bấm nút bên cạnh để mở link sản phẩm.", "success", product.promptUrl);
+        return;
+      }
+      openCheckoutModal(product);
+    });
+  });
+  document.querySelectorAll("[data-video-index]").forEach((button) => {
+    if (button.classList.contains("buy-video-btn")) return;
+    button.addEventListener("click", () => openVideoModal(products[Number(button.dataset.videoIndex)]));
+  });
+  document.querySelectorAll("[data-preview-index]").forEach((button) => {
+    let timer = null;
+    const item = products[Number(button.dataset.previewIndex)];
+    button.addEventListener("mouseenter", () => {
+      timer = window.setTimeout(() => showHoverPreview(button, item), 160);
+    });
+    button.addEventListener("mouseleave", () => {
+      window.clearTimeout(timer);
+      hideHoverPreview(button);
+    });
+    button.addEventListener("focus", () => showHoverPreview(button, item));
+    button.addEventListener("blur", () => hideHoverPreview(button));
+  });
+}
+
+function promptProductCard(item, index, isFree) {
+  const canPlay = hasVideoUrl(item.videoUrl);
+  const priceText = isFree ? "Miễn phí" : (item.price || "Liên hệ");
+  return `
+    <article class="video-product-card prompt-card ${isFree ? "free-card" : "paid-card"}">
+      <button class="video-thumb-button" data-video-index="${index}" data-preview-index="${index}" type="button" aria-label="Xem ${escapeAttr(item.title)}">
+        <img src="${escapeAttr(item.thumbnail || "/assets/app-preview.svg")}" alt="${escapeAttr(item.title)}">
+        ${canPlay ? `<span class="play-mark">▶</span>` : `<span class="sale-badge media-badge">Ảnh</span>`}
+        <span class="sale-badge">${escapeHtml(isFree ? "Miễn phí" : (item.category || "Prompt AI"))}</span>
+      </button>
+      <div class="product-body">
+        <div class="product-tags">
+          <span>${escapeHtml(isFree ? "Free" : (item.status || "Đang bán"))}</span>
+          <span>${escapeHtml(item.format || "Video + Prompt")}</span>
+        </div>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.description)}</p>
+        <div class="product-price">
+          <strong>${escapeHtml(priceText)}</strong>
+          <span>${escapeHtml(item.license || "1 bộ prompt/tài liệu")}</span>
+        </div>
+        <div class="card-actions">
+          <button class="btn primary buy-video-btn" data-video-index="${index}" type="button">${isFree ? "Nhận miễn phí" : "Mua prompt"}</button>
+          <button class="btn ghost" data-video-index="${index}" type="button">${canPlay ? "Xem video" : "Xem chi tiết"}</button>
+        </div>
+      </div>
+    </article>`;
+}
+
+function isFreePrompt(item) {
+  const text = normalizeText(`${item.pricingType || ""} ${item.price || ""} ${item.status || ""} ${item.category || ""}`);
+  const amount = parseMoneyAmount(item.price);
+  return text.includes("free") || text.includes("mienphi") || text.includes("0d") || text.includes("0vnd") || amount === 0;
+}
+
+function parseMoneyAmount(value) {
+  const raw = String(value || "").trim();
+  if (!raw || normalizeText(raw).includes("lienhe")) return null;
+  const digits = raw.replace(/[^\d]/g, "");
+  return digits ? Number(digits) : null;
+}
+
 function renderWorkflowProducts(site) {
   byId("workflowProductGrid").innerHTML = (site.workflows || []).map((item) => `
     <article class="workflow-product-card">
@@ -285,6 +379,13 @@ function openCheckoutModal(product) {
   const currentEmail = localStorage.getItem("dhsCurrentCustomer") || "";
   const form = byId("checkoutForm");
   form.querySelector('[name="email"]').value = currentEmail.includes("@") ? currentEmail : "";
+  const submit = form.querySelector('button[type="submit"]');
+  if (submit) submit.textContent = "Hiển thị mã thanh toán";
+  const inlineBox = byId("inlinePaymentBox");
+  if (inlineBox) {
+    inlineBox.hidden = true;
+    inlineBox.innerHTML = "";
+  }
   byId("checkoutModal").hidden = false;
 }
 
@@ -337,6 +438,62 @@ function showPaymentNotice(message, type = "info", promptUrl = "") {
     <strong>${escapeHtml(message)}</strong>
     ${promptUrl ? `<a class="btn small primary" href="${escapeAttr(promptUrl)}" target="_blank" rel="noopener noreferrer">Mở link sản phẩm</a>` : ""}
   `;
+}
+
+function renderInlinePayment(data) {
+  const box = byId("inlinePaymentBox");
+  if (!box) return;
+  const qrText = data.qrCode || data.checkoutUrl || "";
+  const qrUrl = qrText ? `https://quickchart.io/qr?size=260&margin=1&text=${encodeURIComponent(qrText)}` : "";
+  const amountText = data.amount ? new Intl.NumberFormat("vi-VN").format(Number(data.amount)) + "đ" : "Theo đơn hàng";
+  box.hidden = false;
+  box.innerHTML = `
+    <div class="qr-panel">
+      ${qrUrl ? `<img src="${escapeAttr(qrUrl)}" alt="Mã QR thanh toán">` : ""}
+      <div class="qr-info">
+        <span>Mã đơn</span>
+        <strong>${escapeHtml(data.orderCode || "")}</strong>
+        <span>Số tiền</span>
+        <strong>${escapeHtml(amountText)}</strong>
+        <span>Nội dung chuyển khoản</span>
+        <code>DHS${escapeHtml(data.orderCode || "")}</code>
+        <div class="qr-actions">
+          <button class="btn primary" type="button" id="verifyPaymentBtn" data-order-code="${escapeAttr(data.orderCode || "")}">Tôi đã thanh toán</button>
+          ${data.checkoutUrl ? `<a class="btn ghost" href="${escapeAttr(data.checkoutUrl)}" target="_blank" rel="noopener noreferrer">Mở trang payOS</a>` : ""}
+        </div>
+      </div>
+    </div>
+  `;
+  byId("verifyPaymentBtn")?.addEventListener("click", async () => {
+    await verifyInlinePayment(data.orderCode);
+  });
+}
+
+async function verifyInlinePayment(orderCode) {
+  if (!orderCode) return;
+  byId("checkoutMessage").textContent = "Đang kiểm tra thanh toán...";
+  try {
+    const res = await fetch("/api/checkout/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderCode })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      byId("checkoutMessage").textContent = data.message || "Chưa kiểm tra được thanh toán.";
+      return;
+    }
+    if (!data.paid) {
+      byId("checkoutMessage").textContent = "payOS chưa xác nhận thanh toán. Vui lòng thử lại sau vài giây.";
+      return;
+    }
+    byId("checkoutMessage").textContent = data.emailStatus === "SENT"
+      ? "Thanh toán thành công. Link sản phẩm đã được gửi qua email."
+      : "Thanh toán thành công. Email chưa gửi được, bạn có thể mở link sản phẩm bên dưới.";
+    showPaymentNotice("Thanh toán thành công.", data.emailStatus === "SENT" ? "success" : "warning", data.promptUrl);
+  } catch (error) {
+    byId("checkoutMessage").textContent = "Không kiểm tra được thanh toán. Vui lòng thử lại.";
+  }
 }
 
 function videoEmbed(url, thumbnail) {
@@ -685,6 +842,8 @@ byId("checkoutForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!activeCheckoutProduct) return;
   const form = new FormData(event.currentTarget);
+  byId("inlinePaymentBox").hidden = true;
+  byId("inlinePaymentBox").innerHTML = "";
   byId("checkoutMessage").textContent = "Đang tạo link thanh toán...";
   try {
     const res = await fetch("/api/checkout/create", {
@@ -703,8 +862,8 @@ byId("checkoutForm")?.addEventListener("submit", async (event) => {
       return;
     }
     localStorage.setItem("dhsCurrentCustomer", String(form.get("email") || "").toLowerCase());
-    byId("checkoutMessage").textContent = "Đã tạo link thanh toán. Đang mở cổng thanh toán...";
-    window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+    renderInlinePayment(data);
+    byId("checkoutMessage").textContent = "Mã thanh toán đã sẵn sàng. Quét QR hoặc chuyển khoản theo nội dung hiển thị, sau đó bấm Tôi đã thanh toán.";
   } catch (error) {
     byId("checkoutMessage").textContent = "Không kết nối được cổng thanh toán. Vui lòng thử lại.";
   }

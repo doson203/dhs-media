@@ -47,6 +47,7 @@ function upsertProduct(product) {
     format: String(product.format || "Video + Prompt"),
     status: String(product.status || "Đang bán"),
     price: String(product.price || "Liên hệ"),
+    pricingType: String(product.pricingType || product.priceType || ""),
     license: String(product.license || "1 bộ prompt/tài liệu"),
     thumbnail: String(product.thumbnail || product.cover || ""),
     videoUrl: String(product.videoUrl || ""),
@@ -118,7 +119,7 @@ function u(value) {
 }
 
 function productHeaders() {
-  return ["active", "type", "id", "title", "description", "category", "format", "status", "price", "license", "thumbnail", "videoUrl", "promptUrl"];
+  return ["active", "type", "id", "title", "description", "category", "format", "status", "price", "pricingType", "license", "thumbnail", "videoUrl", "promptUrl"];
 }
 
 function saveLead(lead) {
