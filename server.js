@@ -22,6 +22,8 @@ const SESSION_SECRET = process.env.SESSION_SECRET || "change-this-secret";
 const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").replace(/\/$/, "");
 const MAX_UPLOAD_MB = Number(process.env.MAX_UPLOAD_MB || 2048);
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
+const SITE_CACHE_MS = Number(process.env.SITE_CACHE_MS || 60_000);
+let siteCache = null;
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -46,7 +48,8 @@ app.use("/uploads", express.static(uploadDir, { fallthrough: false }));
 app.use(express.static(path.join(rootDir, "public")));
 
 app.get("/api/site", async (_req, res) => {
-  res.json(await readSite());
+  res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  res.json(await readSiteCached());
 });
 
 app.post("/api/leads", async (req, res) => {
@@ -189,8 +192,17 @@ async function readSite() {
   return normalizeSite(await readSheetSite(localSite, { sheetId: GOOGLE_SHEET_ID }));
 }
 
+async function readSiteCached() {
+  const now = Date.now();
+  if (siteCache && now - siteCache.time < SITE_CACHE_MS) return siteCache.value;
+  const value = await readSite();
+  siteCache = { time: now, value };
+  return value;
+}
+
 async function writeSite(site) {
   await fs.mkdir(dataDir, { recursive: true });
+  siteCache = null;
   await fs.writeFile(sitePath, JSON.stringify(site, null, 2), "utf8");
 }
 

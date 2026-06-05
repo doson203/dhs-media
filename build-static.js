@@ -42,12 +42,15 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER || "doson203";
 const GITHUB_REPO = process.env.GITHUB_REPO || "dhs-media";
 const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main";
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
+const SITE_CACHE_MS = Number(process.env.SITE_CACHE_MS || 60000);
+let siteCache = null;
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/api/site", async (req, res) => {
-  res.json(await readPublicSite());
+  res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  res.json(await readPublicSiteCached());
 });
 
 app.post("/api/leads", async (req, res) => {
@@ -214,6 +217,14 @@ async function readBundledSite() {
 async function readPublicSite() {
   const baseSite = await readBundledSite();
   return readSheetSite(baseSite, { sheetId: GOOGLE_SHEET_ID });
+}
+
+async function readPublicSiteCached() {
+  const now = Date.now();
+  if (siteCache && now - siteCache.time < SITE_CACHE_MS) return siteCache.value;
+  const value = await readPublicSite();
+  siteCache = { time: now, value };
+  return value;
 }
 
 async function readOrders() {

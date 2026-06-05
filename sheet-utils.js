@@ -15,7 +15,14 @@ async function readSheetSite(baseSite, options = {}) {
   const fetcher = options.fetch || fetch;
   const site = clone(baseSite);
 
-  const productRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.products, fetcher);
+  const [productRows, appRows, workflowRows, demoRows, faqRows] = await Promise.all([
+    firstNonEmptyRows(sheetId, SHEET_NAMES.products, fetcher),
+    firstNonEmptyRows(sheetId, SHEET_NAMES.apps, fetcher),
+    firstNonEmptyRows(sheetId, SHEET_NAMES.workflows, fetcher),
+    firstNonEmptyRows(sheetId, SHEET_NAMES.demos, fetcher),
+    firstNonEmptyRows(sheetId, SHEET_NAMES.faq, fetcher)
+  ]);
+
   if (productRows.length) {
     const grouped = splitProductRows(productRows);
     if (grouped.videoProducts.length) site.videoProducts = grouped.videoProducts;
@@ -23,16 +30,12 @@ async function readSheetSite(baseSite, options = {}) {
     if (grouped.workflows.length) site.workflows = grouped.workflows;
   }
 
-  const appRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.apps, fetcher);
   if (appRows.length) site.apps = appRows.filter(isActiveRow).map(mapAppRow).filter(Boolean);
 
-  const workflowRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.workflows, fetcher);
   if (workflowRows.length) site.workflows = workflowRows.filter(isActiveRow).map(mapWorkflowRow).filter(Boolean);
 
-  const demoRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.demos, fetcher);
   if (demoRows.length) site.demos = demoRows.filter(isActiveRow).map(mapDemoRow).filter(Boolean);
 
-  const faqRows = await firstNonEmptyRows(sheetId, SHEET_NAMES.faq, fetcher);
   if (faqRows.length) site.faq = faqRows.filter(isActiveRow).map(mapFaqRow).filter(Boolean);
 
   return site;
