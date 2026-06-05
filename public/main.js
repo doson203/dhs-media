@@ -206,7 +206,7 @@ function renderPromptProducts(site) {
   if (byId("paidPromptCount")) byId("paidPromptCount").textContent = `${paidProducts.length} mẫu`;
   if (freeGrid) {
     freeGrid.innerHTML = freeProducts.map(({ item, index }) => promptProductCard(item, index, true)).join("")
-      || `<div class="empty-state">Chưa có prompt miễn phí. Cập nhật Sheet cột price = 0đ hoặc pricingType = free.</div>`;
+      || `<div class="empty-state">Các mẫu miễn phí sẽ sớm được mở lại.</div>`;
   }
   if (paidGrid) {
     paidGrid.innerHTML = paidProducts.map(({ item, index }) => promptProductCard(item, index, false)).join("")
@@ -219,10 +219,10 @@ function renderPromptProducts(site) {
       const product = products[Number(button.dataset.videoIndex)];
       if (isFreePrompt(product)) {
         if (!product?.promptUrl) {
-          showPaymentNotice("Prompt miễn phí này chưa có link nhận sản phẩm. Bạn cập nhật cột promptUrl trên Sheet nhé.", "error");
+          showPaymentNotice("Sản phẩm này đang được cập nhật. Vui lòng quay lại sau hoặc chọn mẫu khác.", "error");
           return;
         }
-        showPaymentNotice("Prompt miễn phí đã sẵn sàng. Bấm nút bên cạnh để mở link sản phẩm.", "success", product.promptUrl);
+        showPaymentNotice("Sản phẩm miễn phí đã sẵn sàng. Bạn có thể mở link nhận tài nguyên ngay.", "success", product.promptUrl);
         return;
       }
       openCheckoutModal(product);
@@ -351,8 +351,8 @@ function renderDemos(site) {
     <article class="demo-card">
       <div class="demo-thumb">${demo.poster ? `<img src="${escapeAttr(demo.poster)}" alt="${escapeAttr(demo.title)}">` : "<span>DEMO</span>"}</div>
       <h3>${escapeHtml(demo.title || "Demo sản phẩm")}</h3>
-      <p class="muted">${escapeHtml(demo.description || "Cập nhật link demo trong cấu hình web.")}</p>
-      ${demo.url ? `<a href="${escapeAttr(demo.url)}" target="_blank" rel="noreferrer">Mở demo</a>` : "<span class=\"muted\">Chưa có link demo</span>"}
+      <p class="muted">${escapeHtml(demo.description || "Video demo sẽ được bổ sung trong thời gian tới.")}</p>
+      ${demo.url ? `<a href="${escapeAttr(demo.url)}" target="_blank" rel="noreferrer">Mở demo</a>` : "<span class=\"muted\">Sắp có demo</span>"}
     </article>
   `).join("");
 }
@@ -449,7 +449,7 @@ async function handlePaymentReturn() {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) {
-      showPaymentNotice(data.message || "Chưa kiểm tra được thanh toán. Vui lòng liên hệ admin kèm mã đơn " + orderCode + ".", "error");
+      showPaymentNotice(data.message || "Chưa kiểm tra được thanh toán. Vui lòng gửi mã đơn " + orderCode + " cho đội hỗ trợ.", "error");
       return;
     }
     if (!data.paid) {
@@ -461,7 +461,7 @@ async function handlePaymentReturn() {
       : "Email chưa gửi được tự động, bạn có thể lấy link sản phẩm ngay bên dưới.";
     showPaymentNotice(`Thanh toán thành công. ${emailText}`, data.emailStatus === "SENT" ? "success" : "warning", data.promptUrl);
   } catch (error) {
-    showPaymentNotice("Không kiểm tra được thanh toán. Vui lòng liên hệ admin kèm mã đơn " + orderCode + ".", "error");
+    showPaymentNotice("Không kiểm tra được thanh toán. Vui lòng gửi mã đơn " + orderCode + " cho đội hỗ trợ.", "error");
   }
 }
 
@@ -541,7 +541,7 @@ async function verifyInlinePayment(orderCode) {
 function videoEmbed(url, thumbnail) {
   const cleanUrl = String(url || "").trim();
   if (!cleanUrl) {
-    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Chưa có link video</span></div>`;
+    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Đang hiển thị ảnh sản phẩm</span></div>`;
   }
   const youtubeId = getYouTubeId(cleanUrl);
   if (youtubeId) {
@@ -603,7 +603,7 @@ function getYouTubeId(url) {
 function videoEmbedSafe(url, thumbnail) {
   const cleanUrl = normalizeVideoUrl(url);
   if (!cleanUrl) {
-    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Chưa có link video, đang hiển thị ảnh sản phẩm</span></div>`;
+    return `<div class="video-placeholder"><img src="${escapeAttr(thumbnail || "/assets/app-preview.svg")}" alt="Video preview"><span>Đang hiển thị ảnh sản phẩm</span></div>`;
   }
   const youtubeId = getYouTubeIdSafe(cleanUrl);
   if (youtubeId) {
@@ -772,12 +772,12 @@ function renderAuthState() {
     byId("accountPhone").textContent = customer.phone || "Chưa có số điện thoại";
     byId("accountSummary").hidden = false;
     byId("accountTitle").textContent = "Thông tin tài khoản khách hàng";
-    byId("accountDescription").textContent = "Bạn đang đăng nhập. Thông tin này dùng để nhận cập nhật, nhận prompt và đối soát đơn hàng.";
+    byId("accountDescription").textContent = "Bạn đang đăng nhập. Tài khoản này dùng để nhận sản phẩm, cập nhật mới và thông tin đơn hàng.";
     return;
   }
   if (byId("accountSummary")) byId("accountSummary").hidden = true;
   if (byId("accountTitle")) byId("accountTitle").textContent = "Đăng ký để nhận cập nhật sản phẩm mới";
-  if (byId("accountDescription")) byId("accountDescription").textContent = "Tạo tài khoản để lưu thông tin khách hàng, nhận email giao sản phẩm và nhận cập nhật prompt mới.";
+  if (byId("accountDescription")) byId("accountDescription").textContent = "Tạo tài khoản để nhận sản phẩm qua email, theo dõi cập nhật và lưu thông tin mua hàng.";
 }
 
 function switchView(view) {
@@ -886,7 +886,7 @@ async function initGoogleLogin() {
     googleClientId = String(data.googleClientId || "");
     if (!googleClientId) {
       box.innerHTML = "";
-      setGoogleAuthMessage("Chưa cấu hình Google Client ID trên Vercel.", "error");
+      setGoogleAuthMessage("Đăng nhập Google tạm thời chưa sẵn sàng. Vui lòng thử lại sau.", "error");
       return;
     }
     await loadGoogleIdentityScript();
@@ -1014,7 +1014,7 @@ byId("leadForm")?.addEventListener("submit", async (event) => {
     source: "newsletter"
   };
   await sendLead(customer);
-  byId("leadMessage").textContent = "Đã ghi nhận thông tin. Admin sẽ gửi cập nhật khi có sản phẩm mới.";
+  byId("leadMessage").textContent = "Đã ghi nhận thông tin. DHS MEDIA sẽ gửi cập nhật khi có sản phẩm mới.";
   event.currentTarget.reset();
 });
 
@@ -1029,7 +1029,7 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
     password: String(form.get("password") || ""),
     source: "account"
   };
-  setAuthMessage("Đang tạo tài khoản và gửi email xác nhận...", "loading");
+  setAuthMessage("Đang tạo tài khoản và gửi email xác thực...", "loading");
   setFormBusy(currentForm, true, "Đang tạo...");
   const result = await registerAccount(customer).finally(() => setFormBusy(currentForm, false));
   if (!result?.ok) {
@@ -1039,8 +1039,9 @@ byId("registerForm")?.addEventListener("submit", async (event) => {
   event.currentTarget.reset();
   setAuthTab("login");
   byId("loginForm").querySelector('[name="email"]').value = customer.email;
-  setAuthMessage(result.message || "Đăng ký thành công. Vui lòng mở email và bấm link xác nhận trước khi đăng nhập.", "success");
-  showPaymentNotice("Đã gửi email xác nhận tài khoản tới " + customer.email + ".", "success");
+  const verifyMessage = "Đăng ký thành công. Vui lòng mở email " + customer.email + " và bấm link xác thực tài khoản trước khi đăng nhập.";
+  setAuthMessage(verifyMessage, "success");
+  showPaymentNotice(verifyMessage, "success");
 });
 
 byId("checkoutForm")?.addEventListener("submit", async (event) => {
@@ -1063,7 +1064,7 @@ byId("checkoutForm")?.addEventListener("submit", async (event) => {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok || !data.checkoutUrl) {
-      byId("checkoutMessage").textContent = data.message || "Chưa tạo được link thanh toán. Vui lòng liên hệ admin.";
+      byId("checkoutMessage").textContent = data.message || "Chưa tạo được mã thanh toán. Vui lòng thử lại hoặc liên hệ đội hỗ trợ.";
       return;
     }
     setCurrentCustomer({
@@ -1088,7 +1089,7 @@ byId("loginForm")?.addEventListener("submit", async (event) => {
   setFormBusy(currentForm, true, "Đang kiểm tra...");
   const result = await loginAccount(email, password).finally(() => setFormBusy(currentForm, false));
   if (!result?.ok) {
-    setAuthMessage(result?.message || (result?.needsVerification ? "Bạn cần xác nhận email trước khi đăng nhập." : "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước."), "error");
+    setAuthMessage(result?.message || (result?.needsVerification ? "Bạn cần mở email và bấm link xác thực tài khoản trước khi đăng nhập." : "Email hoặc mật khẩu chưa đúng. Nếu chưa có tài khoản, hãy đăng ký trước."), "error");
     return;
   }
   const customer = result.customer || { email };

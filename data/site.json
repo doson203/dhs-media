@@ -66,7 +66,7 @@
         "Lọc đúng sản phẩm và không trùng kênh",
         "Tạo voice/TTS và tự động khớp video",
         "Cắt ghép, overlay, subtitle, che mặt",
-        "Preset cấu hình và hàng đợi"
+        "Preset xử lý và hàng đợi"
       ]
     },
     {
@@ -5667,25 +5667,25 @@
   "demos": [
     {
       "title": "Hướng dẫn sử dụng DHS MEDIA REUP TOOL",
-      "description": "Gắn link YouTube/TikTok hoặc upload video demo trong admin.",
+      "description": "Xem trước cách DHS MEDIA REUP TOOL hỗ trợ quy trình làm video bán hàng.",
       "url": "",
       "poster": "/assets/app-preview.svg"
     }
   ],
   "contact": {
-    "zalo": "Cập nhật trong admin",
-    "phone": "Cập nhật trong admin",
+    "zalo": "DHS MEDIA",
+    "phone": "Liên hệ để được tư vấn",
     "email": "sales@example.com",
     "telegram": ""
   },
   "faq": [
     {
       "question": "Mua xong nhận app như thế nào?",
-      "answer": "Sau khi liên hệ admin và thanh toán, bạn sẽ nhận file cài đặt và key kích hoạt."
+      "answer": "Sau khi thanh toán thành công, thông tin sản phẩm hoặc key kích hoạt sẽ được gửi tới email của bạn."
     },
     {
-      "question": "Có thể thêm nhiều tool, video và workflow trên web không?",
-      "answer": "Có. Bạn đăng nhập trang admin để thêm tool, video/prompt AI, workflow, video demo và cập nhật thông tin liên hệ."
+      "question": "DHS MEDIA có cập nhật sản phẩm mới không?",
+      "answer": "Có. Các bộ prompt, workflow và công cụ mới sẽ được cập nhật thường xuyên để phù hợp với nhu cầu làm nội dung bán hàng."
     }
   ]
 }

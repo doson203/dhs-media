@@ -74,7 +74,7 @@ app.post("/api/accounts/register", async (req, res) => {
     res.json({
       ok: true,
       requiresVerification: true,
-      message: "Đã gửi email xác nhận. Vui lòng xác nhận email trước khi đăng nhập.",
+      message: "Đã gửi email xác thực. Vui lòng mở email và bấm link xác thực tài khoản trước khi đăng nhập.",
       customer: publicAccount(saved)
     });
   } catch (error) {
@@ -82,8 +82,8 @@ app.post("/api/accounts/register", async (req, res) => {
     res.status(timedOut ? 504 : 501).json({
       ok: false,
       message: timedOut
-        ? "Máy chủ đang chờ Google Sheet/Email phản hồi quá lâu. Vui lòng thử lại sau."
-        : (error.message || "Chưa cấu hình xác nhận email.")
+        ? "Dịch vụ email phản hồi hơi lâu. Vui lòng thử lại sau."
+        : (error.message || "Chưa thể gửi email xác thực. Vui lòng thử lại sau.")
     });
   }
 });
@@ -98,7 +98,7 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetLogin.customer) });
   }
   if (sheetLogin?.needsVerification) {
-    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần xác nhận email trước khi đăng nhập." });
+    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần mở email và bấm link xác thực tài khoản trước khi đăng nhập." });
   }
   if (sheetLogin?.timeout) {
     return res.status(504).json({ ok: false, message: "Máy chủ đang kiểm tra tài khoản quá lâu. Vui lòng thử lại sau." });
@@ -108,7 +108,7 @@ app.post("/api/accounts/login", async (req, res) => {
     return res.status(401).json({ ok: false, message: "Email hoặc mật khẩu không đúng." });
   }
   if (account.verified === false) {
-    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần xác nhận email trước khi đăng nhập." });
+    return res.status(403).json({ ok: false, needsVerification: true, message: "Bạn cần mở email và bấm link xác thực tài khoản trước khi đăng nhập." });
   }
   res.json({ ok: true, customer: publicAccount(account) });
 });
@@ -118,7 +118,7 @@ app.post("/api/accounts/verify", async (req, res) => {
   if (!token) return res.status(400).json({ ok: false, message: "Thieu token xac nhan" });
   const sheetResult = await postSheetAction("verifyAccount", { token }).catch(() => null);
   if (sheetResult?.ok) return res.json({ ok: true, customer: publicAccount(sheetResult.customer || {}) });
-  return res.status(501).json({ ok: false, message: "Chua cau hinh xac nhan email tren Google Apps Script." });
+  return res.status(501).json({ ok: false, message: "Chưa thể xác thực email lúc này. Vui lòng thử lại sau." });
 });
 
 app.post("/api/accounts/google-login", async (req, res) => {
@@ -131,7 +131,7 @@ app.post("/api/accounts/google-login", async (req, res) => {
   if (sheetResult?.ok && sheetResult.customer) {
     return res.json({ ok: true, storage: "google-sheet", customer: publicAccount(sheetResult.customer) });
   }
-  return res.status(501).json({ ok: false, message: "Chua cau hinh Google login tren Google Apps Script." });
+  return res.status(501).json({ ok: false, message: "Đăng nhập Google tạm thời chưa sẵn sàng. Vui lòng thử lại sau." });
 });
 
 app.post("/api/checkout/create", async (req, res) => {
@@ -412,7 +412,7 @@ async function saveAccount(account, baseUrl = "") {
       verified: sheetResult.customer.verified === true || String(sheetResult.customer.verified || "").toUpperCase() === "TRUE"
     };
   }
-  throw new Error("Email verification is not configured. Update Google Apps Script first.");
+  throw new Error("Chưa thể gửi email xác thực. Vui lòng thử lại sau.");
 }
 
 function getBaseUrl(req) {
