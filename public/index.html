@@ -20,6 +20,7 @@
       <button class="nav-tab" data-view="apps">Sản phẩm</button>
       <button class="nav-tab" data-view="workflow">Quy trình</button>
       <button class="nav-tab" data-view="demo">Demo</button>
+      <button class="nav-tab" data-view="create-video">T&#7841;o video AI</button>
       <button class="nav-tab" data-view="account">Tài khoản</button>
     </nav>
     <div class="header-actions">
@@ -199,6 +200,66 @@
         <button class="text-link" data-view="account">Gửi yêu cầu demo</button>
       </div>
       <div class="demo-list" id="demoList"></div>
+    </section>
+    </section>
+
+    <section class="view-section" data-view-section="create-video" hidden>
+    <section class="section video-ai-section" id="create-video">
+      <div class="section-heading row-heading">
+        <div>
+          <p class="eyebrow">AI Video Studio</p>
+          <h2>T&#7841;o video AI t&#7915; prompt</h2>
+          <p>Nh&#7853;p m&#244; t&#7843; video, ch&#7885;n t&#7881; l&#7879; v&#224; th&#7901;i l&#432;&#7907;ng. H&#7879; th&#7889;ng s&#7869; t&#7841;o job v&#224; tr&#7843; video khi x&#7917; l&#253; xong.</p>
+        </div>
+        <button class="text-link" id="refreshVideoJobs" type="button">T&#7843;i l&#7841;i l&#7883;ch s&#7917;</button>
+      </div>
+      <div class="video-ai-layout">
+        <form class="video-ai-form" id="videoAiForm">
+          <label>Prompt video
+            <textarea name="prompt" rows="7" required minlength="8" placeholder="V&#237; d&#7909;: Video d&#7885;c 9:16, m&#7897;t ng&#432;&#7901;i m&#7851;u c&#7847;m s&#7843;n ph&#7849;m, &#225;nh s&#225;ng studio, chuy&#7875;n &#273;&#7897;ng m&#432;&#7907;t..."></textarea>
+          </label>
+          <div class="form-grid">
+            <label>T&#7881; l&#7879;
+              <select name="ratio">
+                <option value="9:16">9:16 TikTok/Reels</option>
+                <option value="16:9">16:9 YouTube</option>
+                <option value="1:1">1:1 Vu&#244;ng</option>
+              </select>
+            </label>
+            <label>Th&#7901;i l&#432;&#7907;ng
+              <select name="duration">
+                <option value="5">5 gi&#226;y</option>
+                <option value="8">8 gi&#226;y</option>
+                <option value="10">10 gi&#226;y</option>
+              </select>
+            </label>
+          </div>
+          <label>&#7842;nh tham chi&#7871;u, n&#7871;u c&#243;
+            <input name="imageUrl" type="url" placeholder="https://...">
+          </label>
+          <label>Email nh&#7853;n k&#7871;t qu&#7843;
+            <input name="email" type="email" id="videoAiEmail" placeholder="email@example.com">
+          </label>
+          <button class="btn primary" type="submit">T&#7841;o video</button>
+          <p class="form-note" id="videoAiMessage"></p>
+        </form>
+        <aside class="video-ai-result">
+          <div class="video-ai-preview" id="videoAiPreview">
+            <span>Ch&#432;a c&#243; video</span>
+          </div>
+          <div class="video-ai-meta" id="videoAiMeta">
+            <strong>Tr&#7841;ng th&#225;i</strong>
+            <span>S&#7861;n s&#224;ng nh&#7853;n prompt</span>
+          </div>
+        </aside>
+      </div>
+      <div class="sub-heading">
+        <div>
+          <h3>L&#7883;ch s&#7917; t&#7841;o video</h3>
+          <p>C&#225;c job g&#7847;n nh&#7845;t s&#7869; hi&#7875;n th&#7883; &#7903; &#273;&#226;y.</p>
+        </div>
+      </div>
+      <div class="video-job-list" id="videoJobList"></div>
     </section>
     </section>
 

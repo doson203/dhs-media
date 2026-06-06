@@ -1035,6 +1035,126 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   box-shadow: 0 18px 42px rgba(8, 145, 178, 0.24);
 }
 
+.video-ai-section {
+  min-height: calc(100vh - 64px);
+  background:
+    radial-gradient(circle at 88% 10%, rgba(20, 184, 166, 0.18), transparent 30%),
+    radial-gradient(circle at 10% 75%, rgba(14, 165, 233, 0.16), transparent 32%),
+    rgba(255, 255, 255, 0.7);
+}
+.video-ai-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.65fr);
+  gap: 18px;
+  align-items: start;
+}
+.video-ai-form,
+.video-ai-result,
+.video-job-panel {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+}
+.video-ai-form {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+.video-ai-form label,
+.video-ai-form .field {
+  display: grid;
+  gap: 7px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 900;
+}
+.video-ai-form textarea {
+  min-height: 170px;
+  resize: vertical;
+  line-height: 1.55;
+}
+.form-note {
+  min-height: 22px;
+  margin: 0;
+  color: #0f766e;
+  font-weight: 900;
+}
+.video-ai-side {
+  display: grid;
+  gap: 14px;
+}
+.video-ai-result {
+  overflow: hidden;
+}
+.video-ai-preview {
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+  background: linear-gradient(135deg, #0f172a, #082f49);
+  color: #bae6fd;
+  font-weight: 950;
+}
+.video-ai-preview .video-player,
+.video-ai-preview iframe,
+.video-ai-preview video,
+.video-ai-preview img {
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  max-height: 70vh;
+  border-radius: 0;
+  object-fit: contain;
+}
+.video-ai-meta {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  color: #475569;
+  line-height: 1.45;
+}
+.video-ai-meta strong {
+  color: #0f172a;
+  font-size: 18px;
+}
+.video-job-panel {
+  padding: 16px;
+}
+.video-job-panel h3 {
+  margin-bottom: 12px;
+}
+.video-job-list {
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+  padding-right: 4px;
+}
+.video-job-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+.video-job-card strong {
+  display: block;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.video-job-card span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .admin-shell { min-height: 100vh; padding: 28px; background: #0b1220; color: #e8f2ff; }
 .admin-layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
 .admin-panel { border: 1px solid #213752; border-radius: 12px; background: #0d192b; padding: 18px; }
@@ -1060,6 +1180,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
 @media (max-width: 1080px) {
   .product-grid, .video-product-grid, .prompt-grid, .demo-list, .faq-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .workflow-grid, .workflow-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .video-ai-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
@@ -1091,7 +1212,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
     z-index: 70;
     justify-self: stretch;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 4px;
     padding: 6px;
     border: 1px solid rgba(15, 23, 42, 0.12);
@@ -1181,6 +1302,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   .workflow-product-grid,
   .category-strip,
   .stats-band,
+  .video-ai-layout,
   .form-grid {
     grid-template-columns: 1fr;
   }
@@ -1315,6 +1437,22 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(45, 212, 191
   .video-player.video-file video,
   .video-placeholder img {
     max-height: min(58dvh, 520px);
+  }
+  .video-ai-form,
+  .video-ai-result,
+  .video-job-panel {
+    border-radius: 18px;
+  }
+  .video-ai-preview,
+  .video-ai-preview .video-player,
+  .video-ai-preview iframe,
+  .video-ai-preview video,
+  .video-ai-preview img {
+    min-height: 320px;
+    max-height: 56dvh;
+  }
+  .video-job-card {
+    grid-template-columns: 1fr;
   }
   .payment-notice {
     top: 54px;

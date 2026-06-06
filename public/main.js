@@ -67,6 +67,7 @@ async function loadSite() {
   normalizeAuthCopy();
   renderAuthState();
   initGoogleLogin();
+  loadVideoHistory();
   applyInitialView();
   handleEmailVerificationReturn();
   handlePaymentReturn();
@@ -847,6 +848,7 @@ function renderAuthState() {
   const isLoggedIn = Boolean(customer?.email);
   const guest = byId("authGuestActions");
   const chip = byId("customerChip");
+  syncVideoAiCustomer(customer);
   if (guest) guest.hidden = isLoggedIn;
   if (chip) chip.hidden = !isLoggedIn;
   if (isLoggedIn) {
@@ -887,7 +889,7 @@ function switchView(view) {
 function applyInitialView() {
   const initialView = String(location.hash || "#home").replace("#", "");
   const path = String(location.pathname || "").replace(/\/+$/, "");
-  switchView(["home", "apps", "workflow", "demo", "account"].includes(initialView) ? initialView : "home");
+  switchView(["home", "apps", "workflow", "demo", "create-video", "account"].includes(initialView) ? initialView : "home");
   if (path === "/dang-nhap" || path === "/login") openAuth("login");
   if (path === "/dang-ky" || path === "/register") openAuth("register");
 }
@@ -1051,6 +1053,99 @@ function stripPrivateCustomer(customer) {
   };
 }
 
+function syncVideoAiCustomer(customer) {
+  const emailInput = byId("videoAiEmail");
+  if (!emailInput) return;
+  if (customer?.email && !emailInput.value) {
+    emailInput.value = customer.email;
+  }
+}
+
+async function createAiVideo(payload) {
+  const { res, data } = await apiJson("/api/video/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }, 60000);
+  if (!res.ok || !data.ok) {
+    return { ok: false, message: data.message || "Chua tao duoc video." };
+  }
+  return data;
+}
+
+async function loadVideoHistory() {
+  const list = byId("videoJobList");
+  if (!list) return;
+  const customer = getCurrentCustomer();
+  const query = customer?.email ? `?email=${encodeURIComponent(customer.email)}` : "";
+  const { res, data } = await apiJson(`/api/video/history${query}`, {}, 30000);
+  if (!res.ok || !data.ok) {
+    list.innerHTML = `<div class="empty-state">Chua tai duoc lich su tao video.</div>`;
+    return;
+  }
+  renderVideoJobs(data.jobs || []);
+}
+
+function renderVideoJobs(jobs) {
+  const list = byId("videoJobList");
+  if (!list) return;
+  list.innerHTML = jobs.map((job) => `
+    <article class="video-job-card">
+      <div>
+        <strong>${escapeHtml(job.prompt || "Video AI").slice(0, 120)}</strong>
+        <span>${escapeHtml(job.ratio || "9:16")} · ${escapeHtml(String(job.duration || 5))}s · ${escapeHtml(job.status || "")}</span>
+      </div>
+      ${job.videoUrl ? `<button class="btn ghost" type="button" data-video-job="${escapeAttr(job.id)}">Xem video</button>` : ""}
+    </article>
+  `).join("") || `<div class="empty-state">Chua co job tao video.</div>`;
+  document.querySelectorAll("[data-video-job]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const job = jobs.find((item) => item.id === button.dataset.videoJob);
+      if (job) renderVideoAiResult(job);
+    });
+  });
+}
+
+function renderVideoAiResult(job) {
+  const preview = byId("videoAiPreview");
+  const meta = byId("videoAiMeta");
+  if (!preview || !meta) return;
+  if (job.status === "done" && job.videoUrl) {
+    preview.innerHTML = videoEmbedSafeV2(job.videoUrl, job.thumbnail || "");
+  } else if (job.status === "failed") {
+    preview.innerHTML = `<span>Tao video loi</span>`;
+  } else {
+    preview.innerHTML = `<span>Dang tao video...</span>`;
+  }
+  meta.innerHTML = `
+    <strong>${escapeHtml(statusLabel(job.status))}</strong>
+    <span>${job.demoMode ? "Demo mode - chua cau hinh API tao video that." : escapeHtml(job.provider || "")}</span>
+    ${job.videoUrl ? `<a class="btn small primary" href="${escapeAttr(job.videoUrl)}" target="_blank" rel="noreferrer">Mo video</a>` : ""}
+    ${job.error ? `<span>${escapeHtml(job.error)}</span>` : ""}
+  `;
+}
+
+async function pollVideoJob(jobId) {
+  for (let index = 0; index < 12; index += 1) {
+    const { res, data } = await apiJson(`/api/video/status/${encodeURIComponent(jobId)}`, {}, 30000);
+    if (res.ok && data.ok && data.job) {
+      renderVideoAiResult(data.job);
+      if (data.job.status === "done" || data.job.status === "failed") {
+        await loadVideoHistory();
+        return data.job;
+      }
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 4000));
+  }
+  return null;
+}
+
+function statusLabel(status) {
+  if (status === "done") return "Video da san sang";
+  if (status === "failed") return "Tao video loi";
+  return "Dang xu ly";
+}
+
 function byId(id) {
   return document.getElementById(id);
 }
@@ -1089,6 +1184,36 @@ byId("searchForm")?.addEventListener("submit", (event) => {
   searchTerm = normalizeText(byId("productSearch").value || "");
   renderProducts();
   switchView("apps");
+});
+
+byId("refreshVideoJobs")?.addEventListener("click", loadVideoHistory);
+
+byId("videoAiForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
+  const customer = getCurrentCustomer();
+  const payload = {
+    prompt: String(form.get("prompt") || ""),
+    ratio: String(form.get("ratio") || "9:16"),
+    duration: Number(form.get("duration") || 5),
+    imageUrl: String(form.get("imageUrl") || ""),
+    email: String(form.get("email") || customer?.email || "").toLowerCase()
+  };
+  const message = byId("videoAiMessage");
+  if (message) message.textContent = "Dang tao job video...";
+  setFormBusy(formElement, true, "Dang tao...");
+  const result = await createAiVideo(payload).finally(() => setFormBusy(formElement, false));
+  if (!result.ok) {
+    if (message) message.textContent = result.message || "Chua tao duoc video.";
+    return;
+  }
+  if (message) message.textContent = result.job?.demoMode
+    ? "Da tao video demo. Them API key de tao video that."
+    : "Da gui job tao video.";
+  renderVideoAiResult(result.job);
+  await loadVideoHistory();
+  if (result.job?.status === "processing") await pollVideoJob(result.job.id);
 });
 
 byId("modalClose")?.addEventListener("click", () => byId("buyModal").hidden = true);

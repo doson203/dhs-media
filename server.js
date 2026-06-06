@@ -6,6 +6,7 @@ const express = require("express");
 const multer = require("multer");
 const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
 const { createCheckout, handlePayosWebhook, verifyCheckout } = require("./checkout-utils");
+const { createVideoJob, getVideoJob, listVideoJobs } = require("./video-utils");
 
 const app = express();
 const rootDir = __dirname;
@@ -15,6 +16,7 @@ const sitePath = path.join(dataDir, "site.json");
 const leadsPath = path.join(dataDir, "leads.json");
 const accountsPath = path.join(dataDir, "accounts.json");
 const ordersPath = path.join(dataDir, "orders.json");
+const videoJobsPath = path.join(dataDir, "video-jobs.json");
 
 const PORT = Number(process.env.PORT || 8080);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -155,6 +157,33 @@ app.post("/api/payments/payos-webhook", async (req, res) => {
   const result = await handlePayosWebhook(req.body || {}, {
     getOrder,
     updateOrder
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.post("/api/video/create", async (req, res) => {
+  const result = await createVideoJob(req.body || {}, {
+    readJobs: readVideoJobs,
+    writeJobs: writeVideoJobs,
+    readSite
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.get("/api/video/status/:id", async (req, res) => {
+  const result = await getVideoJob(String(req.params.id || ""), {
+    readJobs: readVideoJobs,
+    writeJobs: writeVideoJobs,
+    readSite
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.get("/api/video/history", async (req, res) => {
+  const result = await listVideoJobs(req.query || {}, {
+    readJobs: readVideoJobs,
+    writeJobs: writeVideoJobs,
+    readSite
   });
   res.status(result.status || 200).json(result);
 });
@@ -465,6 +494,19 @@ async function updateOrder(orderCode, patch) {
   const orders = await readOrders();
   const next = orders.map((item) => Number(item.orderCode) === Number(orderCode) ? { ...item, ...patch, updatedAt: new Date().toISOString() } : item);
   await writeOrders(next);
+}
+
+async function readVideoJobs() {
+  try {
+    return array(JSON.parse(await fs.readFile(videoJobsPath, "utf8")));
+  } catch {
+    return [];
+  }
+}
+
+async function writeVideoJobs(jobs) {
+  await fs.mkdir(dataDir, { recursive: true });
+  await fs.writeFile(videoJobsPath, JSON.stringify(array(jobs), null, 2), "utf8");
 }
 
 function normalizeAccount(value) {

@@ -24,6 +24,7 @@ copyDir(publicDir, distDir);
 fs.copyFileSync(dataFile, path.join(distDir, "site.json"));
 fs.copyFileSync(path.join(root, "sheet-utils.js"), path.join(distDir, "sheet-utils.js"));
 fs.copyFileSync(path.join(root, "checkout-utils.js"), path.join(distDir, "checkout-utils.js"));
+fs.copyFileSync(path.join(root, "video-utils.js"), path.join(distDir, "video-utils.js"));
 fs.writeFileSync(
   path.join(distDir, "index.js"),
   `const express = require("express");
@@ -32,6 +33,7 @@ const fs = require("node:fs/promises");
 const path = require("path");
 const { DEFAULT_SHEET_ID, readSheetSite, postSheetAction } = require("./sheet-utils");
 const { createCheckout, handlePayosWebhook, verifyCheckout } = require("./checkout-utils");
+const { createVideoJob, getVideoJob, listVideoJobs } = require("./video-utils");
 
 const app = express();
 const root = __dirname;
@@ -45,6 +47,7 @@ const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || DEFAULT_SHEET_ID;
 const SITE_CACHE_MS = Number(process.env.SITE_CACHE_MS || 60000);
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
 let siteCache = null;
+let videoJobMemory = [];
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -185,6 +188,33 @@ app.post("/api/payments/payos-webhook", async (req, res) => {
   res.status(result.status || 200).json(result);
 });
 
+app.post("/api/video/create", async (req, res) => {
+  const result = await createVideoJob(req.body || {}, {
+    readJobs: readVideoJobs,
+    writeJobs: writeVideoJobs,
+    readSite: readPublicSite
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.get("/api/video/status/:id", async (req, res) => {
+  const result = await getVideoJob(String(req.params.id || ""), {
+    readJobs: readVideoJobs,
+    writeJobs: writeVideoJobs,
+    readSite: readPublicSite
+  });
+  res.status(result.status || 200).json(result);
+});
+
+app.get("/api/video/history", async (req, res) => {
+  const result = await listVideoJobs(req.query || {}, {
+    readJobs: readVideoJobs,
+    writeJobs: writeVideoJobs,
+    readSite: readPublicSite
+  });
+  res.status(result.status || 200).json(result);
+});
+
 app.post("/api/login", (req, res) => {
   if (String(req.body?.password || "") !== ADMIN_PASSWORD) {
     return res.status(401).json({ ok: false, message: "Sai mật khẩu" });
@@ -299,6 +329,19 @@ async function updateOrder(orderCode, patch) {
   const orders = await readOrders();
   const next = array(orders).map((item) => Number(item.orderCode) === Number(orderCode) ? { ...item, ...patch, updatedAt: new Date().toISOString() } : item);
   await writeOrders(next);
+}
+
+async function readVideoJobs() {
+  if (!GITHUB_TOKEN) return videoJobMemory;
+  return readRepoJson("data/video-jobs.json", []);
+}
+
+async function writeVideoJobs(jobs) {
+  if (!GITHUB_TOKEN) {
+    videoJobMemory = array(jobs);
+    return;
+  }
+  await writeRepoJson("data/video-jobs.json", array(jobs), "Update video generation jobs");
 }
 
 async function readRepoJson(filePath, fallback) {
