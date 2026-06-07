@@ -325,6 +325,10 @@
     "buyerEmail": "dangyeumottrust@gmail.com",
     "buyerName": "BABY CUTE",
     "buyerPhone": "0979403303",
-    "createdAt": "2026-06-07T07:39:59.805Z"
+    "createdAt": "2026-06-07T07:39:59.805Z",
+    "paymentLinkId": "9f4494cd9f2c4c5faac55467afc7bdf6",
+    "checkoutUrl": "https://pay.payos.vn/web/9f4494cd9f2c4c5faac55467afc7bdf6",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJNWL02720208QRIBFTTA5303704540420005802VN62160812DHS81799980463046B9E",
+    "updatedAt": "2026-06-07T07:40:02.049Z"
   }
 ]
