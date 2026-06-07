@@ -341,6 +341,10 @@
     "buyerEmail": "xuandong000003@gmail.com",
     "buyerName": "xuan dong",
     "buyerPhone": "",
-    "createdAt": "2026-06-07T07:40:06.803Z"
+    "createdAt": "2026-06-07T07:40:06.803Z",
+    "paymentLinkId": "67174e29e6ca4805b49188af63edf193",
+    "checkoutUrl": "https://pay.payos.vn/web/67174e29e6ca4805b49188af63edf193",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJNWM20420208QRIBFTTA5303704540420005802VN62160812DHS8180068036304E8A9",
+    "updatedAt": "2026-06-07T07:40:08.766Z"
   }
 ]
