@@ -314,5 +314,17 @@
     "checkoutUrl": "https://pay.payos.vn/web/6a4f09d52b3e41c4874db9b00ec35b67",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJMOL45840208QRIBFTTA5303704540420005802VN62160812DHS64549073663044787",
     "updatedAt": "2026-06-05T07:44:52.340Z"
+  },
+  {
+    "orderCode": 817999804,
+    "status": "PENDING",
+    "productId": "prompt-001-mau-studio-nhieu-bo-quan-ao",
+    "productTitle": "mẫu studio nhiều bộ quần áo",
+    "promptUrl": "https://drive.google.com/file/d/1PIAtKeXwNRWypkk9Ebvc83Q-xw-126Jg/view?usp=drive_link",
+    "amount": 2000,
+    "buyerEmail": "dangyeumottrust@gmail.com",
+    "buyerName": "BABY CUTE",
+    "buyerPhone": "0979403303",
+    "createdAt": "2026-06-07T07:39:59.805Z"
   }
 ]
