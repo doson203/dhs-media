@@ -1,5 +1,21 @@
 [
   {
+    "id": "vid_edc6f026a0f08202",
+    "createdAt": "2026-06-16T04:27:29.267Z",
+    "updatedAt": "2026-06-16T04:27:29.267Z",
+    "status": "processing",
+    "provider": "demo",
+    "prompt": "{\n  \"id\": \"wf_1777966633619\",\n  \"name\": \"Tạo mẫu sản phẩm siêu đẹp\",\n  \"version\": 2,\n  \"albumName\": \"\",\n  \"createdAt\": \"2026-05-05T08:46:16.047Z\",\n  \"nodes\": [\n    {\n      \"id\": \"node_62\",\n      \"type\": \"upload_image\",\n      \"x\": -540,\n      \"y\": 390,\n      \"config\": {\n        \"imagePath\": \"C:\\\\Users\\\\Windows\\\\AppData\\\\Local\\\\Temp\\\\veo3_uploads\\\\ref_1777966634904.webp\",\n        \"imageUrl\": \"/uploads/ref_1777966634904.webp\"\n      },\n      \"status\": null,\n      \"_cachedInputPorts\": [],\n      \"_cachedOutputPorts\": [\n        {\n          \"name\": \"media\",\n          \"type\": \"any\",\n          \"color\": \"#22d3ee\"\n        }\n      ],\n      \"_emptyUploadBtn\": null,\n      \"previewMedia\": [],\n      \"runStartTime\": null,\n      \"customName\": \"ảnh sản phẩm đầu vào\"\n    },\n    {\n      \"id\": \"node_65\",\n      \"type\": \"generate_video\",\n      \"x\": 1065,\n      \"y\": -240,\n      \"config\": {\n        \"ratio\": \"square\",\n        \"quantity\": 1,\n        \"quality\": \"2K\",\n        \"videoModel\": \"veo31_fast_lower\",\n        \"videoMode\": \"FRAME\",\n        \"videoDuration\": 8\n      },\n      \"status\": null,\n      \"_cachedInputPorts\": [\n        {\n          \"name\": \"prompt\",\n          \"type\": \"string\",\n          \"color\": \"#a78bfa\",\n          \"optional\": true\n        },\n        {\n          \"name\": \"Start Frame\",\n          \"type\": \"image\",\n          \"color\": \"#22d3ee\",\n          \"optional\": true\n        },\n        {\n          \"name\": \"End Frame\",\n          \"type\": \"image\",\n          \"color\": \"#22d3ee\",\n          \"optional\": true\n        }\n      ],\n      \"_cachedOutputPorts\": [\n        {\n          \"name\": \"video\",\n          \"type\": \"video\",\n          \"color\": \"#fb923c\"\n        }\n      ],\n      \"_ratioPill\": {\n        \"x\": 1073,\n        \"y\": -96,\n        \"w\": 50,\n        \"h\": 20\n      },\n      \"_qtyPill\": {\n        \"x\": 1127,\n        \"y\": -96,\n        \"w\": 32,\n        \"h\": 20\n      },\n      \"_qualPill\": {\n        \"x\": 1163,\n        \"y\": -96,\n        \"w\": 46,\n        \"h\": 20\n      },\n      \"_modelPill\": {\n        \"",
+    "ratio": "9:16",
+    "duration": 5,
+    "imageUrl": "",
+    "customerEmail": "phamthithanhhoan2025@gmail.com",
+    "videoUrl": "",
+    "thumbnail": "",
+    "error": "",
+    "demoMode": false
+  },
+  {
     "id": "vid_6d4d549fe1e5e5d7",
     "createdAt": "2026-06-16T04:27:06.450Z",
     "updatedAt": "2026-06-16T04:27:07.618Z",
