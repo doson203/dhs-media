@@ -1,5 +1,21 @@
 [
   {
+    "id": "vid_844710439b151d63",
+    "createdAt": "2026-06-16T04:37:43.420Z",
+    "updatedAt": "2026-06-16T04:37:43.420Z",
+    "status": "processing",
+    "provider": "demo",
+    "prompt": "{\n  \"id\": \"wf_1776398730113\",\n  \"name\": \"Workflow Gia dụng \",\n  \"version\": 2,\n  \"albumName\": \"\",\n  \"createdAt\": \"2026-04-24T02:57:14.481Z\",\n  \"nodes\": [\n    {\n      \"id\": \"node_17\",\n      \"type\": \"frame\",\n      \"x\": -1065,\n      \"y\": -480,\n      \"config\": {\n        \"width\": 616.8546532571663,\n        \"height\": 1034.170701131017,\n        \"name\": \"Khung Nhóm\"\n      },\n      \"status\": null,\n      \"_resizeHandles\": {\n        \"tl\": {\n          \"x\": -1065,\n          \"y\": -480,\n          \"s\": 16\n        },\n        \"tr\": {\n          \"x\": -464.1453467428337,\n          \"y\": -480,\n          \"s\": 16\n        },\n        \"bl\": {\n          \"x\": -1065,\n          \"y\": 538.170701131017,\n          \"s\": 16\n        },\n        \"br\": {\n          \"x\": -464.1453467428337,\n          \"y\": 538.170701131017,\n          \"s\": 16\n        }\n      },\n      \"previewMedia\": [],\n      \"runStartTime\": null\n    },\n    {\n      \"id\": \"node_18\",\n      \"type\": \"frame\",\n      \"x\": -435,\n      \"y\": -480,\n      \"config\": {\n        \"width\": 1999.726447867569,\n        \"height\": 1029.6493221977871,\n        \"name\": \"Khung Nhóm\"\n      },\n      \"status\": null,\n      \"_resizeHandles\": {\n        \"tl\": {\n          \"x\": -435,\n          \"y\": -480,\n          \"s\": 16\n        },\n        \"tr\": {\n          \"x\": 1548.726447867569,\n          \"y\": -480,\n          \"s\": 16\n        },\n        \"bl\": {\n          \"x\": -435,\n          \"y\": 533.6493221977871,\n          \"s\": 16\n        },\n        \"br\": {\n          \"x\": 1548.726447867569,\n          \"y\": 533.6493221977871,\n          \"s\": 16\n        }\n      },\n      \"previewMedia\": [],\n      \"runStartTime\": null\n    },\n    {\n      \"id\": \"node_11\",\n      \"type\": \"prompt\",\n      \"x\": -405,\n      \"y\": -435,\n      \"config\": {\n        \"text\": \"NGUYÊN TẮC CHUNG (ÁP DỤNG CHO MỌI SCENE)\\n\\nMỗi image prompt = 1 ảnh duy nhất, phải đảm bảo đủ 4 lớp:\\n\\n1. NHÂN VẬT\\nNgoại hình (tuổi, da, tóc, body)\\nTrang phục\\nThần thái / biểu cảm\\n2. SẢN PHẨM\\nTên loại (ví dụ: electric kettle, air fryer…)\\nTrạng thái (đ",
+    "ratio": "9:16",
+    "duration": 8,
+    "imageUrl": "",
+    "customerEmail": "phamthithanhhoan2025@gmail.com",
+    "videoUrl": "",
+    "thumbnail": "",
+    "error": "",
+    "demoMode": false
+  },
+  {
     "id": "vid_edc6f026a0f08202",
     "createdAt": "2026-06-16T04:27:29.267Z",
     "updatedAt": "2026-06-16T04:27:30.479Z",
