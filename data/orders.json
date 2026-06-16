@@ -373,6 +373,10 @@
     "buyerEmail": "phamthithanhhoan2025@gmail.com",
     "buyerName": "Phạm Hoan",
     "buyerPhone": "0868389222",
-    "createdAt": "2026-06-16T03:01:35.702Z"
+    "createdAt": "2026-06-16T03:01:35.702Z",
+    "paymentLinkId": "173414236f754372a9b507acd2f2c781",
+    "checkoutUrl": "https://pay.payos.vn/web/173414236f754372a9b507acd2f2c781",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQAJTLO88500208QRIBFTTA5303704540420005802VN62170813DHS15788957026304F04F",
+    "updatedAt": "2026-06-16T03:01:38.035Z"
   }
 ]
