@@ -1,0 +1,18 @@
+[
+  {
+    "id": "vid_b6e28c505d1d2599",
+    "createdAt": "2026-06-16T03:23:52.671Z",
+    "updatedAt": "2026-06-16T03:23:52.671Z",
+    "status": "processing",
+    "provider": "demo",
+    "prompt": "Tạo_ảnh_3_4_để_làm_ảnh_sản_phẩm_tiktok,_shoppe.json\n\nTrang\n1\n/\n17\n100%\n{\n  \"id\": \"wf_1777886375757\",\n  \"name\": \"Tạo ảnh 3:4 để làm ảnh sản phẩm tiktok, shoppe\",\n  \"version\": 2,\n  \"albumName\": \"\",\n  \"createdAt\": \"2026-05-05T09:59:09.644Z\",\n  \"nodes\": [\n    {\n      \"id\": \"node_62\",\n      \"type\": \"frame\",\n      \"x\": -1377.6329557907864,\n      \"y\": 129.07835242947692,\n      \"config\": {\n        \"width\": 2931.592079998465,\n        \"height\": 2262.457695944031,\n        \"name\": \"Khung Nhóm\"\n      },\n      \"status\": null,\n      \"_resizeHandles\": {\n        \"tl\": {\n          \"x\": -1377.6329557907864,\n          \"y\": 129.07835242947692,\n          \"s\": 16\n        },\n        \"tr\": {\n          \"x\": 1537.9591242076788,\n          \"y\": 129.07835242947692,\n          \"s\": 16\n        },\n        \"bl\": {\n          \"x\": -1377.6329557907864,\n          \"y\": 2375.536048373508,\n          \"s\": 16\n        },\n        \"br\": {\n          \"x\": 1537.9591242076788,\n          \"y\": 2375.536048373508,\n          \"s\": 16\n        }\n      },\n      \"_cachedInputPorts\": [],\n      \"_cachedOutputPorts\": [],\n      \"runStartTime\": null\n    },\n    {\n      \"id\": \"node_52\",\n      \"type\": \"upload_image\",\n      \"x\": -1245,\n      \"y\": 780,\n      \"config\": {\n        \"imagePath\": \"C:\\\\Users\\\\Windows\\\\AppData\\\\Local\\\\Temp\\\\veo3_uploads\\\\ref_1777963248609.webp\",\n        \"imageUrl\": \"/uploads/ref_1777963248609.webp\"\n      },\n      \"status\": null,\n      \"_emptyUploadBtn\": null,\n      \"runStartTime\": null,\n      \"previewMedia\": [],\n      \"_cachedInputPorts\": [],\n      \"_cachedOutputPorts\": [\n        {\n          \"name\": \"media\",\n          \"type\": \"any\",\n          \"color\": \"#22d3ee\"\n        }\n      ],\n      \"customName\": \"ảnh sản phẩm\"\n    },\n    {\n      \"id\": \"node_61\",\n      \"type\": \"upload_image\",\n      \"x\": -1230,\n      \"y\": 1050,\n      \"config\": {\n        \"imagePath\": \"C:\\\\Users\\\\Windows\\\\AppData\\\\Local\\\\Temp\\\\veo3_uploads\\\\ref_1777962923116.webp\",\n        \"imageUrl\": \"/uploads/ref_1777962923116.webp\"\n      },\n      \"status\": ",
+    "ratio": "9:16",
+    "duration": 10,
+    "imageUrl": "",
+    "customerEmail": "phamthithanhhoan2025@gmail.com",
+    "videoUrl": "",
+    "thumbnail": "",
+    "error": "",
+    "demoMode": false
+  }
+]
