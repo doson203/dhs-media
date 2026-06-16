@@ -2,18 +2,18 @@
   {
     "id": "vid_d4f1ad43857d02db",
     "createdAt": "2026-06-16T04:24:49.119Z",
-    "updatedAt": "2026-06-16T04:24:49.119Z",
-    "status": "processing",
+    "updatedAt": "2026-06-16T04:24:50.402Z",
+    "status": "done",
     "provider": "demo",
     "prompt": "mẫu thay quần áo.json\n\nTrang\n1\n/\n1\n100%\n{\n  \"id\": \"wf_1776496310380\",\n  \"name\": \"mẫu thay quần áo\",\n  \"version\": 2,\n  \"albumName\": \"\",\n  \"createdAt\": \"2026-05-05T09:51:23.456Z\",\n  \"nodes\": [\n    {\n      \"id\": \"node_46\",\n      \"type\": \"generate_image\",\n      \"x\": -1080,\n      \"y\": -450,\n      \"config\": {\n        \"ratio\": \"portrait\",\n        \"quantity\": 1,\n        \"quality\": \"1080p\",\n        \"imageModel\": \"nanobanana_pro\"\n      },\n      \"status\": null,\n      \"_ratioPill\": {\n        \"x\": -1072,\n        \"y\": -278,\n        \"w\": 50,\n        \"h\": 20\n      },\n      \"_qtyPill\": {\n        \"x\": -1018,\n        \"y\": -278,\n        \"w\": 32,\n        \"h\": 20\n      },\n      \"_qualPill\": {\n        \"x\": -982,\n        \"y\": -278,\n        \"w\": 46,\n        \"h\": 20\n      },\n      \"_modelPill\": {\n        \"x\": -932,\n        \"y\": -278,\n        \"w\": 60,\n        \"h\": 20,\n        \"isImage\": true\n      },\n      \"_modePill\": null,\n      \"runStartTime\": null,\n      \"previewMedia\": [\n        {\n          \"url\": \"\",\n          \"type\": \"image\",\n          \"localPath\": null\n        }\n      ],\n      \"_voicePill\": null,\n      \"_cachedInputPorts\": [\n        {\n          \"name\": \"prompt\",\n          \"type\": \"string\",\n          \"color\": \"#a78bfa\",\n          \"optional\": true\n        },\n        {\n          \"name\": \"ref img 1\",\n          \"type\": \"image\",\n          \"color\": \"#22d3ee\",\n          \"optional\": true\n        },\n        {\n          \"name\": \"ref img 2\",\n          \"type\": \"image\",\n          \"color\": \"#22d3ee\",\n          \"optional\": true\n        },\n        {\n          \"name\": \"ref img 3\",\n          \"type\": \"image\",\n          \"color\": \"#22d3ee\",\n          \"optional\": true\n        }\n      ],\n      \"_cachedOutputPorts\": [\n        {\n          \"name\": \"image\",\n          \"type\": \"image\",\n          \"color\": \"#22d3ee\"\n        }\n      ],\n      \"_durationPill\": null\n    },\n    {\n      \"id\": \"node_63\",\n      \"type\": \"merge_video\",\n      \"x\": -600,\n      \"y\": 2055,\n      \"config\": {},\n      \"status\": null,\n      \"runStart",
     "ratio": "9:16",
     "duration": 10,
     "imageUrl": "",
     "customerEmail": "phamthithanhhoan2025@gmail.com",
-    "videoUrl": "",
+    "videoUrl": "https://youtube.com/shorts/YOTLyKnz_8k?feature=share",
     "thumbnail": "",
     "error": "",
-    "demoMode": false
+    "demoMode": true
   },
   {
     "id": "vid_7fae16e458b4ad00",
