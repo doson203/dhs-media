@@ -1,5 +1,21 @@
 [
   {
+    "id": "vid_0639c2921c446d6d",
+    "createdAt": "2026-06-16T10:02:04.827Z",
+    "updatedAt": "2026-06-16T10:02:04.827Z",
+    "status": "processing",
+    "provider": "demo",
+    "prompt": "Tạo video quảng cáo dọc 9:16, phong cách thực tế, sắc nét, ánh sáng tự nhiên. Bối cảnh trang trại chăn nuôi gà, vịt, heo, bò vào ngày nắng nóng. Vật nuôi có biểu hiện mệt, há miệng thở, giảm ăn do thời tiết oi bức. Camera lia chậm từ chuồng trại ra bàn sản phẩm. Đặt gói sản phẩm “ĐIỆN GIẢI GLUCO K-C” ở trung tâm khung hình, bao bì rõ nét, không méo chữ, giữ nguyên màu xanh trắng cam của sản phẩm. Hiệu ứng ánh sáng sạch, chuyên nghiệp, phù hợp video bán hàng TikTok/Shopee.\n\nText trên video:\n“Vật nuôi mệt mỏi, giảm ăn khi nắng nóng?”\n\nVoice đọc:\n“Nắng nóng kéo dài khiến đàn vật nuôi dễ mệt mỏi, giảm ăn, mất sức và kém đề kháng.”",
+    "ratio": "9:16",
+    "duration": 10,
+    "imageUrl": "",
+    "customerEmail": "chanthuyvien1997@gmail.com",
+    "videoUrl": "",
+    "thumbnail": "",
+    "error": "",
+    "demoMode": false
+  },
+  {
     "id": "vid_844710439b151d63",
     "createdAt": "2026-06-16T04:37:43.420Z",
     "updatedAt": "2026-06-16T04:37:44.586Z",
