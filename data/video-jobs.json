@@ -2,18 +2,18 @@
   {
     "id": "vid_1f0b57eef1950132",
     "createdAt": "2026-06-16T16:04:45.771Z",
-    "updatedAt": "2026-06-16T16:04:45.771Z",
-    "status": "processing",
+    "updatedAt": "2026-06-16T16:04:47.330Z",
+    "status": "done",
     "provider": "demo",
     "prompt": "Thời_Trang_Nam.json\n\nTrang\n1\n/\n1\n100%\n{\n  \"id\": \"wf_1780122909767\",\n  \"name\": \"Thời Trang Nam\",\n  \"version\": 2,\n  \"albumName\": \"\",\n  \"createdAt\": \"2026-06-02T06:34:38.812Z\",\n  \"nodes\": [\n    {\n      \"id\": \"node_103\",\n      \"type\": \"prompt\",\n      \"x\": 615,\n      \"y\": -435,\n      \"config\": {\n        \"text\": \"Viêts prompt dùng để tạo ảnh nhân vật ảnh 1 mặc bộ đồ ở ảnh 2, giữ nguyên bối cảnh khuôn mặt koc ảnh 1\"\n      },\n      \"status\": null,\n      \"_cachedInputPorts\": [\n        {\n          \"name\": \"text\",\n          \"type\": \"string\",\n          \"color\": \"#a78bfa\",\n          \"optional\": true\n        }\n      ],\n      \"_cachedOutputPorts\": [\n        {\n          \"name\": \"text\",\n          \"type\": \"string\",\n          \"color\": \"#a78bfa\"\n        }\n      ],\n      \"_wrappedTextCacheKey\": \"Viêts prompt dùng để tạo ảnh nhân vật ảnh 1 mặc bộ đồ ở ảnh 2, giữ nguyên bối cảnh khuôn mặt koc ảnh 1_240\",\n      \"_wrappedLines\": [\n        \"Viêts prompt dùng để tạo ảnh nhân vật\",\n        \"ảnh 1 mặc bộ đồ ở ảnh 2, giữ nguyên bối\",\n        \"cảnh khuôn mặt koc ảnh 1\"\n      ],\n      \"_expandBtn\": null,\n      \"_isEditing\": false,\n      \"_isExpanded\": false,\n      \"customHeight\": null,\n      \"runStartTime\": null,\n      \"previewMedia\": []\n    },\n    {\n      \"id\": \"node_98\",\n      \"type\": \"prompt\",\n      \"x\": 435,\n      \"y\": -150,\n      \"config\": {\n        \"text\": \"A young East Asian male. Standing upright, looking directly at the camera with a calm expression, holding a brown paper coffee cup with a white lid and a black '%' symbol in both hands at waist level. He has neatly styled dark hair and clear skin. He is wearing a loose-fitting grey cable-knit crewneck sweater over a white t-shirt, paired with white wide-leg trousers. On his feet are white and grey sneakers with black stripes. He wears a black cross-body bag with \\\"EL-mon\\\" text visible on the strap, and a black wristwatch on his left wrist. The subject is positioned against a plain, clean white wall, with a dark grey floor beneath him, su",
     "ratio": "9:16",
     "duration": 10,
     "imageUrl": "",
     "customerEmail": "phamthithanhhoan2025@gmail.com",
-    "videoUrl": "",
+    "videoUrl": "https://youtube.com/shorts/YOTLyKnz_8k?feature=share",
     "thumbnail": "",
     "error": "",
-    "demoMode": false
+    "demoMode": true
   },
   {
     "id": "vid_1bbe8ef8356742fd",
