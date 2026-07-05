@@ -2,18 +2,18 @@
   {
     "id": "vid_b8f4dd8da71de176",
     "createdAt": "2026-07-05T02:34:35.250Z",
-    "updatedAt": "2026-07-05T02:34:35.250Z",
-    "status": "processing",
+    "updatedAt": "2026-07-05T02:34:36.771Z",
+    "status": "done",
     "provider": "demo",
     "prompt": "Tạo video con mèo",
     "ratio": "9:16",
     "duration": 5,
     "imageUrl": "",
     "customerEmail": "",
-    "videoUrl": "",
+    "videoUrl": "https://youtube.com/shorts/YOTLyKnz_8k?feature=share",
     "thumbnail": "",
     "error": "",
-    "demoMode": false
+    "demoMode": true
   },
   {
     "id": "vid_ab5e2f175396c6cf",
