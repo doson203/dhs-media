@@ -394,5 +394,17 @@
     "checkoutUrl": "https://pay.payos.vn/web/020a94f754294fc8a705ee71a983c854",
     "qrCode": "00020101021238570010A000000727012700069704220113VQRQAKDWT32420208QRIBFTTA5303704540420005802VN62170813DHS299984427763040A43",
     "updatedAt": "2026-07-02T13:44:07.186Z"
+  },
+  {
+    "orderCode": 8042014608,
+    "status": "PENDING",
+    "productId": "prompt-009-chatbot-tao-anh-nhan-vat-dong-nhat-lam-thoi-trang-nu-sieu-net-va-chi-t",
+    "productTitle": "Chatbot tạo ảnh nhân vật đồng nhất làm thời trang nữ siêu nét và chi tiết 4k.",
+    "promptUrl": "https://gemini.google.com/gem/1sEzcaCRkz_IQmQvGv9d-H3NC0AbcNnA8?usp=sharing",
+    "amount": 99000,
+    "buyerEmail": "transu264945@gmail.com",
+    "buyerName": "Sự",
+    "buyerPhone": "0867941673",
+    "createdAt": "2026-08-29T22:20:14.609Z"
   }
 ]
