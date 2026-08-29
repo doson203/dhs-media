@@ -437,6 +437,10 @@
     "buyerEmail": "transu264945@gmail.com",
     "buyerName": "Sự",
     "buyerPhone": "0867941673",
-    "createdAt": "2026-08-29T22:22:48.359Z"
+    "createdAt": "2026-08-29T22:22:48.359Z",
+    "paymentLinkId": "3f0c0739601b4b06aa4b1adfcb800e75",
+    "checkoutUrl": "https://pay.payos.vn/web/3f0c0739601b4b06aa4b1adfcb800e75",
+    "qrCode": "00020101021238570010A000000727012700069704220113VQRQALPJO41180208QRIBFTTA5303704540420005802VN62170813DHS804216835963041C84",
+    "updatedAt": "2026-08-29T22:22:50.650Z"
   }
 ]
